@@ -28,7 +28,7 @@ const LandingPage = () => {
                 }}
               />
             </div>
-            <h1 className="text-primary fw-bold mt-3">AirQ</h1>
+            <h1 className="text-primary fw-bold mt-3">AirQu</h1>
           </Col>
 
           {/* Hero Text */}
