@@ -94,27 +94,57 @@ const ModelPage = ({ setError }) => {
   };
 
   // FETCH DATA & INFO
+  // const fetchUploadedData = async () => {
+  //   try {
+  //     const resData = await fetch(`${API_BASE}/data`);
+  //     if (!resData.ok) throw new Error();
+  //     const data = await resData.json();
+  //     setUploadedData(Array.isArray(data.data) ? data.data : []);
+
+  //     const resInfo = await fetch(`${API_BASE}/data/info`);
+  //     if (!resInfo.ok) throw new Error();
+  //     const infoData = await resInfo.json();
+  //     setInfo({
+  //       totalData: infoData.totalData,
+  //       outlierClear: infoData.outlierClear,
+  //       nanClear: infoData.nanClear,
+  //       outlierCount: infoData.outlierCount ?? 0, // default 0
+  //       nanCount: infoData.nanCount ?? 0, // default 0
+  //     });
+  //   } catch {
+  //     setUploadedData([]);
+  //     setInfo({ totalData: 0, outlierClear: true, nanClear: true });
+  //     setError("⚠️ Aplikasi belum terhubung dengan server.");
+  //   }
+  // };
   const fetchUploadedData = async () => {
     try {
       const resData = await fetch(`${API_BASE}/data`);
-      if (!resData.ok) throw new Error();
+      if (!resData.ok) {
+        setUploadedData([]);
+        return;
+      }
+
       const data = await resData.json();
       setUploadedData(Array.isArray(data.data) ? data.data : []);
 
       const resInfo = await fetch(`${API_BASE}/data/info`);
-      if (!resInfo.ok) throw new Error();
+      if (!resInfo.ok) {
+        setInfo({ totalData: 0, outlierClear: true, nanClear: true });
+        return;
+      }
+
       const infoData = await resInfo.json();
       setInfo({
         totalData: infoData.totalData,
         outlierClear: infoData.outlierClear,
         nanClear: infoData.nanClear,
-        outlierCount: infoData.outlierCount ?? 0, // default 0
-        nanCount: infoData.nanCount ?? 0, // default 0
+        outlierCount: infoData.outlierCount ?? 0,
+        nanCount: infoData.nanCount ?? 0,
       });
     } catch {
+      // NO THROW!
       setUploadedData([]);
-      setInfo({ totalData: 0, outlierClear: true, nanClear: true });
-      setError("⚠️ Aplikasi belum terhubung dengan server.");
     }
   };
 
@@ -131,7 +161,7 @@ const ModelPage = ({ setError }) => {
   }, []);
 
   const filteredData = uploadedData.filter((row) => {
-    if (!searchDate) return true; // kalau belum diisi, tampilkan semua
+    if (!searchDate) return true; 
     const tanggalRow = new Date(row.waktu).toISOString().split("T")[0];
     return tanggalRow === searchDate;
   });
