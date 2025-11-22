@@ -1,44 +1,97 @@
 import { useEffect, useState } from "react";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
+import { Line } from "react-chartjs-2";
+import {
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaTimesCircle,
+  FaInfoCircle,
+} from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
 
 const DashboardPage = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState([]);
+  const [latency, setLatency] = useState(null);
+  const [alertMsg, setAlertMsg] = useState(null);
+
+  const fetchStatus = async () => {
+    const start = performance.now();
+    try {
+      const response = await fetch("https://api-airq.abiila.com/api/v1/status");
+      const data = await response.json();
+      const end = performance.now();
+
+      setLatency((end - start).toFixed(0));
+      setStatus(data);
+
+      setHistory((prev) => [
+        ...prev.slice(-19),
+        {
+          time: new Date().toLocaleTimeString(),
+          cpu: parseFloat(data.cpu_usage),
+          ram: parseFloat(data.ram_usage),
+        },
+      ]);
+
+      setAlertMsg(
+        data.backend === "critical" ? "⚠ Backend dalam kondisi CRITICAL!" : null
+      );
+    } catch (error) {
+      console.error("Gagal memuat status sistem:", error);
+      setStatus(null);
+      setAlertMsg("❌ API tidak dapat dihubungi!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await fetch(
-          "https://api-airq.abiila.com/api/v1/status"
-        );
-        const data = await response.json();
-        setStatus(data);
-      } catch (error) {
-        console.error("Gagal memuat status sistem:", error);
-        setStatus(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStatus();
-  }, []);
+    const interval = setInterval(
+      fetchStatus,
+      status?.backend === "degraded" ? 5000 : 10000
+    );
+    return () => clearInterval(interval);
+  }, [status?.backend]);
 
-  const getStatusStyle = (isActive) => ({
+  const getStatusStyle = (color) => ({
     borderRadius: "12px",
-    padding: "6px 16px",
-    display: "inline-block",
+    padding: "6px 14px",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
     fontWeight: 600,
     color: "white",
     fontSize: "0.9rem",
-    backgroundColor: isActive ? "#28a745" : "#dc3545", // ✅ hijau / merah
+    backgroundColor: color,
   });
+
+  const backendMap = {
+    healthy: { label: "Healthy", color: "#28a745", icon: <FaCheckCircle /> },
+    degraded: {
+      label: "Degraded",
+      color: "#ffc107",
+      icon: <FaExclamationTriangle />,
+    },
+    critical: { label: "Critical", color: "#dc3545", icon: <FaTimesCircle /> },
+    unknown: { label: "Unknown", color: "#6c757d", icon: <FaInfoCircle /> },
+  };
+
+  const backendUI = backendMap[status?.backend] || backendMap.unknown;
 
   return (
     <div className="container py-4 animate__animated animate__fadeIn">
-      {/* ================= HEADER ================= */}
+      {/* ALERT */}
+      {alertMsg && (
+        <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__animated animate__shakeX">
+          {alertMsg}
+        </div>
+      )}
+
+      {/* HEADER */}
       <div className="mb-4 text-center text-md-start">
         <h2 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h2>
         <p className="text-muted mb-0">
@@ -46,7 +99,7 @@ const DashboardPage = () => {
         </p>
       </div>
 
-      {/* ================= STATUS SISTEM ================= */}
+      {/* STATUS SYSTEM */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3">Status Sistem</h5>
@@ -56,96 +109,51 @@ const DashboardPage = () => {
               <Spinner animation="border" variant="success" />
               <p className="text-muted mt-2">Memuat status sistem...</p>
             </div>
-          ) : status ? (
+          ) : !status ? (
+            <div className="text-center text-danger py-3">
+              ❌ Tidak dapat memuat status sistem.
+            </div>
+          ) : (
             <Row className="g-4">
               {/* BACKEND */}
               <Col md={4} sm={6}>
-                <Card
-                  className="border-0 rounded-4 shadow-sm h-100 text-center p-3"
-                  style={{
-                    background:
-                      status.backend === "healthy"
-                        ? "linear-gradient(135deg, #e6f9ef, #c1f0cd)" // hijau
-                        : status.backend === "degraded"
-                        ? "linear-gradient(135deg, #fff9e6, #ffe8b3)" // kuning
-                        : status.backend === "critical"
-                        ? "linear-gradient(135deg, #fdecea, #f7c6c5)" // merah
-                        : "linear-gradient(135deg, #e7e7e7, #cfcfcf)", // unknown abu
-                  }}>
+                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
                   <h6 className="fw-bold text-dark mb-2">Backend</h6>
-
-                  {status.backend === "healthy" && (
-                    <span style={getStatusStyle(true)}>Healthy</span>
-                  )}
-                  {status.backend === "degraded" && (
-                    <span
-                      style={{
-                        ...getStatusStyle(true),
-                        backgroundColor: "#ffc107",
-                      }}>
-                      Degraded
-                    </span>
-                  )}
-                  {status.backend === "critical" && (
-                    <span style={getStatusStyle(false)}>Critical</span>
-                  )}
-                  {status.backend !== "healthy" &&
-                    status.backend !== "degraded" &&
-                    status.backend !== "critical" && (
-                      <span
-                        style={{
-                          ...getStatusStyle(false),
-                          backgroundColor: "#6c757d",
-                        }}>
-                        Unknown
-                      </span>
-                    )}
-
+                  <span style={getStatusStyle(backendUI.color)}>
+                    {backendUI.icon} {backendUI.label}
+                  </span>
                   <p className="small text-muted mt-2 mb-0">
-                    API utama sistem prediksi udara.
+                    CPU {status.cpu_usage} · RAM {status.ram_usage} · Latency{" "}
+                    {latency} ms
                   </p>
                 </Card>
               </Col>
 
               {/* DATABASE */}
               <Col md={4} sm={6}>
-                <Card
-                  className="border-0 rounded-4 shadow-sm h-100 text-center p-3"
-                  style={{
-                    background:
-                      status.database === "connected"
-                        ? "linear-gradient(135deg, #e6f9ef, #c1f0cd)"
-                        : "linear-gradient(135deg, #fdecea, #f7c6c5)",
-                  }}>
+                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
                   <h6 className="fw-bold text-dark mb-2">Database</h6>
-                  <span style={getStatusStyle(status.database === "connected")}>
+                  <span
+                    style={getStatusStyle(
+                      status.database === "connected" ? "#28a745" : "#dc3545"
+                    )}>
                     {status.database === "connected"
                       ? "Connected"
                       : "Disconnected"}
                   </span>
-                  <p className="small text-muted mt-2 mb-0">
-                    Penyimpanan data kualitas udara.
-                  </p>
                 </Card>
               </Col>
 
-              {/* MODEL PROPHET */}
+              {/* MODEL */}
               <Col md={4} sm={6}>
-                <Card
-                  className="border-0 rounded-4 shadow-sm h-100 text-center p-3"
-                  style={{
-                    background:
-                      status.model_status === "ready"
-                        ? "linear-gradient(135deg, #e6f9ef, #c1f0cd)"
-                        : "linear-gradient(135deg, #fdecea, #f7c6c5)",
-                  }}>
+                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
                   <h6 className="fw-bold text-dark mb-2">Model</h6>
-                  <span style={getStatusStyle(status.model_status === "ready")}>
+                  <span
+                    style={getStatusStyle(
+                      status.model_status === "ready" ? "#28a745" : "#dc3545"
+                    )}>
                     {status.model_status === "ready" ? "Ready" : "Not Ready"}
                   </span>
-                  <p className="small text-muted mt-2 mb-0">
-                    Model ML prediksi polusi udara.
-                  </p>
                 </Card>
               </Col>
 
@@ -153,10 +161,7 @@ const DashboardPage = () => {
               <Col md={4} sm={6}>
                 <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3 bg-light">
                   <h6 className="fw-bold text-dark mb-2">Frontend</h6>
-                  <span style={getStatusStyle(true)}>Online</span>
-                  <p className="small text-muted mt-2 mb-0">
-                    Antarmuka pengguna aplikasi AirQ.
-                  </p>
+                  <span style={getStatusStyle("#28a745")}>Online</span>
                 </Card>
               </Col>
 
@@ -164,22 +169,50 @@ const DashboardPage = () => {
               <Col md={4} sm={6}>
                 <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3 bg-light">
                   <h6 className="fw-bold text-dark mb-2">Web Server</h6>
-                  <span style={getStatusStyle(true)}>Active</span>
-                  <p className="small text-muted mt-2 mb-0">
-                    Menjalankan FastAPI & ReactJS.
-                  </p>
+                  <span style={getStatusStyle("#28a745")}>Active</span>
                 </Card>
               </Col>
             </Row>
-          ) : (
-            <div className="text-center text-danger py-3">
-              ❌ Tidak dapat memuat status sistem.
-            </div>
           )}
         </Card.Body>
       </Card>
 
-      {/* ================= TEKNOLOGI ================= */}
+      {/* CHART CPU & RAM */}
+      {history.length > 0 && (
+        <Card className="mb-4 shadow-sm border-0 rounded-4">
+          <Card.Body>
+            <h5 className="fw-bold text-primary mb-3">
+              Resource Monitoring (Realtime)
+            </h5>
+            <Line
+              data={{
+                labels: history.map((x) => x.time),
+                datasets: [
+                  {
+                    label: "CPU (%)",
+                    data: history.map((x) => x.cpu),
+                    borderWidth: 2,
+                    tension: 0.4,
+                  },
+                  {
+                    label: "RAM (%)",
+                    data: history.map((x) => x.ram),
+                    borderWidth: 2,
+                    tension: 0.4,
+                  },
+                ],
+              }}
+              options={{
+                plugins: { legend: { display: true } },
+                scales: { y: { min: 0, max: 100 } },
+              }}
+              height={90}
+            />
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* TECH */}
       <Card className="shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3">
@@ -187,42 +220,17 @@ const DashboardPage = () => {
           </h5>
           <Row className="g-3">
             {[
-              {
-                title: "Frontend",
-                tech: "ReactJS + Bootstrap 5",
-                desc: "Komponen interaktif, routing dinamis, dan tampilan responsif.",
-              },
-              {
-                title: "Backend",
-                tech: "Python FastAPI",
-                desc: "REST API untuk prediksi dan manajemen data.",
-              },
-              {
-                title: "Machine Learning",
-                tech: "Facebook Prophet",
-                desc: "Model prediksi tren polusi udara (PM10).",
-              },
-              {
-                title: "Database",
-                tech: "MySQL / PostgreSQL",
-                desc: "Penyimpanan data udara dan hasil prediksi.",
-              },
-              {
-                title: "Server",
-                tech: "VPS AlmaLinux + cPanel",
-                desc: "Meng-host backend FastAPI & frontend React.",
-              },
-              {
-                title: "Deployment",
-                tech: "Gunicorn + Systemd",
-                desc: "Menjalankan FastAPI sebagai service otomatis di VPS.",
-              },
+              { title: "Frontend", tech: "ReactJS + Bootstrap 5" },
+              { title: "Backend", tech: "Python FastAPI" },
+              { title: "Machine Learning", tech: "Facebook Prophet" },
+              { title: "Database", tech: "MySQL" },
+              { title: "Server", tech: "VPS AlmaLinux + Apache + cPanel" },
+              { title: "Deployment", tech: "Gunicorn + Systemd" },
             ].map((item, idx) => (
               <Col md={4} sm={6} key={idx}>
                 <Card className="border-0 bg-light rounded-4 p-3 h-100">
                   <h6 className="fw-bold text-dark mb-1">{item.title}</h6>
-                  <p className="text-muted mb-1">{item.tech}</p>
-                  <small className="text-secondary">{item.desc}</small>
+                  <p className="text-muted mb-0">{item.tech}</p>
                 </Card>
               </Col>
             ))}
@@ -230,7 +238,7 @@ const DashboardPage = () => {
         </Card.Body>
       </Card>
 
-      {/* ================= FOOTER ================= */}
+      {/* FOOTER */}
       <footer className="mt-5 text-center text-muted small">
         <p className="mb-0">© {new Date().getFullYear()} AirQ — abiila</p>
       </footer>
