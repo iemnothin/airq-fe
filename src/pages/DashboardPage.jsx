@@ -20,7 +20,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
 
-// REGISTER CHART COMPONENTS (WAJIB)
+// REGISTER CHART COMPONENTS
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -29,7 +29,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
 
 const DashboardPage = () => {
   const [status, setStatus] = useState(null);
@@ -80,13 +79,13 @@ const DashboardPage = () => {
 
   const getStatusStyle = (color) => ({
     borderRadius: "12px",
-    padding: "6px 14px",
+    padding: "8px 18px",
     display: "inline-flex",
     alignItems: "center",
-    gap: "6px",
-    fontWeight: 600,
+    gap: "8px",
+    fontWeight: 700,
     color: "white",
-    fontSize: "0.9rem",
+    fontSize: "1rem",
     backgroundColor: color,
   });
 
@@ -123,7 +122,9 @@ const DashboardPage = () => {
       {/* STATUS SYSTEM */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
-          <h5 className="fw-bold text-primary mb-3">Status Sistem</h5>
+          <h5 className="fw-bold text-primary mb-3 text-center">
+            Status Sistem
+          </h5>
 
           {loading ? (
             <div className="text-center py-3">
@@ -135,62 +136,60 @@ const DashboardPage = () => {
               ❌ Tidak dapat memuat status sistem.
             </div>
           ) : (
-            <Row className="g-4">
+            <Row className="g-4 justify-content-center">
               {/* BACKEND */}
               <Col md={4} sm={6}>
-                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
-                  <h6 className="fw-bold text-dark mb-2">Backend</h6>
-                  <span style={getStatusStyle(backendUI.color)}>
+                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100 status-card">
+                  <div
+                    style={getStatusStyle(backendUI.color)}
+                    className="mx-auto">
                     {backendUI.icon} {backendUI.label}
-                  </span>
-                  <p className="small text-muted mt-2 mb-0">
-                    CPU {status.cpu_usage} · RAM {status.ram_usage} · Latency{" "}
-                    {latency} ms
+                  </div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Backend</h6>
+                  <p className="small text-muted mb-0">
+                    CPU {status.cpu_usage} · RAM {status.ram_usage} · {latency}{" "}
+                    ms
                   </p>
                 </Card>
               </Col>
 
               {/* DATABASE */}
               <Col md={4} sm={6}>
-                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
-                  <h6 className="fw-bold text-dark mb-2">Database</h6>
-                  <span
+                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100 status-card">
+                  <div
                     style={getStatusStyle(
                       status.database === "connected" ? "#28a745" : "#dc3545"
-                    )}>
+                    )}
+                    className="mx-auto">
+                    {status.database === "connected" ? (
+                      <FaCheckCircle />
+                    ) : (
+                      <FaTimesCircle />
+                    )}{" "}
                     {status.database === "connected"
                       ? "Connected"
                       : "Disconnected"}
-                  </span>
+                  </div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Database</h6>
                 </Card>
               </Col>
 
               {/* MODEL */}
               <Col md={4} sm={6}>
-                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3">
-                  <h6 className="fw-bold text-dark mb-2">Model</h6>
-                  <span
+                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100 status-card">
+                  <div
                     style={getStatusStyle(
                       status.model_status === "ready" ? "#28a745" : "#dc3545"
-                    )}>
+                    )}
+                    className="mx-auto">
+                    {status.model_status === "ready" ? (
+                      <FaCheckCircle />
+                    ) : (
+                      <FaTimesCircle />
+                    )}{" "}
                     {status.model_status === "ready" ? "Ready" : "Not Ready"}
-                  </span>
-                </Card>
-              </Col>
-
-              {/* FRONTEND */}
-              <Col md={4} sm={6}>
-                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3 bg-light">
-                  <h6 className="fw-bold text-dark mb-2">Frontend</h6>
-                  <span style={getStatusStyle("#28a745")}>Online</span>
-                </Card>
-              </Col>
-
-              {/* WEB SERVER */}
-              <Col md={4} sm={6}>
-                <Card className="border-0 rounded-4 shadow-sm h-100 text-center p-3 bg-light">
-                  <h6 className="fw-bold text-dark mb-2">Web Server</h6>
-                  <span style={getStatusStyle("#28a745")}>Active</span>
+                  </div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Model</h6>
                 </Card>
               </Col>
             </Row>
@@ -202,7 +201,7 @@ const DashboardPage = () => {
       {history.length > 0 && (
         <Card className="mb-4 shadow-sm border-0 rounded-4">
           <Card.Body>
-            <h5 className="fw-bold text-primary mb-3">
+            <h5 className="fw-bold text-primary mb-3 text-center">
               Resource Monitoring (Realtime)
             </h5>
             <Line
@@ -212,22 +211,51 @@ const DashboardPage = () => {
                   {
                     label: "CPU (%)",
                     data: history.map((x) => x.cpu),
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    backgroundColor: (context) => {
+                      const gradient = context.chart.ctx.createLinearGradient(
+                        0,
+                        0,
+                        0,
+                        300
+                      );
+                      gradient.addColorStop(0, "rgba(75, 192, 192, 0.5)");
+                      gradient.addColorStop(1, "rgba(75, 192, 192, 0)");
+                      return gradient;
+                    },
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
                     borderWidth: 2,
-                    tension: 0.4,
+                    tension: 0.35,
                   },
                   {
                     label: "RAM (%)",
                     data: history.map((x) => x.ram),
+                    borderColor: "rgba(255, 159, 64, 1)",
+                    backgroundColor: (context) => {
+                      const gradient = context.chart.ctx.createLinearGradient(
+                        0,
+                        0,
+                        0,
+                        300
+                      );
+                      gradient.addColorStop(0, "rgba(255, 159, 64, 0.5)");
+                      gradient.addColorStop(1, "rgba(255, 159, 64, 0)");
+                      return gradient;
+                    },
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
                     borderWidth: 2,
-                    tension: 0.4,
+                    tension: 0.35,
                   },
                 ],
               }}
               options={{
                 plugins: { legend: { display: true } },
                 scales: { y: { min: 0, max: 100 } },
+                animation: { duration: 550 },
               }}
-              height={90}
+              height={95}
             />
           </Card.Body>
         </Card>
