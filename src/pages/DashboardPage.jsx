@@ -2,13 +2,34 @@ import { useEffect, useState } from "react";
 import { Card, Row, Col, Spinner } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import {
   FaCheckCircle,
   FaExclamationTriangle,
   FaTimesCircle,
   FaInfoCircle,
 } from "react-icons/fa";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
+
+// REGISTER CHART COMPONENTS (WAJIB)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
+
 
 const DashboardPage = () => {
   const [status, setStatus] = useState(null);
