@@ -43,6 +43,10 @@ const DashboardPage = () => {
   const [restartMsg, setRestartMsg] = useState(null);
   const [showLimit, setShowLimit] = useState(10);
 
+  // Activity Log state
+  const [activityLog, setActivityLog] = useState([]);
+  const [activityLimit, setActivityLimit] = useState(10);
+
   // Modal Tech Stack
   const [techModal, setTechModal] = useState({
     show: false,
@@ -50,6 +54,7 @@ const DashboardPage = () => {
     tech: "",
   });
 
+  // Helper: format ke WIB
   const toWIB = (ts) => {
     const d = new Date(ts);
     d.setHours(d.getHours() + 7);
@@ -59,6 +64,7 @@ const DashboardPage = () => {
     });
   };
 
+  // ====== FETCH SYSTEM STATUS ======
   const fetchStatus = async () => {
     const start = performance.now();
     try {
@@ -68,6 +74,7 @@ const DashboardPage = () => {
 
       setStatus(data);
       setLatency((end - start).toFixed(0));
+
       setChartHistory((prev) => [
         ...prev.slice(-19),
         {
@@ -88,32 +95,59 @@ const DashboardPage = () => {
     }
   };
 
+  // ====== FETCH RESOURCE LOG (STATUS HISTORY) ======
   const fetchTimeline = async () => {
     try {
       const res = await fetch(
         "https://api-airq.abiila.com/api/v1/status/history"
       );
       const data = await res.json();
-      const sorted = [...data.history].sort(
+      const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
       setTimeline(sorted);
-    } catch {}
+    } catch {
+      // biarin silent, nanti UI tetap jalan
+    }
   };
 
+  // ====== FETCH ACTIVITY LOG (AKTIVITAS USER DI MODEL PAGE) ======
+  const fetchActivityLog = async () => {
+    try {
+      const res = await fetch(
+        "https://api-airq.abiila.com/api/v1/activity-log"
+      );
+      const data = await res.json();
+
+      // Asumsi backend mengembalikan: { logs: [ { id, timestamp, event }, ... ] }
+      const logs = Array.isArray(data.logs) ? data.logs : [];
+      const sorted = [...logs].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+      );
+      setActivityLog(sorted);
+    } catch {
+      // silent
+    }
+  };
+
+  // ====== EFFECT: POLLING STATUS + RESOURCE LOG + ACTIVITY LOG ======
   useEffect(() => {
     fetchStatus();
     fetchTimeline();
+    fetchActivityLog();
+
     const interval = setInterval(
       () => {
         fetchStatus();
         fetchTimeline();
+        fetchActivityLog();
       },
       status?.backend === "degraded" ? 5000 : 10000
     );
     return () => clearInterval(interval);
   }, [status?.backend]);
 
+  // ====== RESTART BACKEND ======
   const restartBackend = async () => {
     if (!window.confirm("⚠ Restart backend FastAPI?")) return;
     setRestarting(true);
@@ -131,10 +165,12 @@ const DashboardPage = () => {
     }
   };
 
+  // Modal helper
   const openTech = (title, tech) => {
     setTechModal({ show: true, title, tech });
   };
 
+  // ====== FILTER RESOURCE LOG (RESOURCE LOG = STATUS HISTORY) ======
   const filteredTimeline = timeline
     .filter((item) =>
       searchDate
@@ -143,6 +179,9 @@ const DashboardPage = () => {
     )
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, showLimit);
+
+  // ====== ACTIVITY LOG: hanya slice di render, tanpa filter tanggal dulu ======
+  const slicedActivityLog = activityLog.slice(0, activityLimit);
 
   const getStatusStyle = (color) => ({
     borderRadius: "12px",
@@ -188,7 +227,7 @@ const DashboardPage = () => {
       <div className="dashboard-header mb-4 text-center text-md-start">
         <h2 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h2>
         <p className="text-muted mb-0">
-          Ringkasan status sistem dan teknologi yang digunakan.
+          Ringkasan status sistem, resource log, dan aktivitas model.
         </p>
       </div>
 
@@ -220,7 +259,7 @@ const DashboardPage = () => {
             </div>
           ) : (
             <Row className="g-4 justify-content-center">
-              {/* 6 CARDS TOTAL */}
+              {/* BACKEND */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -233,6 +272,7 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* DATABASE */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -240,14 +280,14 @@ const DashboardPage = () => {
                   style={{ cursor: "pointer" }}>
                   <div
                     style={getStatusStyle(
-                      status.database === "connected" ? "#28a745" : "#dc3545"
+                      status?.database === "connected" ? "#28a745" : "#dc3545"
                     )}>
-                    {status.database === "connected" ? (
+                    {status?.database === "connected" ? (
                       <FaCheckCircle />
                     ) : (
                       <FaTimesCircle />
                     )}
-                    {status.database === "connected"
+                    {status?.database === "connected"
                       ? "Connected"
                       : "Disconnected"}
                   </div>
@@ -255,6 +295,7 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* MODEL */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -262,20 +303,20 @@ const DashboardPage = () => {
                   style={{ cursor: "pointer" }}>
                   <div
                     style={getStatusStyle(
-                      status.model_status === "ready" ? "#28a745" : "#dc3545"
+                      status?.model_status === "ready" ? "#28a745" : "#dc3545"
                     )}>
-                    {status.model_status === "ready" ? (
+                    {status?.model_status === "ready" ? (
                       <FaCheckCircle />
                     ) : (
                       <FaTimesCircle />
                     )}
-                    {status.model_status === "ready" ? "Ready" : "Not Ready"}
+                    {status?.model_status === "ready" ? "Ready" : "Not Ready"}
                   </div>
                   <h6 className="fw-bold text-dark mt-3 mb-2">Model</h6>
                 </Card>
               </Col>
 
-              {/* NEW CARDS */}
+              {/* FRONTEND */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -286,6 +327,7 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* SERVER */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -298,6 +340,7 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* DEPLOYMENT */}
               <Col md={4} sm={6}>
                 <Card
                   className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
@@ -312,8 +355,9 @@ const DashboardPage = () => {
         </Card.Body>
       </Card>
 
-      {/* GRAPH + TIMELINE */}
+      {/* GRAPH + RESOURCE LOG */}
       <Row className="g-4">
+        {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
             <Card className="shadow-sm border-0 rounded-4 h-100">
@@ -356,12 +400,12 @@ const DashboardPage = () => {
           )}
         </Col>
 
-        {/* TIMELINE */}
+        {/* RESOURCE LOG (sebelumnya Activity Timeline) */}
         <Col md={4}>
           <Card className="shadow-sm border-0 rounded-4 h-100">
             <div className="timeline-filter-header">
               <h5 className="fw-bold text-primary mb-2 text-center">
-                Activity Timeline (24h)
+                Resource Log (24h)
               </h5>
               <input
                 type="date"
@@ -377,7 +421,7 @@ const DashboardPage = () => {
             <Card.Body className="timeline-sticky">
               {filteredTimeline.length === 0 ? (
                 <p className="text-center text-muted mt-3">
-                  Riwayat tidak ditemukan.
+                  Resource log tidak ditemukan.
                 </p>
               ) : (
                 <>
@@ -422,6 +466,58 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
+      {/* ACTIVITY LOG (AKTIVITAS USER DARI MODEL PAGE) */}
+      <Card className="shadow-sm border-0 rounded-4 mt-4">
+        <Card.Body>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h5 className="fw-bold text-primary mb-0">Activity Log</h5>
+            <small className="text-muted">
+              Sumber aktivitas: halaman Model (upload, delete, forecast, dll)
+            </small>
+          </div>
+
+          {slicedActivityLog.length === 0 ? (
+            <p className="text-center text-muted mt-3">
+              Belum ada aktivitas tercatat.
+            </p>
+          ) : (
+            <>
+              <ul className="list-unstyled mt-3 mb-2">
+                {slicedActivityLog.map((item, idx) => (
+                  <li
+                    key={item.id || idx}
+                    className="mb-2 p-2 rounded-3 bg-light d-flex flex-column flex-md-row justify-content-between align-items-start">
+                    <div>
+                      <div className="fw-bold">{item.event}</div>
+                      {item.detail && (
+                        <small className="text-muted d-block">
+                          {item.detail}
+                        </small>
+                      )}
+                    </div>
+                    <small className="text-muted ms-md-3 mt-1 mt-md-0">
+                      {toWIB(item.timestamp)}
+                    </small>
+                  </li>
+                ))}
+              </ul>
+
+              {activityLimit < activityLog.length && (
+                <div className="text-center">
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    className="rounded-5 px-4 fw-bold"
+                    onClick={() => setActivityLimit(activityLog.length)}>
+                    Show More Activity
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </Card.Body>
+      </Card>
+
       {/* FOOTER */}
       <footer className="mt-5 text-center text-muted small">
         © {new Date().getFullYear()} AirQ — abiila
@@ -436,7 +532,7 @@ const DashboardPage = () => {
           <Modal.Title className="fw-bold">{techModal.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
-          <p className="fw-bold fs-5">{techModal.tech}</p>
+          <p className="fw-bold fs-5 mb-0">{techModal.tech}</p>
         </Modal.Body>
       </Modal>
     </div>
