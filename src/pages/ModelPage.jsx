@@ -35,6 +35,7 @@ const ModelPage = ({ setError }) => {
   const [currentPollutant, setCurrentPollutant] = useState("");
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [searchDate, setSearchDate] = useState("");
+  const [activityLog, setActivityLog] = useState([]);
 
   // Info cards
   const [info, setInfo] = useState({
@@ -185,7 +186,6 @@ const ModelPage = ({ setError }) => {
     }
   };
 
-  // ⭐ HANDLE OUTLIER langsung tanpa modal & tanpa loading overlay
   const runHandleOutlier = async () => {
     setIsHandlingOutlier(true);
     try {
@@ -204,7 +204,9 @@ const ModelPage = ({ setError }) => {
       setTimeout(() => setShowSuccessToast(false), 3000);
 
       // 🔥 Log aktivitas
-      sendActivityLog("Handle Outlier", result.message);
+      await sendActivityLog("Handle Outlier", result.message);
+
+      await refreshActivityLog();
     } catch {
       setErrorMessage("Gagal menangani outlier!");
       setShowErrorToast(true);
@@ -212,6 +214,16 @@ const ModelPage = ({ setError }) => {
     } finally {
       setIsHandlingOutlier(false);
     }
+  };
+
+  const refreshActivityLog = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/activity-log`);
+      const data = await res.json();
+      if (data?.log && typeof setActivityLog === "function") {
+        setActivityLog(data.log);
+      }
+    } catch {}
   };
 
   return (
