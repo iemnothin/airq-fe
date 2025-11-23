@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Row, Col, Spinner, Button, Modal } from "react-bootstrap";
+import { Card, Row, Col, Spinner, Button, Modal, Form } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -43,9 +43,11 @@ const DashboardPage = () => {
   const [restartMsg, setRestartMsg] = useState(null);
   const [showLimit, setShowLimit] = useState(10);
 
-  // Activity Log state
+  // Activity Log
   const [activityLog, setActivityLog] = useState([]);
   const [activityLimit, setActivityLimit] = useState(10);
+  const [activityFilter, setActivityFilter] = useState("all");
+  const [highlightActivityId, setHighlightActivityId] = useState(null);
 
   // Modal Tech Stack
   const [techModal, setTechModal] = useState({
@@ -107,7 +109,7 @@ const DashboardPage = () => {
       );
       setTimeline(sorted);
     } catch {
-      // biarin silent, nanti UI tetap jalan
+      // silent
     }
   };
 
@@ -119,16 +121,20 @@ const DashboardPage = () => {
       );
       const data = await res.json();
 
-      // backend mengirim: { log: [...] }
       const logs = Array.isArray(data.log) ? data.log : [];
-
       const sorted = [...logs].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
 
+      // cek apakah ada aktivitas baru (id teratas berubah)
+      if (sorted.length > 0 && sorted[0].id !== activityLog[0]?.id) {
+        setHighlightActivityId(sorted[0].id);
+        setTimeout(() => setHighlightActivityId(null), 2500);
+      }
+
       setActivityLog(sorted);
     } catch {
-      /* silent */
+      // silent
     }
   };
 
@@ -147,7 +153,7 @@ const DashboardPage = () => {
       status?.backend === "degraded" ? 5000 : 10000
     );
     return () => clearInterval(interval);
-  }, [status?.backend]);
+  }, [status?.backend]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ====== RESTART BACKEND ======
   const restartBackend = async () => {
@@ -172,7 +178,7 @@ const DashboardPage = () => {
     setTechModal({ show: true, title, tech });
   };
 
-  // ====== FILTER RESOURCE LOG (RESOURCE LOG = STATUS HISTORY) ======
+  // ====== FILTER RESOURCE LOG (STATUS HISTORY) ======
   const filteredTimeline = timeline
     .filter((item) =>
       searchDate
@@ -182,18 +188,49 @@ const DashboardPage = () => {
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, showLimit);
 
-  // ====== ACTIVITY LOG: hanya slice di render, tanpa filter tanggal dulu ======
-  const slicedActivityLog = activityLog.slice(0, activityLimit);
+  // ====== ACTIVITY LOG: filter by type + limit ======
+  const getEventType = (event = "") => {
+    const lower = event.toLowerCase();
+    if (lower.includes("upload")) return "upload";
+    if (lower.includes("delete")) return "delete";
+    if (lower.includes("forecast")) return "forecast";
+    if (lower.includes("outlier")) return "outlier";
+    return "other";
+  };
+
+  const getEventStyle = (eventType) => {
+    switch (eventType) {
+      case "upload":
+        return { badge: "primary", bgClass: "bg-upload" };
+      case "delete":
+        return { badge: "danger", bgClass: "bg-delete" };
+      case "forecast":
+        return { badge: "success", bgClass: "bg-forecast" };
+      case "outlier":
+        return { badge: "warning text-dark", bgClass: "bg-outlier" };
+      default:
+        return { badge: "secondary", bgClass: "bg-other" };
+    }
+  };
+
+  const filteredActivityLog =
+    activityFilter === "all"
+      ? activityLog
+      : activityLog.filter(
+          (item) => getEventType(item.event) === activityFilter
+        );
+
+  const slicedActivityLog = filteredActivityLog.slice(0, activityLimit);
 
   const getStatusStyle = (color) => ({
     borderRadius: "12px",
-    padding: "8px 18px",
+    padding: "6px 14px",
     display: "inline-flex",
     alignItems: "center",
     gap: "8px",
     fontWeight: 700,
     color: "white",
-    fontSize: "1rem",
+    fontSize: "0.9rem",
     backgroundColor: color,
   });
 
@@ -211,38 +248,42 @@ const DashboardPage = () => {
   const backendUI = backendMap[status?.backend] || backendMap.unknown;
 
   return (
-    <div className="container py-4 animate__animated animate__fadeIn">
-      {/* ALERTS */}
-      {alertMsg && (
-        <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__shakeX">
-          {alertMsg}
-        </div>
-      )}
-      {restartMsg && (
-        <div
-          className={`alert alert-${restartMsg.type} text-center fw-bold rounded-4 py-2`}>
-          {restartMsg.text}
-        </div>
-      )}
+    <div
+      className="dashboard-root animate__animated animate__fadeIn"
+      style={{
+        minHeight: "100vh",
+        padding: "1rem 0.5rem",
+      }}>
+      <div className="container-fluid">
+        {/* ALERTS */}
+        {alertMsg && (
+          <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__shakeX">
+            {alertMsg}
+          </div>
+        )}
+        {restartMsg && (
+          <div
+            className={`alert alert-${restartMsg.type} text-center fw-bold rounded-4 py-2`}>
+            {restartMsg.text}
+          </div>
+        )}
 
-      {/* HEADER */}
-      <div className="dashboard-header mb-4 text-center text-md-start">
-        <h2 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h2>
-        <p className="text-muted mb-0">
-          Ringkasan status sistem, resource log, dan aktivitas model.
-        </p>
-      </div>
-
-      {/* STATUS SYSTEM AND TECH STACK */}
-      <Card className="mb-4 shadow-sm border-0 rounded-4">
-        <Card.Body>
-          <h5 className="fw-bold text-primary mb-3 text-center">
-            Status Sistem dan Tech Stack
-          </h5>
-
-          <div className="text-center mb-4">
+        {/* HEADER + RESTART */}
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+          <div className="mb-2 mb-md-0">
+            <h4 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h4>
+            <small className="text-muted">
+              Status sistem, resource log, dan aktivitas model (Realtime).
+            </small>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            {latency && (
+              <span className="badge bg-secondary">
+                Latency API: {latency} ms
+              </span>
+            )}
             <button
-              className="btn btn-danger px-4 rounded-4 fw-bold"
+              className="btn btn-danger btn-sm px-3 rounded-4 fw-bold"
               onClick={restartBackend}
               disabled={restarting}>
               {restarting ? (
@@ -253,277 +294,340 @@ const DashboardPage = () => {
               Restart Backend
             </button>
           </div>
+        </div>
 
-          {loading ? (
-            <div className="text-center py-3">
-              <Spinner animation="border" variant="success" />
-              <p className="text-muted mt-2">Memuat status sistem...</p>
-            </div>
-          ) : (
-            <Row className="g-4 justify-content-center">
-              {/* BACKEND */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() => openTech("Backend", "Python + FastAPI")}
-                  style={{ cursor: "pointer" }}>
-                  <div style={getStatusStyle(backendUI.color)}>
-                    {backendUI.icon} {backendUI.label}
-                  </div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Backend</h6>
-                </Card>
-              </Col>
+        {/* ROW 1: STATUS CARDS */}
+        <Row className="g-3 mb-3">
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() => openTech("Backend", "Python + FastAPI")}
+              style={{ cursor: "pointer" }}>
+              <div className="mb-2" style={getStatusStyle(backendUI.color)}>
+                {backendUI.icon} {backendUI.label}
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Backend</h6>
+            </Card>
+          </Col>
 
-              {/* DATABASE */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() => openTech("Database", "MySQL")}
-                  style={{ cursor: "pointer" }}>
-                  <div
-                    style={getStatusStyle(
-                      status?.database === "connected" ? "#28a745" : "#dc3545"
-                    )}>
-                    {status?.database === "connected" ? (
-                      <FaCheckCircle />
-                    ) : (
-                      <FaTimesCircle />
-                    )}
-                    {status?.database === "connected"
-                      ? "Connected"
-                      : "Disconnected"}
-                  </div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Database</h6>
-                </Card>
-              </Col>
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() => openTech("Database", "MySQL")}
+              style={{ cursor: "pointer" }}>
+              <div
+                className="mb-2"
+                style={getStatusStyle(
+                  status?.database === "connected" ? "#28a745" : "#dc3545"
+                )}>
+                {status?.database === "connected" ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaTimesCircle />
+                )}
+                {status?.database === "connected"
+                  ? "Connected"
+                  : "Disconnected"}
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Database</h6>
+            </Card>
+          </Col>
 
-              {/* MODEL */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() => openTech("Model", "Facebook Prophet")}
-                  style={{ cursor: "pointer" }}>
-                  <div
-                    style={getStatusStyle(
-                      status?.model_status === "ready" ? "#28a745" : "#dc3545"
-                    )}>
-                    {status?.model_status === "ready" ? (
-                      <FaCheckCircle />
-                    ) : (
-                      <FaTimesCircle />
-                    )}
-                    {status?.model_status === "ready" ? "Ready" : "Not Ready"}
-                  </div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Model</h6>
-                </Card>
-              </Col>
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() => openTech("Model", "Facebook Prophet")}
+              style={{ cursor: "pointer" }}>
+              <div
+                className="mb-2"
+                style={getStatusStyle(
+                  status?.model_status === "ready" ? "#28a745" : "#dc3545"
+                )}>
+                {status?.model_status === "ready" ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaTimesCircle />
+                )}
+                {status?.model_status === "ready" ? "Ready" : "Not Ready"}
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Model</h6>
+            </Card>
+          </Col>
 
-              {/* FRONTEND */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() => openTech("Frontend", "ReactJS")}
-                  style={{ cursor: "pointer" }}>
-                  <div style={getStatusStyle("#0d6efd")}>ReactJS</div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Frontend</h6>
-                </Card>
-              </Col>
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() => openTech("Frontend", "ReactJS")}
+              style={{ cursor: "pointer" }}>
+              <div className="mb-2" style={getStatusStyle("#0d6efd")}>
+                ReactJS
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Frontend</h6>
+            </Card>
+          </Col>
 
-              {/* SERVER */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() =>
-                    openTech("Server", "VPS AlmaLinux + Apache + CyberPanel")
-                  }
-                  style={{ cursor: "pointer" }}>
-                  <div style={getStatusStyle("#6610f2")}>Server</div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Server</h6>
-                </Card>
-              </Col>
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() =>
+                openTech("Server", "VPS AlmaLinux + Apache + CyberPanel")
+              }
+              style={{ cursor: "pointer" }}>
+              <div className="mb-2" style={getStatusStyle("#6610f2")}>
+                Server
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Server</h6>
+            </Card>
+          </Col>
 
-              {/* DEPLOYMENT */}
-              <Col md={4} sm={6}>
-                <Card
-                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
-                  onClick={() => openTech("Deployment", "Gunicorn")}
-                  style={{ cursor: "pointer" }}>
-                  <div style={getStatusStyle("#20c997")}>Gunicorn</div>
-                  <h6 className="fw-bold text-dark mt-3 mb-2">Deployment</h6>
-                </Card>
-              </Col>
-            </Row>
-          )}
-        </Card.Body>
-      </Card>
+          <Col lg={2} md={4} sm={6} xs={6}>
+            <Card
+              className="status-card shadow-sm border-0 rounded-4 p-3 h-100"
+              onClick={() => openTech("Deployment", "Gunicorn")}
+              style={{ cursor: "pointer" }}>
+              <div className="mb-2" style={getStatusStyle("#20c997")}>
+                Gunicorn
+              </div>
+              <h6 className="fw-bold text-dark mb-0 small">Deployment</h6>
+            </Card>
+          </Col>
+        </Row>
 
-      {/* GRAPH + RESOURCE LOG */}
-      <Row className="g-4">
-        {/* GRAPH */}
-        <Col md={8}>
-          {chartHistory.length > 0 && (
+        {/* ROW 2: GRAPH + RESOURCE + ACTIVITY (satu layar desktop) */}
+        <Row className="g-3" style={{ minHeight: "55vh" }}>
+          {/* GRAPH */}
+          <Col lg={6} md={12}>
             <Card className="shadow-sm border-0 rounded-4 h-100">
-              <Card.Body>
-                <h5 className="fw-bold text-primary mb-3 text-center">
-                  Resource Monitoring (Realtime)
-                </h5>
-                <div style={{ height: "560px" }}>
-                  <Line
-                    data={{
-                      labels: chartHistory.map((x) => x.time),
-                      datasets: [
-                        {
-                          label: "CPU (%)",
-                          data: chartHistory.map((x) => x.cpu),
-                          borderColor: "rgba(75, 192, 192, 1)",
-                          borderWidth: 2,
-                          pointRadius: 4,
-                          tension: 0.35,
+              <Card.Body className="d-flex flex-column">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h6 className="fw-bold text-primary mb-0">
+                    Resource Monitoring (Realtime)
+                  </h6>
+                  <small className="text-muted">
+                    CPU & RAM (last {chartHistory.length} tick)
+                  </small>
+                </div>
+                {chartHistory.length === 0 ? (
+                  <div className="flex-grow-1 d-flex align-items-center justify-content-center">
+                    <Spinner animation="border" size="sm" />
+                  </div>
+                ) : (
+                  <div style={{ minHeight: "250px", height: "100%" }}>
+                    <Line
+                      data={{
+                        labels: chartHistory.map((x) => x.time),
+                        datasets: [
+                          {
+                            label: "CPU (%)",
+                            data: chartHistory.map((x) => x.cpu),
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            tension: 0.35,
+                          },
+                          {
+                            label: "RAM (%)",
+                            data: chartHistory.map((x) => x.ram),
+                            borderColor: "rgba(255, 159, 64, 1)",
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            tension: 0.35,
+                          },
+                        ],
+                      }}
+                      options={{
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: { display: true, position: "bottom" },
                         },
-                        {
-                          label: "RAM (%)",
-                          data: chartHistory.map((x) => x.ram),
-                          borderColor: "rgba(255, 159, 64, 1)",
-                          borderWidth: 2,
-                          pointRadius: 4,
-                          tension: 0.35,
-                        },
-                      ],
-                    }}
-                    options={{
-                      maintainAspectRatio: false,
-                      plugins: { legend: { display: true } },
-                      scales: { y: { min: 0, max: 100 } },
+                        scales: { y: { min: 0, max: 100 } },
+                      }}
+                    />
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+
+          {/* RESOURCE LOG */}
+          <Col lg={3} md={6}>
+            <Card className="shadow-sm border-0 rounded-4 h-100">
+              <Card.Body className="d-flex flex-column">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h6 className="fw-bold text-primary mb-0">Resource Log</h6>
+                  <input
+                    type="date"
+                    className="form-control form-control-sm rounded-4"
+                    style={{ maxWidth: "140px" }}
+                    value={searchDate}
+                    onChange={(e) => {
+                      setSearchDate(e.target.value);
+                      setShowLimit(10);
                     }}
                   />
                 </div>
+
+                <div
+                  className="flex-grow-1"
+                  style={{ overflowY: "auto", maxHeight: "260px" }}>
+                  {filteredTimeline.length === 0 ? (
+                    <p className="text-center text-muted mt-2 small">
+                      Resource log tidak ditemukan.
+                    </p>
+                  ) : (
+                    <ul className="timeline list-unstyled mt-1 mb-0">
+                      {filteredTimeline.map((item, idx) => {
+                        const colorClass =
+                          item.backend === "healthy"
+                            ? "timeline-green"
+                            : item.backend === "degraded"
+                            ? "timeline-yellow"
+                            : "timeline-red";
+
+                        return (
+                          <li key={idx} className={`mb-2 pulse ${colorClass}`}>
+                            <div className="fw-bold small">
+                              {toWIB(item.timestamp)}
+                            </div>
+                            <small className="text-muted">
+                              CPU {item.cpu_usage}% — RAM {item.ram_usage}%
+                            </small>
+                            <div className="fw-bold text-uppercase small mt-1">
+                              {item.backend}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+
+                {showLimit < timeline.length && (
+                  <div className="text-center mt-2">
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      className="rounded-5 px-3 fw-bold"
+                      onClick={() => setShowLimit(timeline.length)}>
+                      Show More
+                    </Button>
+                  </div>
+                )}
               </Card.Body>
             </Card>
-          )}
-        </Col>
+          </Col>
 
-        {/* RESOURCE LOG (sebelumnya Activity Timeline) */}
-        <Col md={4}>
-          <Card className="shadow-sm border-0 rounded-4 h-100">
-            <div className="timeline-filter-header">
-              <h5 className="fw-bold text-primary mb-2 text-center">
-                Resource Log (24h)
-              </h5>
-              <input
-                type="date"
-                className="form-control rounded-4"
-                value={searchDate}
-                onChange={(e) => {
-                  setSearchDate(e.target.value);
-                  setShowLimit(10);
-                }}
-              />
-            </div>
-
-            <Card.Body className="timeline-sticky">
-              {filteredTimeline.length === 0 ? (
-                <p className="text-center text-muted mt-3">
-                  Resource log tidak ditemukan.
-                </p>
-              ) : (
-                <>
-                  <ul className="timeline list-unstyled mt-2">
-                    {filteredTimeline.map((item, idx) => {
-                      const color =
-                        item.backend === "healthy"
-                          ? "timeline-green"
-                          : item.backend === "degraded"
-                          ? "timeline-yellow"
-                          : "timeline-red";
-
-                      return (
-                        <li key={idx} className={`mb-3 pulse ${color}`}>
-                          <div className="fw-bold">{toWIB(item.timestamp)}</div>
-                          <small className="text-muted">
-                            CPU {item.cpu_usage}% — RAM {item.ram_usage}%
-                          </small>
-                          <div className="fw-bold text-uppercase mt-1">
-                            {item.backend}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  {showLimit < timeline.length && (
-                    <div className="text-center mt-2">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="rounded-5 px-4 fw-bold"
-                        onClick={() => setShowLimit(timeline.length)}>
-                        Show More
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* ACTIVITY LOG (AKTIVITAS USER DARI MODEL PAGE) */}
-      <Card className="shadow-sm border-0 rounded-4 mt-4">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-center mb-2">
-            <h5 className="fw-bold text-primary mb-0">Activity Log</h5>
-            <small className="text-muted">
-              Sumber aktivitas: halaman Model (upload, delete, forecast, dll)
-            </small>
-          </div>
-
-          {slicedActivityLog.length === 0 ? (
-            <p className="text-center text-muted mt-3">
-              Belum ada aktivitas tercatat.
-            </p>
-          ) : (
-            <>
-              <ul className="list-unstyled mt-3 mb-2">
-                {slicedActivityLog.map((item, idx) => (
-                  <li
-                    key={item.id || idx}
-                    className="mb-2 p-2 rounded-3 bg-light d-flex flex-column flex-md-row justify-content-between align-items-start">
-                    <div>
-                      <div className="fw-bold">{item.event}</div>
-                      {item.detail && (
-                        <small className="text-muted d-block">
-                          {item.detail}
-                        </small>
-                      )}
-                    </div>
-                    <small className="text-muted ms-md-3 mt-1 mt-md-0">
-                      {toWIB(item.timestamp)}
+          {/* ACTIVITY LOG */}
+          <Col lg={3} md={6}>
+            <Card className="shadow-sm border-0 rounded-4 h-100">
+              <Card.Body className="d-flex flex-column">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <div>
+                    <h6 className="fw-bold text-primary mb-0">Activity Log</h6>
+                    <small className="text-muted">
+                      ModelPage: upload, delete, forecast, outlier
                     </small>
-                  </li>
-                ))}
-              </ul>
-
-              {activityLimit < activityLog.length && (
-                <div className="text-center">
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    className="rounded-5 px-4 fw-bold"
-                    onClick={() => setActivityLimit(activityLog.length)}>
-                    Show More Activity
-                  </Button>
+                  </div>
                 </div>
-              )}
-            </>
-          )}
-        </Card.Body>
-      </Card>
 
-      {/* FOOTER */}
-      <footer className="mt-5 text-center text-muted small">
-        © {new Date().getFullYear()} AirQ — abiila
-      </footer>
+                {/* Filter event type */}
+                <div className="mb-2 d-flex flex-wrap gap-1">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "upload", label: "Upload" },
+                    { key: "delete", label: "Delete" },
+                    { key: "forecast", label: "Forecast" },
+                    { key: "outlier", label: "Outlier" },
+                    { key: "other", label: "Other" },
+                  ].map((f) => (
+                    <Button
+                      key={f.key}
+                      size="sm"
+                      variant={
+                        activityFilter === f.key
+                          ? "primary"
+                          : "outline-secondary"
+                      }
+                      className="rounded-5 px-2 py-0 small"
+                      onClick={() => {
+                        setActivityFilter(f.key);
+                        setActivityLimit(10);
+                      }}>
+                      {f.label}
+                    </Button>
+                  ))}
+                </div>
+
+                <div
+                  className="flex-grow-1"
+                  style={{ overflowY: "auto", maxHeight: "260px" }}>
+                  {slicedActivityLog.length === 0 ? (
+                    <p className="text-center text-muted mt-2 small">
+                      Belum ada aktivitas tercatat.
+                    </p>
+                  ) : (
+                    <ul className="list-unstyled mt-1 mb-0">
+                      {slicedActivityLog.map((item, idx) => {
+                        const type = getEventType(item.event);
+                        const { badge, bgClass } = getEventStyle(type);
+                        const isHighlighted =
+                          item.id === highlightActivityId && idx === 0;
+
+                        return (
+                          <li
+                            key={item.id || idx}
+                            className={
+                              "mb-2 p-2 rounded-3 d-flex flex-column bg-light " +
+                              bgClass +
+                              (isHighlighted
+                                ? " animate__animated animate__fadeInDown"
+                                : "")
+                            }>
+                            <div className="d-flex justify-content-between align-items-start">
+                              <div>
+                                <span className={`badge bg-${badge} me-1 mb-1`}>
+                                  {item.event}
+                                </span>
+                                {item.detail && (
+                                  <small className="text-muted d-block">
+                                    {item.detail}
+                                  </small>
+                                )}
+                              </div>
+                              <small className="text-muted ms-2 mt-1 text-end">
+                                {toWIB(item.timestamp)}
+                              </small>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+
+                {activityLimit < filteredActivityLog.length && (
+                  <div className="text-center mt-2">
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      className="rounded-5 px-3 fw-bold"
+                      onClick={() =>
+                        setActivityLimit(filteredActivityLog.length)
+                      }>
+                      Show More Activity
+                    </Button>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* FOOTER (kecil supaya tidak makan tinggi) */}
+        <footer className="mt-3 text-center text-muted small">
+          © {new Date().getFullYear()} AirQ — abiila
+        </footer>
+      </div>
 
       {/* MODAL TECH STACK */}
       <Modal
