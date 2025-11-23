@@ -307,20 +307,20 @@ const DashboardPage = () => {
         {/* TIMELINE */}
         <Col md={4}>
           <Card className="shadow-sm border-0 rounded-4 h-100">
+            <div className="timeline-filter-header">
+              <h5 className="fw-bold text-primary mb-2 text-center">
+                Activity Timeline (24h)
+              </h5>
+              <input
+                type="date"
+                className="form-control rounded-4"
+                value={searchDate}
+                onChange={(e) => setSearchDate(e.target.value)}
+              />
+            </div>
             <Card.Body
               className="timeline-sticky"
               style={{ maxHeight: "520px", overflowY: "auto" }}>
-              <div className="timeline-filter-header">
-                <h5 className="fw-bold text-primary mb-2 text-center">
-                  Activity Timeline (24h)
-                </h5>
-                <input
-                  type="date"
-                  className="form-control rounded-4"
-                  value={searchDate}
-                  onChange={(e) => setSearchDate(e.target.value)}
-                />
-              </div>
               {filteredTimeline.length === 0 ? (
                 <p className="text-center text-muted mt-3">
                   Riwayat tidak ditemukan.
