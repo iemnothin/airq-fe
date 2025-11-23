@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Row, Col, Spinner } from "react-bootstrap";
+import { Card, Row, Col, Spinner, Form } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -18,6 +18,9 @@ import {
   FaInfoCircle,
   FaSyncAlt,
   FaClock,
+  FaSortAmountDown,
+  FaSortAmountUp,
+  FaSearch,
 } from "react-icons/fa";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -37,7 +40,11 @@ const DashboardPage = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
-  const [timeline, setTimeline] = useState([]); // ⭐ NEW
+  const [timeline, setTimeline] = useState([]);
+  const [timelineBackup, setTimelineBackup] = useState([]); // backup for search
+  const [timelineSearch, setTimelineSearch] = useState("");
+  const [sortAsc, setSortAsc] = useState(false);
+
   const [latency, setLatency] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
@@ -73,7 +80,6 @@ const DashboardPage = () => {
     }
   };
 
-  // ⭐ NEW: Fetch timeline history from backend
   const fetchHistoryTimeline = async () => {
     try {
       const res = await fetch(
@@ -81,19 +87,21 @@ const DashboardPage = () => {
       );
       const data = await res.json();
       setTimeline(data.history || []);
+      setTimelineBackup(data.history || []);
     } catch {
       setTimeline([]);
+      setTimelineBackup([]);
     }
   };
 
   useEffect(() => {
     fetchStatus();
-    fetchHistoryTimeline(); // ⭐ NEW
+    fetchHistoryTimeline();
 
     const interval = setInterval(
       () => {
         fetchStatus();
-        fetchHistoryTimeline(); // ⭐ NEW keep timeline updated
+        fetchHistoryTimeline();
       },
       status?.backend === "degraded" ? 5000 : 10000
     );
@@ -103,7 +111,6 @@ const DashboardPage = () => {
 
   const restartBackend = async () => {
     if (!window.confirm("⚠ Restart backend FastAPI?")) return;
-
     setRestarting(true);
     setRestartMsg(null);
 
@@ -120,6 +127,31 @@ const DashboardPage = () => {
     } finally {
       setRestarting(false);
     }
+  };
+
+  const handleSearch = (keyword) => {
+    setTimelineSearch(keyword);
+    if (!keyword) return setTimeline(timelineBackup);
+
+    const filtered = timelineBackup.filter(
+      (x) =>
+        x.timestamp.toLowerCase().includes(keyword.toLowerCase()) ||
+        x.backend.toLowerCase().includes(keyword.toLowerCase()) ||
+        x.cpu_usage.toString().includes(keyword) ||
+        x.ram_usage.toString().includes(keyword)
+    );
+    setTimeline(filtered);
+  };
+
+  const toggleSort = () => {
+    setSortAsc(!sortAsc);
+    const sorted = [...timeline].sort(
+      (a, b) =>
+        sortAsc
+          ? new Date(b.timestamp) - new Date(a.timestamp) // next click → newest bottom
+          : new Date(a.timestamp) - new Date(b.timestamp) // first click → oldest bottom
+    );
+    setTimeline(sorted);
   };
 
   const getStatusStyle = (color) => ({
@@ -264,7 +296,6 @@ const DashboardPage = () => {
 
       {/* CHART + TIMELINE */}
       <Row>
-        {/* LEFT: CHART */}
         <Col md={8}>
           {history.length > 0 && (
             <Card className="mb-4 shadow-sm border-0 rounded-4">
@@ -330,15 +361,40 @@ const DashboardPage = () => {
         {/* RIGHT: TIMELINE */}
         <Col md={4}>
           <Card className="mb-4 shadow-sm border-0 rounded-4">
-            <Card.Body style={{ maxHeight: "360px", overflowY: "auto" }}>
-              <h5 className="fw-bold text-primary mb-3 text-center">
-                Activity History
-              </h5>
+            {/* FIXED HEADER */}
+            <div
+              className="px-3 py-3 border-bottom bg-white fw-bold text-primary d-flex justify-content-between align-items-center"
+              style={{ position: "sticky", top: 0, zIndex: 10 }}>
+              <span>Activity History</span>
 
+              <button
+                className="btn btn-light border px-2 py-1 rounded-3"
+                onClick={toggleSort}
+                title="Sort">
+                {sortAsc ? (
+                  <FaSortAmountUp className="text-primary" />
+                ) : (
+                  <FaSortAmountDown className="text-primary" />
+                )}
+              </button>
+            </div>
+
+            {/* SEARCH */}
+            <div className="px-3 pt-3 d-flex align-items-center gap-2">
+              <FaSearch className="text-muted" />
+              <Form.Control
+                size="sm"
+                placeholder="Cari status / CPU / RAM / tanggal..."
+                value={timelineSearch}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="rounded-3"
+              />
+            </div>
+
+            {/* SCROLL LIST */}
+            <Card.Body style={{ maxHeight: "360px", overflowY: "auto" }}>
               {timeline.length === 0 ? (
-                <p className="text-center text-muted">
-                  Belum ada data history.
-                </p>
+                <p className="text-center text-muted mt-3">Tidak ada data.</p>
               ) : (
                 <ul className="timeline list-unstyled">
                   {timeline.map((item, idx) => (
