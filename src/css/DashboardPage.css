@@ -1,3 +1,4 @@
+/* ---------- CARD HOVER ---------- */
 .status-card {
   transition: 0.25s ease;
 }
@@ -6,6 +7,7 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.12) !important;
 }
 
+/* ---------- TIMELINE PULSE ---------- */
 .pulse {
   padding: 10px 12px;
   border-radius: 12px;
@@ -26,6 +28,7 @@
   animation: pulser 1.6s infinite;
 }
 
+/* pulse animations */
 @keyframes pulseg {
   0% {
     box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5);
@@ -60,29 +63,43 @@
   }
 }
 
-/* Agar heading dashboard selalu paling depan */
+/* ---------- FIX NEMBUS / OVERLAP ---------- */
+
+/* Header Dashboard */
 .dashboard-header {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background: #e9f5ff; /* atau warna background kamu */
+  z-index: 100;
+  background: #e9f5ff;
   padding-top: 8px;
   padding-bottom: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Agar filter timeline tetap di bawah heading ketika scroll */
+/* Filter timeline di bawah header */
 .timeline-filter-header {
   position: sticky;
-  top: 72px; /* adjust sesuai tinggi heading */
-  z-index: 19;
+  top: 72px; /* sesuai tinggi header */
+  z-index: 99;
   background: #fff;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding: 8px 0 12px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* Timeline container agar tetap di kanan tapi tidak overlap ke atas */
+/* Timeline main container */
 .timeline-sticky {
+  background: #fff;
+  padding-top: 6px;
+  z-index: 50;
   position: sticky;
-  top: 130px; /* di bawah heading + filter */
-  z-index: 5; /* lebih rendah dari header & filter */
+  top: 138px; /* header (72px) + filter (66px) */
+}
+
+/* supaya scroll timeline smooth */
+.timeline-sticky::-webkit-scrollbar {
+  width: 7px;
+}
+.timeline-sticky::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 10px;
 }
