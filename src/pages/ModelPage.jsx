@@ -1,9 +1,11 @@
+/* ==== ModelPage.jsx (FULL UPDATED WITH HANDLE OUTLIER FEATURE) ==== */
+
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/ModelPage.css";
 import OutlierModal from "../components/OutlierModal";
 import NoFileModal from "../components/NoFileModal";
-import { fetchOutliers, handleOutliers } from "../helpers/OutlierHelper";
+import { fetchOutliers } from "../helpers/OutlierHelper";
 import ProcessingPanel from "../components/ProcessingPanel";
 import ConfirmModal from "../components/ConfirmModal";
 import SuccessToast from "../components/SuccessToast";
@@ -15,7 +17,12 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 const ModelPage = ({ setError }) => {
   const [isClearingForecast, setIsClearingForecast] = useState(false);
   const [isDeletingAll, setIsDeletingAll] = useState(false);
+
+  /* ⭐ NEW STATE (handling outlier) */
   const [isHandlingOutlier, setIsHandlingOutlier] = useState(false);
+  const [showHandleOutlierConfirm, setShowHandleOutlierConfirm] =
+    useState(false);
+
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedData, setUploadedData] = useState([]);
@@ -33,17 +40,14 @@ const ModelPage = ({ setError }) => {
   const [forecastProgress, setForecastProgress] = useState(0);
   const [forecastMessage, setForecastMessage] = useState("");
   const [currentPollutant, setCurrentPollutant] = useState("");
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [searchDate, setSearchDate] = useState("");
 
-  // Info cards
   const [info, setInfo] = useState({
     totalData: 0,
     outlierClear: true,
     nanClear: true,
   });
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
@@ -60,7 +64,7 @@ const ModelPage = ({ setError }) => {
     suhu: "Suhu",
   };
 
-  // ⭐ Fungsi untuk kirim log aktivitas ke backend
+  /* 🔥 LOG ACTIVITY */
   const sendActivityLog = async (event, detail = "") => {
     try {
       await fetch(`${API_BASE}/activity-log/add`, {
@@ -68,34 +72,19 @@ const ModelPage = ({ setError }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ event, detail }),
       });
-    } catch {
-      console.warn("Gagal mengirim activity log");
-    }
+    } catch {}
   };
 
-  // FETCH DATA & INFO
+  /* FETCH DATA */
   const fetchUploadedData = async () => {
     try {
       const resData = await fetch(`${API_BASE}/data`);
-      if (!resData.ok) {
-        setUploadedData([]);
-        return;
-      }
-
       const data = await resData.json();
       setUploadedData(Array.isArray(data.data) ? data.data : []);
 
       const resInfo = await fetch(`${API_BASE}/data/info`);
-      if (!resInfo.ok) return;
       const infoData = await resInfo.json();
-
-      setInfo({
-        totalData: infoData.totalData,
-        outlierClear: infoData.outlierClear,
-        nanClear: infoData.nanClear,
-        outlierCount: infoData.outlierCount ?? 0,
-        nanCount: infoData.nanCount ?? 0,
-      });
+      setInfo(infoData);
     } catch {
       setUploadedData([]);
     }
@@ -123,63 +112,59 @@ const ModelPage = ({ setError }) => {
   const indexFirst = (currentPage - 1) * rowsPerPage;
   const currentRows = filteredData.slice(indexFirst, indexFirst + rowsPerPage);
 
-  const getPageNumbers = () => {
-    if (totalPages <= 5) return [...Array(totalPages).keys()].map((x) => x + 1);
-    if (currentPage <= 3) return [1, 2, 3, 4, "...", totalPages];
-    if (currentPage >= totalPages - 2)
-      return [
-        1,
-        "...",
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    return [
-      1,
-      "...",
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      "...",
-      totalPages,
-    ];
-  };
-
-  // HANDLE OUTLIER
+  /* 🔍 Outlier Modal Open */
   const handleOutlierClick = async () => {
-    try {
-      const data = await fetchOutliers(API_BASE);
-      setOutliers(data);
-      setShowOutlierModal(true);
-    } catch {
-      setError("Gagal mengambil data outlier.");
-    }
+    const data = await fetchOutliers(API_BASE);
+    setOutliers(data);
+    setShowOutlierModal(true);
   };
 
-  // DELETE ALL DATA
-  const handleDeleteAll = async () => {
-    setIsDeletingAll(true);
+  /* ⭐ NEW — HANDLE OUTLIER EXECUTION */
+  const executeHandleOutlier = async () => {
+    setIsHandlingOutlier(true);
     try {
-      const res = await fetch(`${API_BASE}/data/delete-all`, {
-        method: "DELETE",
+      const res = await fetch(`${API_BASE}/data/outliers-handle`, {
+        method: "POST",
       });
-      if (!res.ok) throw new Error("Gagal menghapus data");
+      if (!res.ok) throw new Error("Gagal handle outlier");
+
+      const result = await res.json();
+      setShowHandleOutlierConfirm(false);
 
       await fetchUploadedData();
-      setOutliers([]);
-      setShowDeleteModal(false);
+      const newOutliers = await fetchOutliers(API_BASE);
+      setOutliers(newOutliers);
 
-      setToastMessage("Semua data berhasil dihapus!");
+      setToastMessage(result.message);
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
 
-      // 🔥 Kirim activity log
-      sendActivityLog("Delete All Data", "Semua data dihapus oleh user");
+      /* Log */
+      sendActivityLog("Handle Outlier", result.message);
+    } catch {
+      setErrorMessage("❌ Gagal menangani outlier!");
+      setShowErrorToast(true);
+      setTimeout(() => setShowErrorToast(false), 3000);
+    } finally {
+      setIsHandlingOutlier(false);
+    }
+  };
+
+  /* Delete All Data */
+  const handleDeleteAll = async () => {
+    setIsDeletingAll(true);
+    try {
+      await fetch(`${API_BASE}/data/delete-all`, { method: "DELETE" });
+      await fetchUploadedData();
+      setOutliers([]);
+      setShowDeleteModal(false);
+      setToastMessage("Semua data berhasil dihapus!");
+      setShowSuccessToast(true);
+      setTimeout(() => setShowSuccessToast(false), 3000);
+      sendActivityLog("Delete All Data", "Semua data dihapus");
     } catch {
       setErrorMessage("❌ Gagal menghapus data!");
       setShowErrorToast(true);
-      setTimeout(() => setShowErrorToast(false), 3000);
     } finally {
       setIsDeletingAll(false);
     }
@@ -187,39 +172,21 @@ const ModelPage = ({ setError }) => {
 
   return (
     <>
-      {/* TOAST */}
       <SuccessToast show={showSuccessToast} text={toastMessage} />
       <ErrorToast show={showErrorToast} text={errorMessage} />
 
-      {/* LOADING OVERLAY */}
-      {(isProcessing || isUploadingFile) && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
-          style={{
-            backgroundColor: "rgba(0,0,0,0.45)",
-            zIndex: 2000,
-            backdropFilter: "blur(3px)",
-          }}>
+      {(isProcessing || isUploadingFile || isHandlingOutlier) && (
+        <div className="loading-screen">
           <div
             className="spinner-border text-light"
             style={{ width: "4rem", height: "4rem" }}></div>
           <p className="mt-3 text-white fs-5 fw-semibold">
-            {isProcessing ? "Processing model..." : "Uploading file..."}
+            {isHandlingOutlier
+              ? "Handling Outliers..."
+              : isProcessing
+              ? "Processing model..."
+              : "Uploading file..."}
           </p>
-
-          {isUploadingFile && uploadProgress > 0 && (
-            <div className="progress mt-2" style={{ width: "200px" }}>
-              <div
-                className="progress-bar"
-                role="progressbar"
-                style={{ width: `${uploadProgress}%` }}
-                aria-valuenow={uploadProgress}
-                aria-valuemin="0"
-                aria-valuemax="100">
-                {uploadProgress}%
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -229,35 +196,45 @@ const ModelPage = ({ setError }) => {
           onClose={() => setShowOutlierModal(false)}
           outliers={outliers}
         />
-
         <NoFileModal
           show={showNoFileModal}
           onClose={() => setShowNoFileModal(false)}
         />
 
-        {/* ================= INFO CARDS ================= */}
+        <ConfirmModal
+          show={showHandleOutlierConfirm}
+          onClose={() => setShowHandleOutlierConfirm(false)}
+          title="Handle Outlier Data"
+          message="⚠️ Sistem akan mengganti nilai outlier dengan metode interpolasi. Lanjutkan?"
+          confirmText="Ya, Lanjutkan"
+          loading={isHandlingOutlier}
+          onConfirm={executeHandleOutlier}
+        />
+
+        {/* ==== INFO CARDS ==== */}
         {uploadedData.length > 0 && (
           <div className="row mb-4">
-            <div className="col-12 col-md-4 mb-3">
+            <div className="col-md-4 mb-3">
               <div className="card bg-primary h-100">
-                <div className="card-body d-flex align-items-center gap-3">
+                <div className="card-body d-flex gap-3 align-items-center">
                   <i className="fas fa-database fs-2"></i>
                   <div>
-                    <h5 className="card-title fw-bold">Jumlah Data</h5>
-                    <p className="card-text fs-5">{info.totalData}</p>
+                    <h5 className="fw-bold">Jumlah Data</h5>
+                    <p className="fs-5">{info.totalData}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="col-12 col-md-4 mb-3">
+            {/* klik card outlier membuka modal */}
+            <div className="col-md-4 mb-3">
               <div
                 className={`card h-100 text-white ${
                   info.outlierCount === 0 ? "bg-success" : "bg-danger"
                 }`}
                 style={{ cursor: "pointer" }}
                 onClick={handleOutlierClick}>
-                <div className="card-body d-flex align-items-center gap-3">
+                <div className="card-body d-flex gap-3 align-items-center">
                   <i
                     className={`fas ${
                       info.outlierCount === 0
@@ -265,8 +242,8 @@ const ModelPage = ({ setError }) => {
                         : "fa-exclamation-triangle"
                     } fs-2`}></i>
                   <div>
-                    <h5 className="card-title fw-bold">Status Outlier</h5>
-                    <p className="card-text fs-5">
+                    <h5 className="fw-bold">Status Outlier</h5>
+                    <p className="fs-5">
                       {info.outlierCount === 0
                         ? "Clear"
                         : `${info.outlierCount} data`}
@@ -276,12 +253,13 @@ const ModelPage = ({ setError }) => {
               </div>
             </div>
 
-            <div className="col-12 col-md-4 mb-3">
+            {/* NaN Info */}
+            <div className="col-md-4 mb-3">
               <div
                 className={`card h-100 text-white ${
                   info.nanCount === 0 ? "bg-success" : "bg-warning"
                 }`}>
-                <div className="card-body d-flex align-items-center gap-3">
+                <div className="card-body d-flex gap-3 align-items-center">
                   <i
                     className={`fas ${
                       info.nanCount === 0
@@ -289,8 +267,8 @@ const ModelPage = ({ setError }) => {
                         : "fa-exclamation-triangle"
                     } fs-2`}></i>
                   <div>
-                    <h5 className="card-title fw-bold">Status NaN / Null</h5>
-                    <p className="card-text fs-5">
+                    <h5 className="fw-bold">Status NaN</h5>
+                    <p className="fs-5">
                       {info.nanCount === 0 ? "Clear" : `${info.nanCount} data`}
                     </p>
                   </div>
@@ -300,299 +278,193 @@ const ModelPage = ({ setError }) => {
           </div>
         )}
 
-        {/* ================= UPLOAD & TABLE ================= */}
+        {/* ================= ACTION TOOLBAR ================= */}
+        {uploadedData.length > 0 && (
+          <div className="bg-white p-2 mb-3 shadow-sm rounded action-toolbar d-flex flex-wrap gap-2 justify-content-between align-items-center">
+            {/* SEARCH DATE */}
+            <div className="d-flex gap-2 align-items-center">
+              <label className="fw-bold text-secondary mb-0">
+                Search by Date:
+              </label>
+              <input
+                type="date"
+                className="form-control form-control-sm"
+                style={{ maxWidth: "200px" }}
+                value={searchDate}
+                onChange={(e) => {
+                  setSearchDate(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+              {searchDate && (
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setSearchDate("")}>
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* ACTION BUTTONS */}
+            <div className="d-flex gap-2 flex-wrap justify-content-end">
+              <button
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => setShowSingleUpload(!showSingleUpload)}>
+                <i
+                  className={`fas ${
+                    showSingleUpload ? "fa-times" : "fa-upload"
+                  }`}></i>
+                {showSingleUpload ? "Close" : "New Data"}
+              </button>
+
+              {/* ⭐ NEW — HANDLE OUTLIER BUTTON */}
+              <button
+                className="btn btn-warning btn-sm d-flex align-items-center gap-2"
+                disabled={isHandlingOutlier || info.outlierCount === 0}
+                onClick={() => setShowHandleOutlierConfirm(true)}>
+                <i className="fas fa-wrench"></i>
+                {isHandlingOutlier ? "Handling..." : "Handle Outlier"}
+              </button>
+
+              <ProcessingPanel
+                API_BASE={API_BASE}
+                setIsProcessing={setIsProcessing}
+                setForecastProgress={setForecastProgress}
+                setForecastMessage={setForecastMessage}
+                setCurrentPollutant={setCurrentPollutant}
+                onStart={() => setIsProcessing(true)}
+                onDone={async (data) => {
+                  setIsProcessing(false);
+                  await fetchUploadedData();
+                  setToastMessage(data.message);
+                  setShowSuccessToast(true);
+                  sendActivityLog("Forecast Process", data.message);
+                }}
+              />
+
+              {/* Clear Forecast */}
+              <button
+                className="btn btn-danger btn-sm"
+                disabled={isClearingForecast}
+                onClick={() => setShowClearForecastModal(true)}>
+                <i className="fas fa-trash-alt"></i> Clear Forecast
+              </button>
+
+              {/* Delete All Data */}
+              <button
+                className="btn btn-danger btn-sm"
+                disabled={isDeletingAll}
+                onClick={() => setShowDeleteModal(true)}>
+                <i className="fas fa-trash-alt"></i> Delete All
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ================= TABLE DISPLAY ================= */}
         {uploadedData.length > 0 ? (
           <div className="bg-white p-4 rounded shadow-sm">
-            <div className="table-side">
-              {/* Single Upload Section */}
-              <div
-                className="overflow-hidden"
-                style={{
-                  maxHeight: showSingleUpload ? "500px" : "0px",
-                  transition: "max-height 0.4s ease",
-                }}>
-                {showSingleUpload && (
-                  <div className="mb-4">
-                    <DragDropUpload
-                      apiBase={API_BASE}
-                      onStart={() => {
-                        setIsUploadingFile(true);
-                        setUploadProgress(0);
-                      }}
-                      onProgress={(p) => setUploadProgress(p)}
-                      onDone={async (res) => {
-                        setIsUploadingFile(false);
-                        await fetchUploadedData();
-                        const out = await fetchOutliers(API_BASE);
-                        setOutliers(out);
+            <h5 className="fw-bold text-center">
+              Data Kualitas Udara Kota Bogor
+            </h5>
+            <p className="text-muted text-center" style={{ marginTop: "-6px" }}>
+              Showing {filteredData.length} of {uploadedData.length} records
+            </p>
 
-                        setToastMessage("File berhasil diunggah!");
-                        setShowSuccessToast(true);
-                        setTimeout(() => setShowSuccessToast(false), 3000);
-
-                        // 🔥 Kirim activity log
-                        const detail = uploadedData.length
-                          ? `Upload tambahan: ${uploadedData.length} → ${res.total}`
-                          : "Upload file pertama";
-                        sendActivityLog("Upload Data", detail);
-                      }}
-                      onError={(err) => {
-                        setIsUploadingFile(false);
-                        setErrorMessage(err?.message || "Upload failed!");
-                        setShowErrorToast(true);
-                        setTimeout(() => setShowErrorToast(false), 4000);
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="d-flex flex-column justify-content-center align-items-center mb-3">
-                <h5 className="text-center fs-4 fw-bold">
-                  Data Kualitas Udara Kota Bogor
-                </h5>
-                <small className="text-muted">
-                  Showing {filteredData.length} of {uploadedData.length} records
-                </small>
-              </div>
-
-              {/* Search & Action Toolbar */}
-              <div className="action-toolbar bg-white rounded p-2 mb-3 shadow-sm flex-wrap">
-                <div className="search-toolbar d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
-                  <label className="fw-bold text-secondary mb-0">
-                    Search by Date:
-                  </label>
-                  <input
-                    type="date"
-                    className="form-control form-control-sm flex-grow-1 w-auto"
-                    value={searchDate}
-                    onChange={(e) => {
-                      setSearchDate(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                    style={{ maxWidth: "200px" }}
-                  />
-                  {searchDate && (
-                    <button
-                      className="btn btn-outline-secondary btn-sm"
-                      onClick={() => setSearchDate("")}>
-                      <i className="fas fa-times"></i> Clear
-                    </button>
-                  )}
-                </div>
-
-                {uploadedData.length > 0 && (
-                  <div className="d-flex flex-wrap justify-content-center justify-content-md-end align-items-center gap-2 bg-sketch-secondary p-2 border rounded mobile-flex-stack w-100 w-md-auto">
-                    <button
-                      className="btn btn-sm btn-outline-primary d-flex align-items-center gap-2"
-                      onClick={() => setShowSingleUpload(!showSingleUpload)}
-                      title="Upload new data">
-                      <i
-                        className={`fas ${
-                          showSingleUpload ? "fa-times" : "fa-upload"
-                        }`}></i>
-                      {showSingleUpload ? "Close" : "New Data"}
-                    </button>
-
-                    <ProcessingPanel
-                      API_BASE={API_BASE}
-                      setIsProcessing={setIsProcessing}
-                      onStart={() => setIsProcessing(true)}
-                      onDone={async (data) => {
-                        setIsProcessing(false);
-                        await fetchUploadedData();
-
-                        if (data?.message) {
-                          setToastMessage(data.message);
-                          setShowSuccessToast(true);
-                          setTimeout(() => setShowSuccessToast(false), 3500);
-
-                          // 🔥 Kirim activity log
-                          sendActivityLog("Forecast Process", data.message);
-                        } else {
-                          setErrorMessage("Processing failed");
-                          setShowErrorToast(true);
-                          setTimeout(() => setShowErrorToast(false), 4500);
-                        }
-                      }}
-                      setForecastProgress={setForecastProgress}
-                      setForecastMessage={setForecastMessage}
-                      setCurrentPollutant={setCurrentPollutant}
-                    />
-
-                    {/* Clear Forecast */}
-                    <button
-                      className="btn btn-danger btn-sm d-flex align-items-center gap-2"
-                      onClick={() => setShowClearForecastModal(true)}
-                      disabled={isClearingForecast}>
-                      <i className="fas fa-trash-alt"></i>
-                      {isClearingForecast ? "Clearing..." : "Clear Forecast"}
-                    </button>
-
-                    {/* Delete All Data */}
-                    <button
-                      className="btn btn-danger btn-sm d-flex align-items-center gap-2"
-                      onClick={() => setShowDeleteModal(true)}
-                      disabled={isDeletingAll}>
-                      <i className="fas fa-trash-alt"></i>
-                      {isDeletingAll ? "Deleting..." : "Delete All"}
-                    </button>
-
-                    {/* Confirm Modals */}
-                    <ConfirmModal
-                      show={showDeleteModal}
-                      onClose={() => setShowDeleteModal(false)}
-                      title="Confirm Delete All Data"
-                      message="⚠️ Are you sure you want to delete all data?"
-                      confirmText="Yes, I'm sure"
-                      loading={isDeletingAll}
-                      onConfirm={handleDeleteAll}
-                    />
-
-                    <ConfirmModal
-                      show={showClearForecastModal}
-                      onClose={() => setShowClearForecastModal(false)}
-                      title="Confirm Clear Forecast"
-                      message="⚠️ Are you sure you want to clear forecast data?"
-                      confirmText="Yes, delete it"
-                      loading={isClearingForecast}
-                      onConfirm={async () => {
-                        setIsClearingForecast(true);
-                        try {
-                          await fetch(`${API_BASE}/model/clear-forecast`, {
-                            method: "DELETE",
-                          });
-                          setShowClearForecastModal(false);
-                          setToastMessage(
-                            "Forecast data successfully cleared!"
+            <div
+              className="table-responsive border rounded shadow-sm mt-3"
+              style={{ maxHeight: "500px" }}>
+              <table className="table table-bordered table-striped">
+                <thead className="table-success">
+                  <tr>
+                    <th>No</th>
+                    {Object.keys(uploadedData[0])
+                      .filter((k) => k !== "id")
+                      .map((key) => (
+                        <th key={key}>{customHeaderMap[key] || key}</th>
+                      ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentRows.map((row, idx) => (
+                    <tr key={idx}>
+                      <td>{indexFirst + idx + 1}</td>
+                      {Object.entries(row)
+                        .filter(([k]) => k !== "id")
+                        .map(([key, val], i) => {
+                          const isOutlier = outliers.some(
+                            (o) =>
+                              o.id === row.id &&
+                              o.Kolom?.toLowerCase() === key.toLowerCase()
                           );
-                          setShowSuccessToast(true);
-                          setTimeout(() => setShowSuccessToast(false), 3000);
-
-                          // 🔥 Log aktivitas
-                          sendActivityLog(
-                            "Clear Forecast",
-                            "Forecast data dihapus"
+                          return (
+                            <td
+                              key={i}
+                              className={
+                                isOutlier ? "table-danger fw-bold" : ""
+                              }>
+                              {key === "waktu"
+                                ? new Date(val).toLocaleString("id-ID")
+                                : val ?? "-"}
+                            </td>
                           );
-                        } catch {
-                          setErrorMessage("Failed to clear forecast!");
-                          setShowErrorToast(true);
-                          setTimeout(() => setShowErrorToast(false), 3000);
-                        } finally {
-                          setIsClearingForecast(false);
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* TABLE */}
-              <div
-                className="table-responsive shadow-sm rounded-3 border mt-3"
-                style={{ maxHeight: "500px" }}>
-                <table className="table table-bordered table-striped">
-                  <thead className="table-success">
-                    <tr>
-                      <th>No</th>
-                      {Object.keys(uploadedData[0])
-                        .filter((k) => k !== "id")
-                        .map((key) => (
-                          <th key={key}>{customHeaderMap[key] || key}</th>
-                        ))}
+                        })}
                     </tr>
-                  </thead>
-                  <tbody>
-                    {currentRows.map((row, idx) => (
-                      <tr key={idx}>
-                        <td>{indexFirst + idx + 1}</td>
-                        {Object.entries(row)
-                          .filter(([k]) => k !== "id")
-                          .map(([key, val], i) => {
-                            const isOutlier = outliers.some(
-                              (o) =>
-                                o.id === row.id &&
-                                o.Kolom?.toLowerCase() === key.toLowerCase()
-                            );
-                            return (
-                              <td
-                                key={i}
-                                className={
-                                  isOutlier ? "table-danger fw-bold" : ""
-                                }>
-                                {key === "waktu"
-                                  ? new Date(val).toLocaleString("id-ID")
-                                  : val ?? "-"}
-                              </td>
-                            );
-                          })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-              {/* Pagination + Rows control */}
-              <div className="table-footer-controls">
-                <div className="rows-select-wrapper">
-                  <select
-                    className="form-select rows-select"
-                    value={rowsPerPage}
-                    onChange={(e) => {
-                      setRowsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}>
-                    <option value={10}>10 rows</option>
-                    <option value={20}>20 rows</option>
-                    <option value={50}>50 rows</option>
-                    <option value={100}>100 rows</option>
-                  </select>
-                </div>
+            {/* Pagination */}
+            <div className="pagination-wrapper">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="form-select form-select-sm w-auto">
+                <option value={10}>10 rows</option>
+                <option value={20}>20 rows</option>
+                <option value={50}>50 rows</option>
+                <option value={100}>100 rows</option>
+              </select>
 
-                <ul className="pagination pagination-centered">
+              <ul className="pagination">
+                <li
+                  className={`page-item ${
+                    currentPage === 1 ? "disabled" : ""
+                  }`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setCurrentPage((p) => p - 1)}>
+                    Prev
+                  </button>
+                </li>
+                {[...Array(totalPages).keys()].map((x) => (
                   <li
+                    key={x}
                     className={`page-item ${
-                      currentPage === 1 ? "disabled" : ""
+                      currentPage === x + 1 ? "active" : ""
                     }`}>
                     <button
                       className="page-link"
-                      onClick={() => setCurrentPage((p) => p - 1)}>
-                      Previous
+                      onClick={() => setCurrentPage(x + 1)}>
+                      {x + 1}
                     </button>
                   </li>
-
-                  {getPageNumbers().map((num, idx) =>
-                    num === "..." ? (
-                      <li key={idx} className="page-item disabled">
-                        <span className="page-link">…</span>
-                      </li>
-                    ) : (
-                      <li
-                        key={idx}
-                        className={`page-item ${
-                          currentPage === num ? "active" : ""
-                        }`}>
-                        <button
-                          className="page-link"
-                          onClick={() => setCurrentPage(num)}>
-                          {num}
-                        </button>
-                      </li>
-                    )
-                  )}
-
-                  <li
-                    className={`page-item ${
-                      currentPage === totalPages ? "disabled" : ""
-                    }`}>
-                    <button
-                      className="page-link"
-                      onClick={() => setCurrentPage((p) => p + 1)}>
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </div>
+                ))}
+                <li
+                  className={`page-item ${
+                    currentPage === totalPages ? "disabled" : ""
+                  }`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setCurrentPage((p) => p + 1)}>
+                    Next
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         ) : (
@@ -600,7 +472,6 @@ const ModelPage = ({ setError }) => {
             <div className="alert alert-warning text-center">
               ⚠️ Belum ada data diupload.
             </div>
-
             <DragDropUpload
               apiBase={API_BASE}
               onStart={() => {
@@ -608,24 +479,19 @@ const ModelPage = ({ setError }) => {
                 setUploadProgress(0);
               }}
               onProgress={(p) => setUploadProgress(p)}
-              onDone={async (res) => {
+              onDone={async () => {
                 setIsUploadingFile(false);
                 await fetchUploadedData();
                 const outlierData = await fetchOutliers(API_BASE);
                 setOutliers(outlierData);
-
-                setToastMessage("File berhasil diupload & data dimuat!");
+                setToastMessage("File berhasil diupload & dimuat!");
                 setShowSuccessToast(true);
-                setTimeout(() => setShowSuccessToast(false), 3000);
-
-                // 🔥 Log aktivitas
                 sendActivityLog("Upload Data", "Upload file pertama");
               }}
               onError={(err) => {
                 setIsUploadingFile(false);
                 setErrorMessage(err?.message || "Upload failed");
                 setShowErrorToast(true);
-                setTimeout(() => setShowErrorToast(false), 4000);
               }}
             />
           </>
