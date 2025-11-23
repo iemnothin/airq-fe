@@ -59,3 +59,30 @@
     box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
   }
 }
+
+/* Agar heading dashboard selalu paling depan */
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #e9f5ff; /* atau warna background kamu */
+  padding-top: 8px;
+  padding-bottom: 6px;
+}
+
+/* Agar filter timeline tetap di bawah heading ketika scroll */
+.timeline-filter-header {
+  position: sticky;
+  top: 72px; /* adjust sesuai tinggi heading */
+  z-index: 19;
+  background: #fff;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* Timeline container agar tetap di kanan tapi tidak overlap ke atas */
+.timeline-sticky {
+  position: sticky;
+  top: 130px; /* di bawah heading + filter */
+  z-index: 5; /* lebih rendah dari header & filter */
+}

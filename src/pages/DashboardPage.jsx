@@ -309,9 +309,11 @@ const DashboardPage = () => {
           <Card
             className="shadow-sm border-0 rounded-4 h-100"
             style={{ position: "sticky", top: "90px", zIndex: 1 }}>
-            <Card.Body style={{ maxHeight: "520px", overflowY: "auto" }}>
+            <Card.Body
+              className="timeline-sticky"
+              style={{ maxHeight: "520px", overflowY: "auto" }}>
               <div
-                className="position-sticky"
+                className="mb-4 text-center text-md-start dashboard-header"
                 style={{
                   top: 0,
                   zIndex: 10,
@@ -320,7 +322,7 @@ const DashboardPage = () => {
                   paddingTop: "4px",
                   boxShadow: "0 4px 6px rgba(0,0,0,0.06)",
                 }}>
-                <h5 className="fw-bold text-primary mb-2">
+                <h5 className="fw-bold text-primary mb-3 text-center timeline-filter-header">
                   Activity Timeline (24h)
                 </h5>
                 <input
@@ -364,7 +366,7 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* TECH STACK — dikembalikan */}
+      {/* TECH STACK */}
       <Card className="mt-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3">
