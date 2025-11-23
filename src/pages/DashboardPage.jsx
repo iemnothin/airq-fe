@@ -20,7 +20,7 @@ import {
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
-import "../css/DashboardPage.css"; // ⬅️ untuk animasi pulse
+import "../css/DashboardPage.css";
 
 ChartJS.register(
   CategoryScale,
@@ -43,9 +43,9 @@ const DashboardPage = () => {
   const [restartMsg, setRestartMsg] = useState(null);
 
   const toWIB = (ts) => {
-    const date = new Date(ts);
-    date.setHours(date.getHours() + 7); // konversi UTC → WIB
-    return date.toLocaleString("id-ID", {
+    const d = new Date(ts);
+    d.setHours(d.getHours() + 7);
+    return d.toLocaleString("id-ID", {
       dateStyle: "medium",
       timeStyle: "short",
     });
@@ -54,9 +54,10 @@ const DashboardPage = () => {
   const fetchStatus = async () => {
     const start = performance.now();
     try {
-      const res = await fetch("https://api-airq.abiila.com/api/v1/status");
-      const data = await res.json();
+      const response = await fetch("https://api-airq.abiila.com/api/v1/status");
+      const data = await response.json();
       const end = performance.now();
+
       setLatency((end - start).toFixed(0));
       setStatus(data);
 
@@ -96,7 +97,6 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchStatus();
     fetchTimeline();
-
     const interval = setInterval(
       () => {
         fetchStatus();
@@ -172,6 +172,7 @@ const DashboardPage = () => {
         </div>
       )}
 
+      {/* HEADER */}
       <div className="mb-4 text-center text-md-start">
         <h2 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h2>
         <p className="text-muted mb-0">
@@ -179,7 +180,7 @@ const DashboardPage = () => {
         </p>
       </div>
 
-      {/* STATUS SYSTEM */}
+      {/* STATUS */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3 text-center">
@@ -260,7 +261,7 @@ const DashboardPage = () => {
         </Card.Body>
       </Card>
 
-      {/* GRAFIK + TIMELINE */}
+      {/* GRAPH + TIMELINE */}
       <Row className="g-4">
         {/* GRAPH */}
         <Col md={8}>
@@ -309,23 +310,26 @@ const DashboardPage = () => {
             className="shadow-sm border-0 rounded-4 h-100"
             style={{ position: "sticky", top: 15 }}>
             <Card.Body style={{ maxHeight: "520px", overflowY: "auto" }}>
-              <h5 className="fw-bold text-primary position-sticky top-0 bg-white py-2 mb-3">
-                Activity Timeline (24h)
-              </h5>
-
-              <input
-                type="date"
-                className="form-control mb-3 rounded-4"
-                value={searchDate}
-                onChange={(e) => setSearchDate(e.target.value)}
-              />
+              <div
+                className="bg-white pb-2 mb-2 position-sticky"
+                style={{ top: 0, zIndex: 5 }}>
+                <h5 className="fw-bold text-primary mb-2">
+                  Activity Timeline (24h)
+                </h5>
+                <input
+                  type="date"
+                  className="form-control rounded-4"
+                  value={searchDate}
+                  onChange={(e) => setSearchDate(e.target.value)}
+                />
+              </div>
 
               {filteredTimeline.length === 0 ? (
-                <p className="text-center text-muted">
+                <p className="text-center text-muted mt-3">
                   Riwayat tidak ditemukan.
                 </p>
               ) : (
-                <ul className="timeline list-unstyled">
+                <ul className="timeline list-unstyled mt-2">
                   {filteredTimeline.map((item, idx) => {
                     const color =
                       item.backend === "healthy"
@@ -333,6 +337,7 @@ const DashboardPage = () => {
                         : item.backend === "degraded"
                         ? "timeline-yellow"
                         : "timeline-red";
+
                     return (
                       <li key={idx} className={`mb-3 pulse ${color}`}>
                         <div className="fw-bold">{toWIB(item.timestamp)}</div>
@@ -352,7 +357,33 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* TECHNOLOGY */}
+      {/* TECH STACK — dikembalikan */}
+      <Card className="mt-4 shadow-sm border-0 rounded-4">
+        <Card.Body>
+          <h5 className="fw-bold text-primary mb-3">
+            Teknologi yang Digunakan
+          </h5>
+          <Row className="g-3">
+            {[
+              { title: "Frontend", tech: "ReactJS + Bootstrap 5" },
+              { title: "Backend", tech: "Python FastAPI" },
+              { title: "Machine Learning", tech: "Facebook Prophet" },
+              { title: "Database", tech: "MySQL" },
+              { title: "Server", tech: "VPS AlmaLinux + Apache + cPanel" },
+              { title: "Deployment", tech: "Gunicorn + Systemd" },
+            ].map((item, idx) => (
+              <Col md={4} sm={6} key={idx}>
+                <Card className="border-0 bg-light rounded-4 p-3 h-100">
+                  <h6 className="fw-bold text-dark mb-1">{item.title}</h6>
+                  <p className="text-muted mb-0">{item.tech}</p>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* FOOTER */}
       <footer className="mt-5 text-center text-muted small">
         © {new Date().getFullYear()} AirQ — abiila
       </footer>
