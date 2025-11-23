@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Row, Col, Spinner, Button } from "react-bootstrap";
+import { Card, Row, Col, Spinner, Button, Modal } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -41,7 +41,14 @@ const DashboardPage = () => {
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
-  const [showLimit, setShowLimit] = useState(10); // SHOW 10 FIRST
+  const [showLimit, setShowLimit] = useState(10);
+
+  // Modal Tech Stack
+  const [techModal, setTechModal] = useState({
+    show: false,
+    title: "",
+    tech: "",
+  });
 
   const toWIB = (ts) => {
     const d = new Date(ts);
@@ -55,13 +62,12 @@ const DashboardPage = () => {
   const fetchStatus = async () => {
     const start = performance.now();
     try {
-      const response = await fetch("https://api-airq.abiila.com/api/v1/status");
-      const data = await response.json();
+      const res = await fetch("https://api-airq.abiila.com/api/v1/status");
+      const data = await res.json();
       const end = performance.now();
 
       setStatus(data);
       setLatency((end - start).toFixed(0));
-
       setChartHistory((prev) => [
         ...prev.slice(-19),
         {
@@ -125,6 +131,10 @@ const DashboardPage = () => {
     }
   };
 
+  const openTech = (title, tech) => {
+    setTechModal({ show: true, title, tech });
+  };
+
   const filteredTimeline = timeline
     .filter((item) =>
       searchDate
@@ -182,11 +192,11 @@ const DashboardPage = () => {
         </p>
       </div>
 
-      {/* STATUS SYSTEM CARD */}
+      {/* STATUS SYSTEM AND TECH STACK */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3 text-center">
-            Status Sistem
+            Status Sistem dan Tech Stack
           </h5>
 
           <div className="text-center mb-4">
@@ -210,23 +220,24 @@ const DashboardPage = () => {
             </div>
           ) : (
             <Row className="g-4 justify-content-center">
-              {/* BACKEND */}
+              {/* 6 CARDS TOTAL */}
               <Col md={4} sm={6}>
-                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() => openTech("Backend", "Python + FastAPI")}
+                  style={{ cursor: "pointer" }}>
                   <div style={getStatusStyle(backendUI.color)}>
                     {backendUI.icon} {backendUI.label}
                   </div>
                   <h6 className="fw-bold text-dark mt-3 mb-2">Backend</h6>
-                  <p className="small text-muted mb-0">
-                    CPU {status.cpu_usage} · RAM {status.ram_usage} · {latency}{" "}
-                    ms
-                  </p>
                 </Card>
               </Col>
 
-              {/* DATABASE */}
               <Col md={4} sm={6}>
-                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() => openTech("Database", "MySQL")}
+                  style={{ cursor: "pointer" }}>
                   <div
                     style={getStatusStyle(
                       status.database === "connected" ? "#28a745" : "#dc3545"
@@ -244,9 +255,11 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
-              {/* MODEL */}
               <Col md={4} sm={6}>
-                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() => openTech("Model", "Facebook Prophet")}
+                  style={{ cursor: "pointer" }}>
                   <div
                     style={getStatusStyle(
                       status.model_status === "ready" ? "#28a745" : "#dc3545"
@@ -261,6 +274,39 @@ const DashboardPage = () => {
                   <h6 className="fw-bold text-dark mt-3 mb-2">Model</h6>
                 </Card>
               </Col>
+
+              {/* NEW CARDS */}
+              <Col md={4} sm={6}>
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() => openTech("Frontend", "ReactJS")}
+                  style={{ cursor: "pointer" }}>
+                  <div style={getStatusStyle("#0d6efd")}>ReactJS</div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Frontend</h6>
+                </Card>
+              </Col>
+
+              <Col md={4} sm={6}>
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() =>
+                    openTech("Server", "VPS AlmaLinux + Apache + CyberPanel")
+                  }
+                  style={{ cursor: "pointer" }}>
+                  <div style={getStatusStyle("#6610f2")}>Server</div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Server</h6>
+                </Card>
+              </Col>
+
+              <Col md={4} sm={6}>
+                <Card
+                  className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100"
+                  onClick={() => openTech("Deployment", "Gunicorn")}
+                  style={{ cursor: "pointer" }}>
+                  <div style={getStatusStyle("#20c997")}>Gunicorn</div>
+                  <h6 className="fw-bold text-dark mt-3 mb-2">Deployment</h6>
+                </Card>
+              </Col>
             </Row>
           )}
         </Card.Body>
@@ -268,7 +314,6 @@ const DashboardPage = () => {
 
       {/* GRAPH + TIMELINE */}
       <Row className="g-4">
-        {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
             <Card className="shadow-sm border-0 rounded-4 h-100">
@@ -276,8 +321,7 @@ const DashboardPage = () => {
                 <h5 className="fw-bold text-primary mb-3 text-center">
                   Resource Monitoring (Realtime)
                 </h5>
-
-                <div style={{ height: "520px" }}>
+                <div style={{ height: "560px" }}>
                   <Line
                     data={{
                       labels: chartHistory.map((x) => x.time),
@@ -330,9 +374,7 @@ const DashboardPage = () => {
               />
             </div>
 
-            <Card.Body
-              className="timeline-sticky"
-              style={{ maxHeight: "520px", overflowY: "auto" }}>
+            <Card.Body className="timeline-sticky">
               {filteredTimeline.length === 0 ? (
                 <p className="text-center text-muted mt-3">
                   Riwayat tidak ditemukan.
@@ -380,36 +422,23 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* TECH STACK */}
-      <Card className="mt-4 shadow-sm border-0 rounded-4 tech-stack-spacing">
-        <Card.Body>
-          <h5 className="fw-bold text-primary mb-3">
-            Teknologi yang Digunakan
-          </h5>
-          <Row className="g-3">
-            {[
-              { title: "Frontend", tech: "ReactJS + Bootstrap 5" },
-              { title: "Backend", tech: "Python FastAPI" },
-              { title: "Machine Learning", tech: "Facebook Prophet" },
-              { title: "Database", tech: "MySQL" },
-              { title: "Server", tech: "VPS AlmaLinux + Apache + cPanel" },
-              { title: "Deployment", tech: "Gunicorn + Systemd" },
-            ].map((item, idx) => (
-              <Col md={4} sm={6} key={idx}>
-                <Card className="border-0 bg-light rounded-4 p-3 h-100">
-                  <h6 className="fw-bold text-dark mb-1">{item.title}</h6>
-                  <p className="text-muted mb-0">{item.tech}</p>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Card.Body>
-      </Card>
-
       {/* FOOTER */}
       <footer className="mt-5 text-center text-muted small">
         © {new Date().getFullYear()} AirQ — abiila
       </footer>
+
+      {/* MODAL TECH STACK */}
+      <Modal
+        show={techModal.show}
+        centered
+        onHide={() => setTechModal({ ...techModal, show: false })}>
+        <Modal.Header closeButton>
+          <Modal.Title className="fw-bold">{techModal.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <p className="fw-bold fs-5">{techModal.tech}</p>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
