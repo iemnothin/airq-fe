@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Row, Col, Spinner } from "react-bootstrap";
+import { Card, Row, Col, Spinner, Button } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -41,7 +41,7 @@ const DashboardPage = () => {
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
-  const [showAllTimeline, setShowAllTimeline] = useState(false);
+  const [showLimit, setShowLimit] = useState(10); // SHOW 10 FIRST
 
   const toWIB = (ts) => {
     const d = new Date(ts);
@@ -59,8 +59,8 @@ const DashboardPage = () => {
       const data = await response.json();
       const end = performance.now();
 
-      setLatency((end - start).toFixed(0));
       setStatus(data);
+      setLatency((end - start).toFixed(0));
 
       setChartHistory((prev) => [
         ...prev.slice(-19),
@@ -131,7 +131,8 @@ const DashboardPage = () => {
         ? new Date(item.timestamp).toISOString().slice(0, 10) === searchDate
         : true
     )
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, showLimit);
 
   const getStatusStyle = (color) => ({
     borderRadius: "12px",
@@ -160,12 +161,12 @@ const DashboardPage = () => {
 
   return (
     <div className="container py-4 animate__animated animate__fadeIn">
+      {/* ALERTS */}
       {alertMsg && (
-        <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__animated animate__shakeX">
+        <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__shakeX">
           {alertMsg}
         </div>
       )}
-
       {restartMsg && (
         <div
           className={`alert alert-${restartMsg.type} text-center fw-bold rounded-4 py-2`}>
@@ -174,14 +175,14 @@ const DashboardPage = () => {
       )}
 
       {/* HEADER */}
-      <div className="mb-4 text-center text-md-start">
+      <div className="dashboard-header mb-4 text-center text-md-start">
         <h2 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h2>
         <p className="text-muted mb-0">
           Ringkasan status sistem dan teknologi yang digunakan.
         </p>
       </div>
 
-      {/* STATUS */}
+      {/* STATUS SYSTEM CARD */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3 text-center">
@@ -209,8 +210,9 @@ const DashboardPage = () => {
             </div>
           ) : (
             <Row className="g-4 justify-content-center">
+              {/* BACKEND */}
               <Col md={4} sm={6}>
-                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
                   <div style={getStatusStyle(backendUI.color)}>
                     {backendUI.icon} {backendUI.label}
                   </div>
@@ -222,8 +224,9 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* DATABASE */}
               <Col md={4} sm={6}>
-                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
                   <div
                     style={getStatusStyle(
                       status.database === "connected" ? "#28a745" : "#dc3545"
@@ -241,8 +244,9 @@ const DashboardPage = () => {
                 </Card>
               </Col>
 
+              {/* MODEL */}
               <Col md={4} sm={6}>
-                <Card className="shadow-sm border-0 rounded-4 p-4 text-center h-100">
+                <Card className="status-card shadow-sm border-0 rounded-4 p-4 text-center h-100">
                   <div
                     style={getStatusStyle(
                       status.model_status === "ready" ? "#28a745" : "#dc3545"
@@ -263,7 +267,7 @@ const DashboardPage = () => {
       </Card>
 
       {/* GRAPH + TIMELINE */}
-      <Row className="g-4 section-spacing">
+      <Row className="g-4">
         {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
@@ -272,34 +276,37 @@ const DashboardPage = () => {
                 <h5 className="fw-bold text-primary mb-3 text-center">
                   Resource Monitoring (Realtime)
                 </h5>
-                <Line
-                  data={{
-                    labels: chartHistory.map((x) => x.time),
-                    datasets: [
-                      {
-                        label: "CPU (%)",
-                        data: chartHistory.map((x) => x.cpu),
-                        borderColor: "rgba(75, 192, 192, 1)",
-                        borderWidth: 2,
-                        pointRadius: 4,
-                        tension: 0.35,
-                      },
-                      {
-                        label: "RAM (%)",
-                        data: chartHistory.map((x) => x.ram),
-                        borderColor: "rgba(255, 159, 64, 1)",
-                        borderWidth: 2,
-                        pointRadius: 4,
-                        tension: 0.35,
-                      },
-                    ],
-                  }}
-                  options={{
-                    plugins: { legend: { display: true } },
-                    scales: { y: { min: 0, max: 100 } },
-                  }}
-                  height={95}
-                />
+
+                <div style={{ height: "520px" }}>
+                  <Line
+                    data={{
+                      labels: chartHistory.map((x) => x.time),
+                      datasets: [
+                        {
+                          label: "CPU (%)",
+                          data: chartHistory.map((x) => x.cpu),
+                          borderColor: "rgba(75, 192, 192, 1)",
+                          borderWidth: 2,
+                          pointRadius: 4,
+                          tension: 0.35,
+                        },
+                        {
+                          label: "RAM (%)",
+                          data: chartHistory.map((x) => x.ram),
+                          borderColor: "rgba(255, 159, 64, 1)",
+                          borderWidth: 2,
+                          pointRadius: 4,
+                          tension: 0.35,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: { legend: { display: true } },
+                      scales: { y: { min: 0, max: 100 } },
+                    }}
+                  />
+                </div>
               </Card.Body>
             </Card>
           )}
@@ -316,7 +323,10 @@ const DashboardPage = () => {
                 type="date"
                 className="form-control rounded-4"
                 value={searchDate}
-                onChange={(e) => setSearchDate(e.target.value)}
+                onChange={(e) => {
+                  setSearchDate(e.target.value);
+                  setShowLimit(10);
+                }}
               />
             </div>
 
@@ -330,10 +340,7 @@ const DashboardPage = () => {
               ) : (
                 <>
                   <ul className="timeline list-unstyled mt-2">
-                    {(showAllTimeline
-                      ? filteredTimeline
-                      : filteredTimeline.slice(0, 10)
-                    ).map((item, idx) => {
+                    {filteredTimeline.map((item, idx) => {
                       const color =
                         item.backend === "healthy"
                           ? "timeline-green"
@@ -355,13 +362,15 @@ const DashboardPage = () => {
                     })}
                   </ul>
 
-                  {filteredTimeline.length > 10 && (
+                  {showLimit < timeline.length && (
                     <div className="text-center mt-2">
-                      <button
-                        className="btn btn-outline-primary btn-sm rounded-4 fw-bold"
-                        onClick={() => setShowAllTimeline(!showAllTimeline)}>
-                        {showAllTimeline ? "Show Less" : "Show More"}
-                      </button>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="rounded-5 px-4 fw-bold"
+                        onClick={() => setShowLimit(timeline.length)}>
+                        Show More
+                      </Button>
                     </div>
                   )}
                 </>
