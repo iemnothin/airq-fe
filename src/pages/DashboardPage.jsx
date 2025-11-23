@@ -20,6 +20,7 @@ import {
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
+import "../css/DashboardPage.css"; // ⬅️ untuk animasi pulse
 
 ChartJS.register(
   CategoryScale,
@@ -41,17 +42,24 @@ const DashboardPage = () => {
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
 
+  const toWIB = (ts) => {
+    const date = new Date(ts);
+    date.setHours(date.getHours() + 7); // konversi UTC → WIB
+    return date.toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  };
+
   const fetchStatus = async () => {
     const start = performance.now();
     try {
-      const response = await fetch("https://api-airq.abiila.com/api/v1/status");
-      const data = await response.json();
+      const res = await fetch("https://api-airq.abiila.com/api/v1/status");
+      const data = await res.json();
       const end = performance.now();
-
       setLatency((end - start).toFixed(0));
       setStatus(data);
 
-      // Update grafik realtime
       setChartHistory((prev) => [
         ...prev.slice(-19),
         {
@@ -96,7 +104,6 @@ const DashboardPage = () => {
       },
       status?.backend === "degraded" ? 5000 : 10000
     );
-
     return () => clearInterval(interval);
   }, [status?.backend]);
 
@@ -172,7 +179,7 @@ const DashboardPage = () => {
         </p>
       </div>
 
-      {/* == STATUS SISTEM == */}
+      {/* STATUS SYSTEM */}
       <Card className="mb-4 shadow-sm border-0 rounded-4">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3 text-center">
@@ -253,9 +260,9 @@ const DashboardPage = () => {
         </Card.Body>
       </Card>
 
-      {/* == CONTENT BODY (GRAFIK + TIMELINE) == */}
+      {/* GRAFIK + TIMELINE */}
       <Row className="g-4">
-        {/* Left = GRAPH */}
+        {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
             <Card className="mb-4 shadow-sm border-0 rounded-4">
@@ -296,7 +303,7 @@ const DashboardPage = () => {
           )}
         </Col>
 
-        {/* Right = TIMELINE */}
+        {/* TIMELINE */}
         <Col md={4}>
           <Card
             className="shadow-sm border-0 rounded-4 h-100"
@@ -306,7 +313,6 @@ const DashboardPage = () => {
                 Activity Timeline (24h)
               </h5>
 
-              {/* Search Filter by Date */}
               <input
                 type="date"
                 className="form-control mb-3 rounded-4"
@@ -320,29 +326,25 @@ const DashboardPage = () => {
                 </p>
               ) : (
                 <ul className="timeline list-unstyled">
-                  {filteredTimeline.map((item, idx) => (
-                    <li key={idx} className="mb-3">
-                      <div className="fw-bold">
-                        {new Date(item.timestamp).toLocaleString("id-ID", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </div>
-                      <small className="text-muted">
-                        CPU {item.cpu_usage}% — RAM {item.ram_usage}%
-                      </small>
-                      <div
-                        className={`fw-bold ${
-                          item.backend === "healthy"
-                            ? "text-success"
-                            : item.backend === "degraded"
-                            ? "text-warning"
-                            : "text-danger"
-                        }`}>
-                        {item.backend}
-                      </div>
-                    </li>
-                  ))}
+                  {filteredTimeline.map((item, idx) => {
+                    const color =
+                      item.backend === "healthy"
+                        ? "timeline-green"
+                        : item.backend === "degraded"
+                        ? "timeline-yellow"
+                        : "timeline-red";
+                    return (
+                      <li key={idx} className={`mb-3 pulse ${color}`}>
+                        <div className="fw-bold">{toWIB(item.timestamp)}</div>
+                        <small className="text-muted">
+                          CPU {item.cpu_usage}% — RAM {item.ram_usage}%
+                        </small>
+                        <div className="fw-bold text-uppercase mt-1">
+                          {item.backend}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </Card.Body>
@@ -350,32 +352,7 @@ const DashboardPage = () => {
         </Col>
       </Row>
 
-      {/* TECHNOLOGIES */}
-      <Card className="shadow-sm border-0 rounded-4 mt-4">
-        <Card.Body>
-          <h5 className="fw-bold text-primary mb-3">
-            Teknologi yang Digunakan
-          </h5>
-          <Row className="g-3">
-            {[
-              { title: "Frontend", tech: "ReactJS + Bootstrap 5" },
-              { title: "Backend", tech: "Python FastAPI" },
-              { title: "Machine Learning", tech: "Facebook Prophet" },
-              { title: "Database", tech: "MySQL" },
-              { title: "Server", tech: "VPS AlmaLinux + Apache + cPanel" },
-              { title: "Deployment", tech: "Gunicorn + Systemd" },
-            ].map((item, idx) => (
-              <Col md={4} sm={6} key={idx}>
-                <Card className="border-0 bg-light rounded-4 p-3 h-100">
-                  <h6 className="fw-bold text-dark mb-1">{item.title}</h6>
-                  <p className="text-muted mb-0">{item.tech}</p>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Card.Body>
-      </Card>
-
+      {/* TECHNOLOGY */}
       <footer className="mt-5 text-center text-muted small">
         © {new Date().getFullYear()} AirQ — abiila
       </footer>

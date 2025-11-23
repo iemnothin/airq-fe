@@ -1,0 +1,61 @@
+.status-card {
+  transition: 0.25s ease;
+}
+.status-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+.pulse {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f7f7f7;
+  transition: 0.3s ease;
+}
+
+.timeline-green {
+  border-left: 6px solid #28a745;
+  animation: pulseg 1.6s infinite;
+}
+.timeline-yellow {
+  border-left: 6px solid #ffc107;
+  animation: pulsey 1.6s infinite;
+}
+.timeline-red {
+  border-left: 6px solid #dc3545;
+  animation: pulser 1.6s infinite;
+}
+
+@keyframes pulseg {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(40, 167, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+  }
+}
+@keyframes pulsey {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
+}
+@keyframes pulser {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}

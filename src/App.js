@@ -6,6 +6,7 @@ import "./css/ContainerSwipe.css";
 import "./css/Backgrounds.css";
 import "./css/Borders.css";
 import "./css/Buttons.css";
+import "./css/DashboardPage.css";
 import "./App.css";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
