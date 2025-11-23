@@ -119,14 +119,16 @@ const DashboardPage = () => {
       );
       const data = await res.json();
 
-      // Asumsi backend mengembalikan: { logs: [ { id, timestamp, event }, ... ] }
-      const logs = Array.isArray(data.logs) ? data.logs : [];
+      // backend mengirim: { log: [...] }
+      const logs = Array.isArray(data.log) ? data.log : [];
+
       const sorted = [...logs].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
+
       setActivityLog(sorted);
     } catch {
-      // silent
+      /* silent */
     }
   };
 
