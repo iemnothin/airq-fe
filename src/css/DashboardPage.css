@@ -232,3 +232,27 @@
     height: 260px;
   }
 }
+
+/* === FIX GRAPH SIZE === */
+.graph-container {
+  height: 340px !important; /* desktop */
+  min-height: 260px !important;
+  max-height: 360px !important;
+  overflow: hidden;
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .graph-container {
+    height: 300px !important;
+    max-height: 300px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .graph-container {
+    height: 250px !important;
+    max-height: 250px !important;
+  }
+}
