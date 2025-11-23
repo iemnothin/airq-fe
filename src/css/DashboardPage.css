@@ -68,9 +68,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #e9f5ff;
   padding: 10px 0 8px 0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 /* ---------- TIMELINE FIX (NO OVERLAP) ---------- */
