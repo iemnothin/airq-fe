@@ -41,6 +41,7 @@ const DashboardPage = () => {
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
+  const [showAllTimeline, setShowAllTimeline] = useState(false);
 
   const toWIB = (ts) => {
     const d = new Date(ts);
@@ -266,7 +267,7 @@ const DashboardPage = () => {
         {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
-            <Card className="mb-4 shadow-sm border-0 rounded-4">
+            <Card className="shadow-sm border-0 rounded-4 h-100">
               <Card.Body>
                 <h5 className="fw-bold text-primary mb-3 text-center">
                   Resource Monitoring (Realtime)
@@ -318,6 +319,7 @@ const DashboardPage = () => {
                 onChange={(e) => setSearchDate(e.target.value)}
               />
             </div>
+
             <Card.Body
               className="timeline-sticky"
               style={{ maxHeight: "520px", overflowY: "auto" }}>
@@ -326,28 +328,43 @@ const DashboardPage = () => {
                   Riwayat tidak ditemukan.
                 </p>
               ) : (
-                <ul className="timeline list-unstyled mt-2">
-                  {filteredTimeline.map((item, idx) => {
-                    const color =
-                      item.backend === "healthy"
-                        ? "timeline-green"
-                        : item.backend === "degraded"
-                        ? "timeline-yellow"
-                        : "timeline-red";
+                <>
+                  <ul className="timeline list-unstyled mt-2">
+                    {(showAllTimeline
+                      ? filteredTimeline
+                      : filteredTimeline.slice(0, 10)
+                    ).map((item, idx) => {
+                      const color =
+                        item.backend === "healthy"
+                          ? "timeline-green"
+                          : item.backend === "degraded"
+                          ? "timeline-yellow"
+                          : "timeline-red";
 
-                    return (
-                      <li key={idx} className={`mb-3 pulse ${color}`}>
-                        <div className="fw-bold">{toWIB(item.timestamp)}</div>
-                        <small className="text-muted">
-                          CPU {item.cpu_usage}% — RAM {item.ram_usage}%
-                        </small>
-                        <div className="fw-bold text-uppercase mt-1">
-                          {item.backend}
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+                      return (
+                        <li key={idx} className={`mb-3 pulse ${color}`}>
+                          <div className="fw-bold">{toWIB(item.timestamp)}</div>
+                          <small className="text-muted">
+                            CPU {item.cpu_usage}% — RAM {item.ram_usage}%
+                          </small>
+                          <div className="fw-bold text-uppercase mt-1">
+                            {item.backend}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+
+                  {filteredTimeline.length > 10 && (
+                    <div className="text-center mt-2">
+                      <button
+                        className="btn btn-outline-primary btn-sm rounded-4 fw-bold"
+                        onClick={() => setShowAllTimeline(!showAllTimeline)}>
+                        {showAllTimeline ? "Show Less" : "Show More"}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </Card.Body>
           </Card>
