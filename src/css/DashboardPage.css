@@ -109,3 +109,126 @@
 .tech-stack-spacing {
   margin-top: 60px !important;
 }
+
+/* ========================================================
+   🔥 DASHBOARD OPTIMIZATION (Compact Desktop & Smooth Mobile)
+======================================================== */
+
+/* ---- COMPACT STATUS CARD ---- */
+.status-card {
+  min-height: 92px !important;
+  padding: 14px 18px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ---- GRID LAYOUT (Desktop) ---- */
+.dashboard-wrapper {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Graph height reduced to remove unused white space */
+.graph-container {
+  height: 360px;
+}
+
+/* Resource log & Activity log auto layout */
+.side-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 100%;
+}
+
+/* Make activity log scrollable without extra space */
+.activity-log-wrapper {
+  height: 360px;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+/* Scrollbar */
+.activity-log-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.activity-log-wrapper::-webkit-scrollbar-thumb {
+  background: #c9c9c9;
+  border-radius: 12px;
+}
+
+/* Highlight animation untuk log baru */
+@keyframes highlightLog {
+  0% {
+    background: #fff3a0;
+  }
+  100% {
+    background: transparent;
+  }
+}
+.activity-new {
+  animation: highlightLog 1.3s ease-out;
+}
+
+/* ---- EVENT COLOR CODING ---- */
+.activity-log-item .event {
+  font-weight: 700;
+}
+.activity-log-item .event.upload {
+  color: #007bff;
+}
+.activity-log-item .event.delete {
+  color: #dc3545;
+}
+.activity-log-item .event.forecast {
+  color: #0d6efd;
+}
+.activity-log-item .event.outlier {
+  color: #ffc107;
+}
+.activity-log-item .event.other {
+  color: #6c757d;
+}
+
+/* ========================================================
+   📱 MOBILE EXPERIENCE (rapi dan nyaman di-scroll)
+======================================================== */
+@media (max-width: 992px) {
+  .dashboard-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .graph-container {
+    height: 300px;
+  }
+  .activity-log-wrapper {
+    height: 300px;
+  }
+}
+
+/* Mobile layout improvement */
+@media (max-width: 576px) {
+  .status-card {
+    flex-direction: row !important;
+    min-height: auto !important;
+    height: 62px;
+    gap: 10px;
+  }
+  .status-card h6 {
+    font-size: 0.86rem;
+    margin: 0 !important;
+  }
+
+  .dashboard-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .graph-container,
+  .activity-log-wrapper {
+    height: 260px;
+  }
+}
