@@ -262,7 +262,7 @@ const DashboardPage = () => {
       </Card>
 
       {/* GRAPH + TIMELINE */}
-      <Row className="g-4">
+      <Row className="g-4 section-spacing">
         {/* GRAPH */}
         <Col md={8}>
           {chartHistory.length > 0 && (
@@ -356,7 +356,7 @@ const DashboardPage = () => {
       </Row>
 
       {/* TECH STACK */}
-      <Card className="mt-4 shadow-sm border-0 rounded-4">
+      <Card className="mt-4 shadow-sm border-0 rounded-4 tech-stack-spacing">
         <Card.Body>
           <h5 className="fw-bold text-primary mb-3">
             Teknologi yang Digunakan
