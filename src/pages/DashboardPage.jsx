@@ -308,11 +308,18 @@ const DashboardPage = () => {
         <Col md={4}>
           <Card
             className="shadow-sm border-0 rounded-4 h-100"
-            style={{ position: "sticky", top: 15 }}>
+            style={{ position: "sticky", top: "90px", zIndex: 1 }}>
             <Card.Body style={{ maxHeight: "520px", overflowY: "auto" }}>
               <div
-                className="bg-white pb-2 mb-2 position-sticky"
-                style={{ top: 0, zIndex: 5 }}>
+                className="position-sticky"
+                style={{
+                  top: 0,
+                  zIndex: 10,
+                  background: "white",
+                  paddingBottom: "10px",
+                  paddingTop: "4px",
+                  boxShadow: "0 4px 6px rgba(0,0,0,0.06)",
+                }}>
                 <h5 className="fw-bold text-primary mb-2">
                   Activity Timeline (24h)
                 </h5>
