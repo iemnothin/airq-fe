@@ -208,7 +208,7 @@ const DashboardPage = () => {
         )}
 
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-          <div>
+          <div className="mb-3">
             <h4 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h4>
             <small className="text-muted">
               Status sistem, resource log, dan aktivitas model (Realtime).
@@ -462,7 +462,7 @@ const DashboardPage = () => {
         {/* ===== MOBILE UI (Shopee style tabs) ===== */}
         <div className="d-lg-none">
           {/* 📌 Grafik Versi Mobile */}
-          <div className="d-md-none mt-3">
+          <div className="d-md-none mt-3 mb-3">
             <Card className="shadow-sm border-0 rounded-4">
               <Card.Body className="p-3">
                 <h6 className="fw-bold text-primary mb-2 text-center">
