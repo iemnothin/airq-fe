@@ -440,7 +440,7 @@ const DashboardPage = () => {
             <Card className="shadow-sm border-0 rounded-4 h-100">
               <Card.Body className="d-flex flex-column">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-bold text-primary mb-0">Resource Log</h6>
+                  <h6 className="fw-bold text-primary mb-2">Resource Log</h6>
                   <input
                     type="date"
                     className="form-control form-control-sm rounded-4"
@@ -456,7 +456,7 @@ const DashboardPage = () => {
                 <div
                   style={{
                     overflowY: "auto",
-                    maxHeight: "calc(100vh - 260px)",
+                    maxHeight: "calc(100vh - 350px)",
                   }}>
                   {filteredTimeline.length === 0 ? (
                     <p className="text-center text-muted small mt-2">
@@ -496,7 +496,7 @@ const DashboardPage = () => {
           <Col lg={3} md={6}>
             <Card className="shadow-sm border-0 rounded-4 h-100">
               <Card.Body className="d-flex flex-column">
-                <h6 className="fw-bold text-primary mb-0">Activity Log</h6>
+                <h6 className="fw-bold text-primary mb-2">Activity Log</h6>
 
                 <div className="d-flex flex-wrap gap-1 mb-2">
                   {[
@@ -526,7 +526,7 @@ const DashboardPage = () => {
                 <div
                   style={{
                     overflowY: "auto",
-                    maxHeight: "calc(100vh - 260px)",
+                    maxHeight: "calc(100vh - 350px)",
                   }}>
                   {slicedActivityLog.map((item, idx) => (
                     <div
