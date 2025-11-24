@@ -453,7 +453,11 @@ const DashboardPage = () => {
                   />
                 </div>
 
-                <div style={{ overflowY: "auto", maxHeight: "260px" }}>
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "calc(100vh - 200px)",
+                  }}>
                   {filteredTimeline.length === 0 ? (
                     <p className="text-center text-muted small mt-2">
                       Resource log tidak ditemukan.
@@ -493,9 +497,6 @@ const DashboardPage = () => {
             <Card className="shadow-sm border-0 rounded-4 h-100">
               <Card.Body className="d-flex flex-column">
                 <h6 className="fw-bold text-primary mb-0">Activity Log</h6>
-                <small className="text-muted mb-2">
-                  ModelPage: upload, delete, forecast, outlier
-                </small>
 
                 <div className="d-flex flex-wrap gap-1 mb-2">
                   {[
@@ -522,7 +523,11 @@ const DashboardPage = () => {
                   ))}
                 </div>
 
-                <div style={{ overflowY: "auto", maxHeight: "260px" }}>
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "calc(100vh - 200px)",
+                  }}>
                   {slicedActivityLog.map((item, idx) => (
                     <div
                       key={idx}
