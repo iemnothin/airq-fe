@@ -256,3 +256,26 @@
     max-height: 250px !important;
   }
 }
+@media (max-width: 768px) {
+  .timeline li,
+  .activity-log-item {
+    font-size: 13px;
+  }
+
+  .timeline {
+    padding-left: 0;
+  }
+
+  .activity-new {
+    animation: highlight 1.5s ease-in-out;
+  }
+
+  @keyframes highlight {
+    0% {
+      background: #fff3cd;
+    }
+    100% {
+      background: white;
+    }
+  }
+}

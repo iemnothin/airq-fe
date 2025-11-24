@@ -17,7 +17,6 @@ import {
   FaInfoCircle,
   FaSyncAlt,
 } from "react-icons/fa";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
 import "../css/DashboardPage.css";
@@ -41,13 +40,14 @@ const DashboardPage = () => {
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
-  const [showLimit, setShowLimit] = useState(10);
 
-  // Activity Log
   const [activityLog, setActivityLog] = useState([]);
   const [activityLimit, setActivityLimit] = useState(10);
   const [activityFilter, setActivityFilter] = useState("all");
   const [highlightActivityId, setHighlightActivityId] = useState(null);
+
+  const [showLimit, setShowLimit] = useState(10);
+  const [mobileTab, setMobileTab] = useState("status"); // NEW TAB
 
   const [techModal, setTechModal] = useState({
     show: false,
@@ -64,7 +64,6 @@ const DashboardPage = () => {
     });
   };
 
-  // FETCH STATUS
   const fetchStatus = async () => {
     const start = performance.now();
     try {
@@ -82,7 +81,9 @@ const DashboardPage = () => {
         },
       ]);
       setAlertMsg(
-        data.backend === "critical" ? "⚠ Backend dalam kondisi CRITICAL!" : null
+        data.backend === "critical"
+          ? "⚠ Backend dalam kondisi CRITICAL!"
+          : null
       );
     } catch {
       setStatus(null);
@@ -92,12 +93,9 @@ const DashboardPage = () => {
     }
   };
 
-  // FETCH TIMELINE
   const fetchTimeline = async () => {
     try {
-      const res = await fetch(
-        "https://api-airq.abiila.com/api/v1/status/history"
-      );
+      const res = await fetch("https://api-airq.abiila.com/api/v1/status/history");
       const data = await res.json();
       const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
@@ -106,18 +104,14 @@ const DashboardPage = () => {
     } catch {}
   };
 
-  // FETCH ACTIVITY LOG
   const fetchActivityLog = async () => {
     try {
-      const res = await fetch(
-        "https://api-airq.abiila.com/api/v1/activity-log"
-      );
+      const res = await fetch("https://api-airq.abiila.com/api/v1/activity-log");
       const data = await res.json();
       const logs = Array.isArray(data.log) ? data.log : [];
       const sorted = [...logs].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
       );
-
       if (sorted.length > 0 && sorted[0].id !== activityLog[0]?.id) {
         setHighlightActivityId(sorted[0].id);
         setTimeout(() => setHighlightActivityId(null), 2000);
@@ -126,23 +120,18 @@ const DashboardPage = () => {
     } catch {}
   };
 
-  // POLLING DATA
   useEffect(() => {
     fetchStatus();
     fetchTimeline();
     fetchActivityLog();
-    const interval = setInterval(
-      () => {
-        fetchStatus();
-        fetchTimeline();
-        fetchActivityLog();
-      },
-      status?.backend === "degraded" ? 5000 : 10000
-    );
+    const interval = setInterval(() => {
+      fetchStatus();
+      fetchTimeline();
+      fetchActivityLog();
+    }, status?.backend === "degraded" ? 5000 : 10000);
     return () => clearInterval(interval);
   }, [status?.backend]);
 
-  // RESTART BACKEND
   const restartBackend = async () => {
     if (!window.confirm("⚠ Restart backend FastAPI?")) return;
     setRestarting(true);
@@ -160,7 +149,6 @@ const DashboardPage = () => {
     }
   };
 
-  // TIMELINE FILTER
   const filteredTimeline = timeline
     .filter((item) =>
       searchDate
@@ -169,7 +157,6 @@ const DashboardPage = () => {
     )
     .slice(0, showLimit);
 
-  // ACTIVITY FILTER
   const getEventType = (event = "") => {
     const l = event.toLowerCase();
     if (l.includes("upload")) return "upload";
@@ -198,13 +185,11 @@ const DashboardPage = () => {
     critical: { label: "Critical", color: "#dc3545", icon: <FaTimesCircle /> },
     unknown: { label: "Unknown", color: "#6c757d", icon: <FaInfoCircle /> },
   };
-
   const backendUI = backendMap[status?.backend] || backendMap.unknown;
 
   return (
     <div className="dashboard-root animate__animated animate__fadeIn">
       <div className="container-fluid py-2">
-        {/* Alerts */}
         {alertMsg && (
           <div className="alert alert-danger text-center fw-bold rounded-4 py-2 animate__shakeX">
             {alertMsg}
@@ -217,7 +202,6 @@ const DashboardPage = () => {
           </div>
         )}
 
-        {/* Header */}
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
           <div>
             <h4 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h4>
@@ -227,9 +211,7 @@ const DashboardPage = () => {
           </div>
           <div className="d-flex align-items-center gap-2">
             {latency && (
-              <span className="badge bg-secondary">
-                Latency API: {latency} ms
-              </span>
+              <span className="badge bg-secondary">Latency API: {latency} ms</span>
             )}
             <button
               className="btn btn-danger btn-sm px-3 rounded-4 fw-bold"
@@ -245,319 +227,313 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* STATUS CARDS */}
-        <Row className="g-3 mb-3">
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({
-                  show: true,
-                  title: "Backend",
-                  tech: "Python + FastAPI",
-                })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2"
-                style={{ background: backendUI.color, color: "white" }}>
-                {backendUI.icon} {backendUI.label}
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Backend</h6>
-            </Card>
-          </Col>
+        {/* ===== DESKTOP LAYOUT ===== */}
+        <div className="d-none d-lg-block">
+          <Row className="g-3 mb-3">
+            {[
+              ["Backend", backendUI.color, backendUI.icon, backendUI.label],
+              ["Database", status?.database === "connected" ? "#28a745" : "#dc3545", status?.database === "connected" ? <FaCheckCircle /> : <FaTimesCircle />, status?.database === "connected" ? "Connected" : "Disconnected"],
+              ["Model", status?.model_status === "ready" ? "#28a745" : "#dc3545", status?.model_status === "ready" ? <FaCheckCircle /> : <FaTimesCircle />, status?.model_status === "ready" ? "Ready" : "Not Ready"],
+              ["Frontend", "#0d6efd", null, "ReactJS"],
+              ["Server", "#6610f2", null, "VPS AlmaLinux + Apache + CyberPanel"],
+              ["Deployment", "#20c997", null, "Gunicorn"],
+            ].map(([title, bg, icon, label], i) => (
+              <Col lg={2} key={i}>
+                <Card
+                  className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
+                  onClick={() =>
+                    setTechModal({
+                      show: true,
+                      title,
+                      tech: label,
+                    })
+                  }
+                  style={{ cursor: "pointer" }}>
+                  <div
+                    className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2 text-white"
+                    style={{ background: bg }}>
+                    {icon} {label}
+                  </div>
+                  <h6 className="fw-bold text-dark small mb-0">{title}</h6>
+                </Card>
+              </Col>
+            ))}
+          </Row>
 
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({ show: true, title: "Database", tech: "MySQL" })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2 text-white"
-                style={{
-                  background:
-                    status?.database === "connected" ? "#28a745" : "#dc3545",
-                }}>
-                {status?.database === "connected" ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaTimesCircle />
-                )}
-                {status?.database === "connected"
-                  ? "Connected"
-                  : "Disconnected"}
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Database</h6>
-            </Card>
-          </Col>
+          <Row className="g-3">
+            <Col lg={6}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="d-flex flex-column">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="fw-bold text-primary mb-0">
+                      Resource Monitoring (Realtime)
+                    </h6>
+                    <small className="text-muted">
+                      CPU & RAM (last {chartHistory.length} tick)
+                    </small>
+                  </div>
 
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({
-                  show: true,
-                  title: "Model",
-                  tech: "Facebook Prophet",
-                })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2 text-white"
-                style={{
-                  background:
-                    status?.model_status === "ready" ? "#28a745" : "#dc3545",
-                }}>
-                {status?.model_status === "ready" ? (
-                  <FaCheckCircle />
-                ) : (
-                  <FaTimesCircle />
-                )}
-                {status?.model_status === "ready" ? "Ready" : "Not Ready"}
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Model</h6>
-            </Card>
-          </Col>
+                  <div style={{ minHeight: "270px", height: "100%" }}>
+                    {chartHistory.length === 0 ? (
+                      <div className="d-flex justify-content-center align-items-center h-100">
+                        <Spinner animation="border" />
+                      </div>
+                    ) : (
+                      <Line
+                        data={{
+                          labels: chartHistory.map((x) => x.time),
+                          datasets: [
+                            {
+                              label: "CPU (%)",
+                              data: chartHistory.map((x) => x.cpu),
+                              borderColor: "rgba(75,192,192,1)",
+                              borderWidth: 2,
+                              tension: 0.35,
+                              pointRadius: 2,
+                            },
+                            {
+                              label: "RAM (%)",
+                              data: chartHistory.map((x) => x.ram),
+                              borderColor: "rgba(255,159,64,1)",
+                              borderWidth: 2,
+                              tension: 0.35,
+                              pointRadius: 2,
+                            },
+                          ],
+                        }}
+                        options={{
+                          maintainAspectRatio: false,
+                          responsive: true,
+                          scales: { y: { min: 0, max: 100 } },
+                          plugins: { legend: { display: true, position: "bottom" } },
+                        }}
+                      />
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
 
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({ show: true, title: "Frontend", tech: "ReactJS" })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2"
-                style={{ background: "#0d6efd", color: "white" }}>
-                ReactJS
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Frontend</h6>
-            </Card>
-          </Col>
-
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({
-                  show: true,
-                  title: "Server",
-                  tech: "VPS AlmaLinux + Apache + CyberPanel",
-                })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2"
-                style={{ background: "#6610f2", color: "white" }}>
-                Server
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Server</h6>
-            </Card>
-          </Col>
-
-          <Col lg={2} md={4} sm={6} xs={6}>
-            <Card
-              className="status-card p-3 shadow-sm border-0 rounded-4 h-100"
-              onClick={() =>
-                setTechModal({
-                  show: true,
-                  title: "Deployment",
-                  tech: "Gunicorn",
-                })
-              }
-              style={{ cursor: "pointer" }}>
-              <div
-                className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2"
-                style={{ background: "#20c997", color: "white" }}>
-                Gunicorn
-              </div>
-              <h6 className="fw-bold text-dark small mb-0">Deployment</h6>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* GRAPH + LOG SIDEBAR */}
-        <Row className="g-3">
-          {/* GRAPH */}
-          <Col lg={6} md={12}>
-            <Card className="shadow-sm border-0 rounded-4 h-100">
-              <Card.Body className="d-flex flex-column">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-bold text-primary mb-0">
-                    Resource Monitoring (Realtime)
-                  </h6>
-                  <small className="text-muted">
-                    CPU & RAM (last {chartHistory.length} tick)
-                  </small>
-                </div>
-
-                <div style={{ minHeight: "270px", height: "100%" }}>
-                  {chartHistory.length === 0 ? (
-                    <div className="d-flex justify-content-center align-items-center h-100">
-                      <Spinner animation="border" />
-                    </div>
-                  ) : (
-                    <Line
-                      data={{
-                        labels: chartHistory.map((x) => x.time),
-                        datasets: [
-                          {
-                            label: "CPU (%)",
-                            data: chartHistory.map((x) => x.cpu),
-                            borderColor: "rgba(75,192,192,1)",
-                            borderWidth: 2,
-                            tension: 0.35,
-                            pointRadius: 2,
-                          },
-                          {
-                            label: "RAM (%)",
-                            data: chartHistory.map((x) => x.ram),
-                            borderColor: "rgba(255,159,64,1)",
-                            borderWidth: 2,
-                            tension: 0.35,
-                            pointRadius: 2,
-                          },
-                        ],
-                      }}
-                      options={{
-                        maintainAspectRatio: false,
-                        scales: { y: { min: 0, max: 100 } },
-                        plugins: {
-                          legend: { display: true, position: "bottom" },
-                        },
+            <Col lg={3}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="d-flex flex-column">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h6 className="fw-bold text-primary mb-2">Resource Log</h6>
+                    <input
+                      type="date"
+                      className="form-control form-control-sm rounded-4"
+                      style={{ maxWidth: "140px" }}
+                      value={searchDate}
+                      onChange={(e) => {
+                        setSearchDate(e.target.value);
+                        setShowLimit(10);
                       }}
                     />
-                  )}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+                  </div>
 
-          {/* RESOURCE LOG */}
-          <Col lg={3} md={6}>
-            <Card className="shadow-sm border-0 rounded-4 h-100">
-              <Card.Body className="d-flex flex-column">
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h6 className="fw-bold text-primary mb-2">Resource Log</h6>
-                  <input
-                    type="date"
-                    className="form-control form-control-sm rounded-4"
-                    style={{ maxWidth: "140px" }}
-                    value={searchDate}
-                    onChange={(e) => {
-                      setSearchDate(e.target.value);
-                      setShowLimit(10);
-                    }}
-                  />
-                </div>
+                  <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 350px)" }}>
+                    {filteredTimeline.length === 0 ? (
+                      <p className="text-center text-muted small mt-2">
+                        Resource log tidak ditemukan.
+                      </p>
+                    ) : (
+                      <ul className="timeline list-unstyled mt-1 mb-0">
+                        {filteredTimeline.map((item, idx) => (
+                          <li
+                            key={idx}
+                            className={`mb-2 pulse ${
+                              item.backend === "healthy"
+                                ? "timeline-green"
+                                : item.backend === "degraded"
+                                ? "timeline-yellow"
+                                : "timeline-red"
+                            }`}>
+                            <div className="fw-bold small">
+                              {toWIB(item.timestamp)}
+                            </div>
+                            <small className="text-muted">
+                              CPU {item.cpu_usage}% — RAM {item.ram_usage}%
+                            </small>
+                            <div className="fw-bold text-uppercase small mt-1">
+                              {item.backend}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
 
-                <div
-                  style={{
-                    overflowY: "auto",
-                    maxHeight: "calc(100vh - 350px)",
-                  }}>
-                  {filteredTimeline.length === 0 ? (
-                    <p className="text-center text-muted small mt-2">
-                      Resource log tidak ditemukan.
-                    </p>
-                  ) : (
-                    <ul className="timeline list-unstyled mt-1 mb-0">
-                      {filteredTimeline.map((item, idx) => (
-                        <li
-                          key={idx}
-                          className={`mb-2 pulse ${
-                            item.backend === "healthy"
-                              ? "timeline-green"
-                              : item.backend === "degraded"
-                              ? "timeline-yellow"
-                              : "timeline-red"
-                          }`}>
-                          <div className="fw-bold small">
-                            {toWIB(item.timestamp)}
-                          </div>
-                          <small className="text-muted">
-                            CPU {item.cpu_usage}% — RAM {item.ram_usage}%
-                          </small>
-                          <div className="fw-bold text-uppercase small mt-1">
-                            {item.backend}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+            <Col lg={3}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="d-flex flex-column">
+                  <h6 className="fw-bold text-primary mb-2">Activity Log</h6>
 
-          {/* ACTIVITY LOG */}
-          <Col lg={3} md={6}>
-            <Card className="shadow-sm border-0 rounded-4 h-100">
-              <Card.Body className="d-flex flex-column">
-                <h6 className="fw-bold text-primary mb-2">Activity Log</h6>
+                  <div className="d-flex flex-wrap gap-1 mb-2">
+                    {[
+                      "all",
+                      "upload",
+                      "delete",
+                      "forecast",
+                      "outlier",
+                      "other",
+                    ].map((f) => (
+                      <Button
+                        key={f}
+                        size="sm"
+                        variant={
+                          activityFilter === f ? "primary" : "outline-secondary"
+                        }
+                        className="rounded-5 py-0"
+                        onClick={() => {
+                          setActivityFilter(f);
+                          setActivityLimit(10);
+                        }}>
+                        {f}
+                      </Button>
+                    ))}
+                  </div>
 
-                <div className="d-flex flex-wrap gap-1 mb-2">
-                  {[
-                    "all",
-                    "upload",
-                    "delete",
-                    "forecast",
-                    "outlier",
-                    "other",
-                  ].map((f) => (
-                    <Button
-                      key={f}
-                      size="sm"
-                      variant={
-                        activityFilter === f ? "primary" : "outline-secondary"
-                      }
-                      className="rounded-5 py-0"
-                      onClick={() => {
-                        setActivityFilter(f);
-                        setActivityLimit(10);
-                      }}>
-                      {f}
-                    </Button>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    overflowY: "auto",
-                    maxHeight: "calc(100vh - 350px)",
-                  }}>
-                  {slicedActivityLog.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className={
-                        "activity-log-item p-2 rounded-3 mb-2 " +
-                        (highlightActivityId === item.id ? "activity-new" : "")
-                      }>
-                      <div className={`event ${getEventType(item.event)}`}>
-                        {item.event}
+                  <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 350px)" }}>
+                    {slicedActivityLog.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={
+                          "activity-log-item p-2 rounded-3 mb-2 " +
+                          (highlightActivityId === item.id ? "activity-new" : "")
+                        }>
+                        <div className={`event ${getEventType(item.event)}`}>
+                          {item.event}
+                        </div>
+                        {item.detail && (
+                          <small className="text-muted">{item.detail}</small>
+                        )}
+                        <small className="text-muted">{toWIB(item.timestamp)}</small>
                       </div>
-                      {item.detail && (
-                        <small className="text-muted">{item.detail}</small>
-                      )}
-                      <small className="text-muted">
-                        {toWIB(item.timestamp)}
-                      </small>
-                    </div>
-                  ))}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+                    ))}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </div>
 
-        <footer className="text-center text-muted small mt-3">
+        {/* ===== MOBILE UI (Shopee style tabs) ===== */}
+        <div className="d-lg-none">
+          {/* Bottom nav */}
+          <div className="d-flex justify-content-around border-bottom pt-2 mb-3">
+            {[
+              { key: "status", label: "Status Sistem" },
+              { key: "resource", label: "Resource Log" },
+              { key: "activity", label: "Activity Log" },
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                className={`btn btn-sm fw-bold ${
+                  mobileTab === tab.key
+                    ? "text-primary border-primary border-bottom"
+                    : "text-secondary"
+                }`}
+                style={{ borderRadius: 0 }}
+                onClick={() => setMobileTab(tab.key)}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          {mobileTab === "status" && (
+            <Row className="g-2">
+              {[
+                ["Backend", backendUI.color, backendUI.icon, backendUI.label],
+                ["Database", status?.database === "connected" ? "#28a745" : "#dc3545", status?.database === "connected" ? <FaCheckCircle /> : <FaTimesCircle />, status?.database === "connected" ? "Connected" : "Disconnected"],
+                ["Model", status?.model_status === "ready" ? "#28a745" : "#dc3545", status?.model_status === "ready" ? <FaCheckCircle /> : <FaTimesCircle />, status?.model_status === "ready" ? "Ready" : "Not Ready"],
+                ["Frontend", "#0d6efd", null, "ReactJS"],
+                ["Server", "#6610f2", null, "VPS AlmaLinux + Apache + CyberPanel"],
+                ["Deployment", "#20c997", null, "Gunicorn"],
+              ].map(([title, bg, icon, label], i) => (
+                <Col xs={6} key={i}>
+                  <Card
+                    className="p-2 shadow-sm border-0 rounded-4 h-100"
+                    onClick={() =>
+                      setTechModal({
+                        show: true,
+                        title,
+                        tech: label,
+                      })
+                    }
+                    style={{ cursor: "pointer" }}>
+                    <div
+                      className="mb-2 d-inline-flex align-items-center gap-2 px-2 py-1 rounded-2 text-white small"
+                      style={{ background: bg }}>
+                      {icon} {label}
+                    </div>
+                    <div className="fw-bold small">{title}</div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
+
+          {mobileTab === "resource" && (
+            <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+              {filteredTimeline.length === 0 ? (
+                <p className="text-center text-muted mt-2">
+                  Resource log tidak ditemukan
+                </p>
+              ) : (
+                <ul className="timeline list-unstyled mt-1 mb-0">
+                  {filteredTimeline.map((item, idx) => (
+                    <li
+                      key={idx}
+                      className={`mb-2 pulse ${
+                        item.backend === "healthy"
+                          ? "timeline-green"
+                          : item.backend === "degraded"
+                          ? "timeline-yellow"
+                          : "timeline-red"
+                      }`}>
+                      <div className="fw-bold small">{toWIB(item.timestamp)}</div>
+                      <small className="text-muted">
+                        CPU {item.cpu_usage}% — RAM {item.ram_usage}%
+                      </small>
+                      <div className="fw-bold text-uppercase small mt-1">
+                        {item.backend}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {mobileTab === "activity" && (
+            <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
+              {slicedActivityLog.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={
+                    "activity-log-item p-2 rounded-3 mb-2 " +
+                    (highlightActivityId === item.id ? "activity-new" : "")
+                  }>
+                  <div className={`event ${getEventType(item.event)}`}>
+                    {item.event}
+                  </div>
+                  {item.detail && <small className="text-muted">{item.detail}</small>}
+                  <small className="text-muted">{toWIB(item.timestamp)}</small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <footer className="text-center text-muted small mt-4 mb-2">
           © {new Date().getFullYear()} AirQ — abiila
         </footer>
       </div>
 
-      {/* MODAL TECH INFO */}
       <Modal
         show={techModal.show}
         centered
