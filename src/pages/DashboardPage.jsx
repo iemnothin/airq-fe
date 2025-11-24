@@ -596,7 +596,7 @@ const DashboardPage = () => {
           )}
 
           {mobileTab === "resource" && (
-            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+            <div style={{ maxHeight: "30vh", overflowY: "auto" }}>
               {filteredTimeline.length === 0 ? (
                 <p className="text-center text-muted mt-2">
                   Resource log tidak ditemukan
@@ -630,7 +630,7 @@ const DashboardPage = () => {
           )}
 
           {mobileTab === "activity" && (
-            <div style={{ maxHeight: "40vh", overflowY: "auto" }}>
+            <div style={{ maxHeight: "30vh", overflowY: "auto" }}>
               {slicedActivityLog.map((item, idx) => (
                 <div
                   key={idx}
