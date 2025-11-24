@@ -81,13 +81,11 @@ const DashboardPage = () => {
         },
       ]);
       setAlertMsg(
-        data.backend === "critical"
-          ? "⚠ Backend dalam kondisi CRITICAL!"
-          : null
+        data.backend === "critical" ? "⚠ Backend dalam kondisi CRITICAL!" : null
       );
     } catch {
       setStatus(null);
-      setAlertMsg("❌ API tidak dapat dihubungi!");
+      setAlertMsg("⚠ API tidak dapat dihubungi!");
     } finally {
       setLoading(false);
     }
@@ -95,7 +93,9 @@ const DashboardPage = () => {
 
   const fetchTimeline = async () => {
     try {
-      const res = await fetch("https://api-airq.abiila.com/api/v1/status/history");
+      const res = await fetch(
+        "https://api-airq.abiila.com/api/v1/status/history"
+      );
       const data = await res.json();
       const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
@@ -106,7 +106,9 @@ const DashboardPage = () => {
 
   const fetchActivityLog = async () => {
     try {
-      const res = await fetch("https://api-airq.abiila.com/api/v1/activity-log");
+      const res = await fetch(
+        "https://api-airq.abiila.com/api/v1/activity-log"
+      );
       const data = await res.json();
       const logs = Array.isArray(data.log) ? data.log : [];
       const sorted = [...logs].sort(
@@ -124,11 +126,14 @@ const DashboardPage = () => {
     fetchStatus();
     fetchTimeline();
     fetchActivityLog();
-    const interval = setInterval(() => {
-      fetchStatus();
-      fetchTimeline();
-      fetchActivityLog();
-    }, status?.backend === "degraded" ? 5000 : 10000);
+    const interval = setInterval(
+      () => {
+        fetchStatus();
+        fetchTimeline();
+        fetchActivityLog();
+      },
+      status?.backend === "degraded" ? 5000 : 10000
+    );
     return () => clearInterval(interval);
   }, [status?.backend]);
 
@@ -140,10 +145,10 @@ const DashboardPage = () => {
         method: "POST",
         headers: { admin_key: "AirQ-Admin-2025" },
       });
-      setRestartMsg({ type: "success", text: "Backend berhasil direstart 🚀" });
+      setRestartMsg({ type: "success", text: "Backend berhasil direstart!" });
       setTimeout(fetchStatus, 5000);
     } catch {
-      setRestartMsg({ type: "danger", text: "❌ Gagal restart backend!" });
+      setRestartMsg({ type: "danger", text: "⚠ Gagal restart backend!" });
     } finally {
       setRestarting(false);
     }
@@ -211,7 +216,9 @@ const DashboardPage = () => {
           </div>
           <div className="d-flex align-items-center gap-2">
             {latency && (
-              <span className="badge bg-secondary">Latency API: {latency} ms</span>
+              <span className="badge bg-secondary">
+                Latency API: {latency} ms
+              </span>
             )}
             <button
               className="btn btn-danger btn-sm px-3 rounded-4 fw-bold"
@@ -232,10 +239,28 @@ const DashboardPage = () => {
           <Row className="g-3 mb-3">
             {[
               ["Backend", backendUI.color, backendUI.icon, backendUI.label],
-              ["Database", status?.database === "connected" ? "#28a745" : "#dc3545", status?.database === "connected" ? <FaCheckCircle /> : <FaTimesCircle />, status?.database === "connected" ? "Connected" : "Disconnected"],
-              ["Model", status?.model_status === "ready" ? "#28a745" : "#dc3545", status?.model_status === "ready" ? <FaCheckCircle /> : <FaTimesCircle />, status?.model_status === "ready" ? "Ready" : "Not Ready"],
+              [
+                "Database",
+                status?.database === "connected" ? "#28a745" : "#dc3545",
+                status?.database === "connected" ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaTimesCircle />
+                ),
+                status?.database === "connected" ? "Connected" : "Disconnected",
+              ],
+              [
+                "Model",
+                status?.model_status === "ready" ? "#28a745" : "#dc3545",
+                status?.model_status === "ready" ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaTimesCircle />
+                ),
+                status?.model_status === "ready" ? "Ready" : "Not Ready",
+              ],
               ["Frontend", "#0d6efd", null, "ReactJS"],
-              ["Server", "#6610f2", null, "VPS AlmaLinux + Apache + CyberPanel"],
+              ["Server", "#6610f2", null, "VPS AlmaLinux"],
               ["Deployment", "#20c997", null, "Gunicorn"],
             ].map(([title, bg, icon, label], i) => (
               <Col lg={2} key={i}>
@@ -305,7 +330,9 @@ const DashboardPage = () => {
                           maintainAspectRatio: false,
                           responsive: true,
                           scales: { y: { min: 0, max: 100 } },
-                          plugins: { legend: { display: true, position: "bottom" } },
+                          plugins: {
+                            legend: { display: true, position: "bottom" },
+                          },
                         }}
                       />
                     )}
@@ -331,7 +358,11 @@ const DashboardPage = () => {
                     />
                   </div>
 
-                  <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 350px)" }}>
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "calc(100vh - 350px)",
+                    }}>
                     {filteredTimeline.length === 0 ? (
                       <p className="text-center text-muted small mt-2">
                         Resource log tidak ditemukan.
@@ -396,13 +427,19 @@ const DashboardPage = () => {
                     ))}
                   </div>
 
-                  <div style={{ overflowY: "auto", maxHeight: "calc(100vh - 350px)" }}>
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "calc(100vh - 350px)",
+                    }}>
                     {slicedActivityLog.map((item, idx) => (
                       <div
                         key={idx}
                         className={
                           "activity-log-item p-2 rounded-3 mb-2 " +
-                          (highlightActivityId === item.id ? "activity-new" : "")
+                          (highlightActivityId === item.id
+                            ? "activity-new"
+                            : "")
                         }>
                         <div className={`event ${getEventType(item.event)}`}>
                           {item.event}
@@ -410,7 +447,9 @@ const DashboardPage = () => {
                         {item.detail && (
                           <small className="text-muted">{item.detail}</small>
                         )}
-                        <small className="text-muted">{toWIB(item.timestamp)}</small>
+                        <small className="text-muted">
+                          {toWIB(item.timestamp)}
+                        </small>
                       </div>
                     ))}
                   </div>
@@ -422,6 +461,60 @@ const DashboardPage = () => {
 
         {/* ===== MOBILE UI (Shopee style tabs) ===== */}
         <div className="d-lg-none">
+          {/* 📌 Grafik Versi Mobile */}
+          <div className="d-md-none mt-3">
+            <Card className="shadow-sm border-0 rounded-4">
+              <Card.Body className="p-3">
+                <h6 className="fw-bold text-primary mb-2 text-center">
+                  Resource Monitoring (Realtime)
+                </h6>
+
+                <div style={{ height: "240px" }}>
+                  {chartHistory.length === 0 ? (
+                    <div className="d-flex justify-content-center align-items-center h-100">
+                      <Spinner animation="border" />
+                    </div>
+                  ) : (
+                    <Line
+                      data={{
+                        labels: chartHistory.map((x) => x.time),
+                        datasets: [
+                          {
+                            label: "CPU (%)",
+                            data: chartHistory.map((x) => x.cpu),
+                            borderColor: "rgba(75,192,192,1)",
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 2,
+                          },
+                          {
+                            label: "RAM (%)",
+                            data: chartHistory.map((x) => x.ram),
+                            borderColor: "rgba(255,159,64,1)",
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 2,
+                          },
+                        ],
+                      }}
+                      options={{
+                        maintainAspectRatio: false,
+                        scales: { y: { min: 0, max: 100 } },
+                        plugins: {
+                          legend: {
+                            display: true,
+                            position: "bottom",
+                            labels: { boxWidth: 12, font: { size: 10 } },
+                          },
+                        },
+                      }}
+                    />
+                  )}
+                </div>
+              </Card.Body>
+            </Card>
+          </div>
+
           {/* Bottom nav */}
           <div className="d-flex justify-content-around border-bottom pt-2 mb-3">
             {[
@@ -448,10 +541,35 @@ const DashboardPage = () => {
             <Row className="g-2">
               {[
                 ["Backend", backendUI.color, backendUI.icon, backendUI.label],
-                ["Database", status?.database === "connected" ? "#28a745" : "#dc3545", status?.database === "connected" ? <FaCheckCircle /> : <FaTimesCircle />, status?.database === "connected" ? "Connected" : "Disconnected"],
-                ["Model", status?.model_status === "ready" ? "#28a745" : "#dc3545", status?.model_status === "ready" ? <FaCheckCircle /> : <FaTimesCircle />, status?.model_status === "ready" ? "Ready" : "Not Ready"],
+                [
+                  "Database",
+                  status?.database === "connected" ? "#28a745" : "#dc3545",
+                  status?.database === "connected" ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaTimesCircle />
+                  ),
+                  status?.database === "connected"
+                    ? "Connected"
+                    : "Disconnected",
+                ],
+                [
+                  "Model",
+                  status?.model_status === "ready" ? "#28a745" : "#dc3545",
+                  status?.model_status === "ready" ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaTimesCircle />
+                  ),
+                  status?.model_status === "ready" ? "Ready" : "Not Ready",
+                ],
                 ["Frontend", "#0d6efd", null, "ReactJS"],
-                ["Server", "#6610f2", null, "VPS AlmaLinux + Apache + CyberPanel"],
+                [
+                  "Server",
+                  "#6610f2",
+                  null,
+                  "VPS AlmaLinux + Apache + CyberPanel",
+                ],
                 ["Deployment", "#20c997", null, "Gunicorn"],
               ].map(([title, bg, icon, label], i) => (
                 <Col xs={6} key={i}>
@@ -495,7 +613,9 @@ const DashboardPage = () => {
                           ? "timeline-yellow"
                           : "timeline-red"
                       }`}>
-                      <div className="fw-bold small">{toWIB(item.timestamp)}</div>
+                      <div className="fw-bold small">
+                        {toWIB(item.timestamp)}
+                      </div>
                       <small className="text-muted">
                         CPU {item.cpu_usage}% — RAM {item.ram_usage}%
                       </small>
@@ -521,7 +641,9 @@ const DashboardPage = () => {
                   <div className={`event ${getEventType(item.event)}`}>
                     {item.event}
                   </div>
-                  {item.detail && <small className="text-muted">{item.detail}</small>}
+                  {item.detail && (
+                    <small className="text-muted">{item.detail}</small>
+                  )}
                   <small className="text-muted">{toWIB(item.timestamp)}</small>
                 </div>
               ))}
