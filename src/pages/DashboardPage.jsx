@@ -456,7 +456,7 @@ const DashboardPage = () => {
                 <div
                   style={{
                     overflowY: "auto",
-                    maxHeight: "calc(100vh - 200px)",
+                    maxHeight: "calc(100vh - 260px)",
                   }}>
                   {filteredTimeline.length === 0 ? (
                     <p className="text-center text-muted small mt-2">
@@ -526,7 +526,7 @@ const DashboardPage = () => {
                 <div
                   style={{
                     overflowY: "auto",
-                    maxHeight: "calc(100vh - 200px)",
+                    maxHeight: "calc(100vh - 260px)",
                   }}>
                   {slicedActivityLog.map((item, idx) => (
                     <div
