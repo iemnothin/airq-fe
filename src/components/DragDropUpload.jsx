@@ -138,10 +138,10 @@ const DragDropUpload = ({
         </div>
 
         <div className="dd-title fw-bold">
-          Drop CSV here, or click to browse
+          Drop your CSV here, or click to browse          
         </div>
         <div className="dd-sub text-muted">
-          Upload file .csv (PM10, PM25, SO2, CO, O3, NO2, HC, Kelembaban, Suhu)
+          Need file that contains: pm10, pm25, so2, co, o3, no2, hc, kelembaban, and suhu.
         </div>
 
         {filename && (
@@ -169,15 +169,6 @@ const DragDropUpload = ({
               onClick={handleClickChoose}>
               Choose file
             </button>
-            {/* <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                // if user clicked primary but no file selected -> open chooser
-                if (!filename) handleClickChoose();
-              }}>
-              {filename ? "Upload Selected" : "Select & Upload"}
-            </button> */}
           </div>
         </div>
       </div>

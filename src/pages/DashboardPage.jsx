@@ -291,7 +291,7 @@ const DashboardPage = () => {
                 <Card.Body className="d-flex flex-column">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h6 className="fw-bold text-primary mb-0">
-                      Resource Monitoring (Realtime)
+                      Resource Monitoring
                     </h6>
                     <small className="text-muted">
                       CPU & RAM (last {chartHistory.length} tick)
@@ -461,12 +461,12 @@ const DashboardPage = () => {
 
         {/* ===== MOBILE UI (Shopee style tabs) ===== */}
         <div className="d-lg-none">
-          {/* 📌 Grafik Versi Mobile */}
+          {/* Grafik Versi Mobile */}
           <div className="d-md-none mt-3 mb-3">
             <Card className="shadow-sm border-0 rounded-4">
               <Card.Body className="p-3">
                 <h6 className="fw-bold text-primary mb-2 text-center">
-                  Resource Monitoring (Realtime)
+                  Resource Monitoring
                 </h6>
 
                 <div style={{ height: "240px" }}>

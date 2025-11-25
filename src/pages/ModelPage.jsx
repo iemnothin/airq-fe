@@ -493,7 +493,7 @@ const ModelPage = ({ setError }) => {
                       show={showDeleteModal}
                       onClose={() => setShowDeleteModal(false)}
                       title="Confirm Delete All Data"
-                      message="⚠️ Are you sure you want to delete all data?"
+                      message="Are you sure you want to delete all data?"
                       confirmText="Yes, I'm sure"
                       loading={isDeletingAll}
                       onConfirm={handleDeleteAll}
@@ -503,7 +503,7 @@ const ModelPage = ({ setError }) => {
                       show={showClearForecastModal}
                       onClose={() => setShowClearForecastModal(false)}
                       title="Confirm Clear Forecast"
-                      message="⚠️ Are you sure you want to clear forecast data?"
+                      message="Are you sure you want to clear forecast data?"
                       confirmText="Yes, delete it"
                       loading={isClearingForecast}
                       onConfirm={async () => {
@@ -522,7 +522,7 @@ const ModelPage = ({ setError }) => {
                           // Log aktivitas
                           sendActivityLog(
                             "Clear Forecast",
-                            "Forecast data dihapus"
+                            "Forecast data dihapus oleh user pada "
                           );
                         } catch {
                           setErrorMessage("Failed to clear forecast!");
@@ -646,11 +646,7 @@ const ModelPage = ({ setError }) => {
             </div>
           </div>
         ) : (
-          <>
-            <div className="alert alert-warning text-center">
-              ⚠️ Belum ada data diupload.
-            </div>
-
+          <>            
             <DragDropUpload
               apiBase={API_BASE}
               onStart={() => {
@@ -678,6 +674,10 @@ const ModelPage = ({ setError }) => {
                 setTimeout(() => setShowErrorToast(false), 4000);
               }}
             />
+
+            <div className="alert alert-warning text-center">
+              ⚠️ No data exist.
+            </div>
           </>
         )}
       </div>
