@@ -449,7 +449,11 @@ const ModelPage = ({ setError }) => {
                           setTimeout(() => setShowSuccessToast(false), 3500);
 
                           // Kirim activity log
-                          sendActivityLog("Forecast Process", data.message, " oleh user pada ");
+                          sendActivityLog(
+                            "Forecast Process",
+                            data.message,
+                            " oleh user pada "
+                          );
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
@@ -571,7 +575,7 @@ const ModelPage = ({ setError }) => {
                                   isOutlier ? "table-danger fw-bold" : ""
                                 }>
                                 {key === "waktu"
-                                  ? new Date(val).toLocaleString("id-ID")
+                                  ? new Date(val).toISOString().split("T")[0]
                                   : val ?? "-"}
                               </td>
                             );
@@ -646,7 +650,7 @@ const ModelPage = ({ setError }) => {
             </div>
           </div>
         ) : (
-          <>            
+          <>
             <DragDropUpload
               apiBase={API_BASE}
               onStart={() => {
@@ -665,7 +669,10 @@ const ModelPage = ({ setError }) => {
                 setTimeout(() => setShowSuccessToast(false), 3000);
 
                 // Log aktivitas
-                sendActivityLog("Upload Data", "Upload file pertama oleh user pada ");
+                sendActivityLog(
+                  "Upload Data",
+                  "Upload file pertama oleh user pada "
+                );
               }}
               onError={(err) => {
                 setIsUploadingFile(false);
@@ -676,7 +683,7 @@ const ModelPage = ({ setError }) => {
             />
 
             <div className="alert alert-warning text-center mt-4" role="alert">
-              ⚠️ No data exist.
+              ⚠ No data exist.
             </div>
           </>
         )}
