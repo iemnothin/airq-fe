@@ -61,7 +61,7 @@ const ModelPage = ({ setError }) => {
     suhu: "Suhu",
   };
 
-  // ⭐ Fungsi untuk kirim log aktivitas ke backend
+  // Fungsi untuk kirim log aktivitas ke backend
   const sendActivityLog = async (event, detail = "") => {
     try {
       await fetch(`${API_BASE}/activity-log/add`, {
@@ -175,10 +175,10 @@ const ModelPage = ({ setError }) => {
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
 
-      // 🔥 Kirim activity log
-      sendActivityLog("Delete All Data", "Semua data dihapus oleh user");
+      // Kirim activity log
+      sendActivityLog("Delete all data", "Semua data dihapus oleh user pada ");
     } catch {
-      setErrorMessage("❌ Gagal menghapus data!");
+      setErrorMessage("Gagal menghapus data!");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
     } finally {
@@ -203,8 +203,8 @@ const ModelPage = ({ setError }) => {
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
 
-      // 🔥 Log aktivitas
-      await sendActivityLog("Handle Outlier", result.message);
+      // Log aktivitas
+      await sendActivityLog("Handle Outlier", result.message, " pada ");
 
       await refreshActivityLog();
     } catch {
@@ -371,10 +371,10 @@ const ModelPage = ({ setError }) => {
                         setShowSuccessToast(true);
                         setTimeout(() => setShowSuccessToast(false), 3000);
 
-                        // 🔥 Kirim activity log
+                        // Kirim activity log
                         const detail = uploadedData.length
-                          ? `Upload tambahan: ${uploadedData.length} → ${res.total}`
-                          : "Upload file pertama";
+                          ? `Upload tambahan: ${uploadedData.length} data oleh user pada `
+                          : "Upload file pertama pada ";
                         sendActivityLog("Upload Data", detail);
                       }}
                       onError={(err) => {
@@ -448,8 +448,8 @@ const ModelPage = ({ setError }) => {
                           setShowSuccessToast(true);
                           setTimeout(() => setShowSuccessToast(false), 3500);
 
-                          // 🔥 Kirim activity log
-                          sendActivityLog("Forecast Process", data.message);
+                          // Kirim activity log
+                          sendActivityLog("Forecast Process", data.message, " oleh user pada ");
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
@@ -461,7 +461,7 @@ const ModelPage = ({ setError }) => {
                       setCurrentPollutant={setCurrentPollutant}
                     />
 
-                    {/* ⭐ HANDLE OUTLIER BUTTON — langsung proses tanpa modal */}
+                    {/* HANDLE OUTLIER BUTTON */}
                     <button
                       className="btn btn-warning btn-sm d-flex align-items-center gap-2"
                       disabled={info.outlierCount === 0 || isHandlingOutlier}
@@ -519,7 +519,7 @@ const ModelPage = ({ setError }) => {
                           setShowSuccessToast(true);
                           setTimeout(() => setShowSuccessToast(false), 3000);
 
-                          // 🔥 Log aktivitas
+                          // Log aktivitas
                           sendActivityLog(
                             "Clear Forecast",
                             "Forecast data dihapus"
@@ -668,8 +668,8 @@ const ModelPage = ({ setError }) => {
                 setShowSuccessToast(true);
                 setTimeout(() => setShowSuccessToast(false), 3000);
 
-                // 🔥 Log aktivitas
-                sendActivityLog("Upload Data", "Upload file pertama");
+                // Log aktivitas
+                sendActivityLog("Upload Data", "Upload file pertama oleh user pada ");
               }}
               onError={(err) => {
                 setIsUploadingFile(false);
