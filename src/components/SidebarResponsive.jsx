@@ -4,8 +4,18 @@ const SidebarResponsive = ({ show, onClose }) => {
   const location = useLocation();
 
   const menuItems = [
-    { name: "Beranda", icon: "fa-chart-line", path: "/dashboard" },
-    { name: "Model", icon: "fa-brain", path: "/model" },
+    {
+      name: "Dashboard",
+      icon: "fa-chart-line",
+      path: "/dashboard",
+      type: "fa",
+    },
+    {
+      name: "Model",
+      icon: "icon-fa-fb-prophet",
+      path: "/model",
+      type: "custom",
+    },
     // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
   ];
 
@@ -28,8 +38,6 @@ const SidebarResponsive = ({ show, onClose }) => {
           left: show ? "0" : "-250px",
           transition: "all 0.3s ease",
         }}>
-        
-
         <Link
           to="/"
           className="h-4 nav-item text-center mb-4 text-success fw-bold text-decoration-none d-flex flex-column align-items-center"
@@ -53,7 +61,13 @@ const SidebarResponsive = ({ show, onClose }) => {
                     ? "active bg-primary text-white"
                     : "text-dark"
                 }`}>
-                <i className={`fas ${item.icon} me-2`}></i>
+                <i
+                  className={`${
+                    item.icon.startsWith("icon-")
+                      ? item.icon
+                      : `fas ${item.icon}`
+                  } me-2`}
+                />
                 {item.name}
               </Link>
             </li>

@@ -70,7 +70,7 @@ const ModelPage = ({ setError }) => {
         body: JSON.stringify({ event, detail }),
       });
     } catch {
-      console.warn("Gagal mengirim activity log");
+      console.warn("Failed to send activity log");
     }
   };
 
@@ -154,7 +154,7 @@ const ModelPage = ({ setError }) => {
       setOutliers(data);
       setShowOutlierModal(true);
     } catch {
-      setError("Gagal mengambil data outlier.");
+      setError("Failed to fetch outlier data.");
     }
   };
 
@@ -165,20 +165,19 @@ const ModelPage = ({ setError }) => {
       const res = await fetch(`${API_BASE}/data/delete-all`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("Gagal menghapus data");
+      if (!res.ok) throw new Error("Failed to delete data");
 
       await fetchUploadedData();
       setOutliers([]);
       setShowDeleteModal(false);
 
-      setToastMessage("Semua data berhasil dihapus!");
+      setToastMessage("All data has been successfully deleted!");
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
 
-      // Kirim activity log
-      sendActivityLog("Delete all data", "Semua data dihapus oleh user pada ");
+      sendActivityLog("Delete all data", "All data deleted by user at ");
     } catch {
-      setErrorMessage("Gagal menghapus data!");
+      setErrorMessage("Failed to delete data!");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
     } finally {
@@ -192,7 +191,7 @@ const ModelPage = ({ setError }) => {
       const res = await fetch(`${API_BASE}/data/outliers-handle`, {
         method: "POST",
       });
-      if (!res.ok) throw new Error("Gagal handle outlier");
+      if (!res.ok) throw new Error("Failed to handle outlier");
       const result = await res.json();
 
       await fetchUploadedData();
@@ -203,12 +202,11 @@ const ModelPage = ({ setError }) => {
       setShowSuccessToast(true);
       setTimeout(() => setShowSuccessToast(false), 3000);
 
-      // Log aktivitas
-      await sendActivityLog("Handle Outlier", result.message, " pada ");
+      await sendActivityLog("Handle Outlier", result.message, " at ");
 
       await refreshActivityLog();
     } catch {
-      setErrorMessage("Gagal menangani outlier!");
+      setErrorMessage("Failed to handle outlier!");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
     } finally {
@@ -284,7 +282,7 @@ const ModelPage = ({ setError }) => {
                 <div className="card-body d-flex align-items-center gap-3">
                   <i className="fas fa-database fs-2"></i>
                   <div>
-                    <h5 className="card-title fw-bold">Jumlah Data</h5>
+                    <h5 className="card-title fw-bold">Total Data</h5>
                     <p className="card-text fs-5">{info.totalData}</p>
                   </div>
                 </div>
@@ -306,7 +304,7 @@ const ModelPage = ({ setError }) => {
                         : "fa-exclamation-triangle"
                     } fs-2`}></i>
                   <div>
-                    <h5 className="card-title fw-bold">Status Outlier</h5>
+                    <h5 className="card-title fw-bold">Outlier</h5>
                     <p className="card-text fs-5">
                       {info.outlierCount === 0
                         ? "Clear"
@@ -330,7 +328,7 @@ const ModelPage = ({ setError }) => {
                         : "fa-exclamation-triangle"
                     } fs-2`}></i>
                   <div>
-                    <h5 className="card-title fw-bold">Status NaN / Null</h5>
+                    <h5 className="card-title fw-bold">NaN / Null</h5>
                     <p className="card-text fs-5">
                       {info.nanCount === 0 ? "Clear" : `${info.nanCount} data`}
                     </p>
@@ -367,14 +365,13 @@ const ModelPage = ({ setError }) => {
                         const out = await fetchOutliers(API_BASE);
                         setOutliers(out);
 
-                        setToastMessage("File berhasil diunggah!");
+                        setToastMessage("File uploaded successfully!");
                         setShowSuccessToast(true);
                         setTimeout(() => setShowSuccessToast(false), 3000);
 
-                        // Kirim activity log
                         const detail = uploadedData.length
-                          ? `Upload tambahan: ${uploadedData.length} data oleh user pada `
-                          : "Upload file pertama pada ";
+                          ? `Additional upload: ${uploadedData.length} records by user at `
+                          : "First file upload at ";
                         sendActivityLog("Upload Data", detail);
                       }}
                       onError={(err) => {
@@ -664,15 +661,11 @@ const ModelPage = ({ setError }) => {
                 const outlierData = await fetchOutliers(API_BASE);
                 setOutliers(outlierData);
 
-                setToastMessage("File berhasil diupload & data dimuat!");
+                setToastMessage("File uploaded & data loaded successfully!");
                 setShowSuccessToast(true);
                 setTimeout(() => setShowSuccessToast(false), 3000);
 
-                // Log aktivitas
-                sendActivityLog(
-                  "Upload Data",
-                  "Upload file pertama oleh user pada "
-                );
+                sendActivityLog("Upload Data", "First file upload by user at ");
               }}
               onError={(err) => {
                 setIsUploadingFile(false);

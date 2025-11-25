@@ -1,4 +1,3 @@
-import { type } from "@testing-library/user-event/dist/type";
 import { Link, useLocation } from "react-router-dom";
 
 const BottomBarMobile = () => {
