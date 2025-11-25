@@ -675,7 +675,7 @@ const ModelPage = ({ setError }) => {
               }}
             />
 
-            <div className="alert alert-warning text-center">
+            <div className="alert alert-warning text-center mt-4" role="alert">
               ⚠️ No data exist.
             </div>
           </>
