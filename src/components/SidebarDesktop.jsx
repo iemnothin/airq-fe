@@ -1,11 +1,12 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { Link, useLocation } from "react-router-dom";
 
 const SidebarDesktop = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard" },
-    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model" },
+    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard", type: "fa" },
+    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model", type: "custom" },
     // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
   ];
 
@@ -42,7 +43,11 @@ const SidebarDesktop = () => {
                   ? "active bg-primary text-white"
                   : "text-dark"
               }`}>
-              <i className={`fas ${item.icon} me-2`}></i>
+              <i
+                className={`${
+                  item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`
+                } me-2`}
+              />
               {item.name}
             </Link>
           </li>

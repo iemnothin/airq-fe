@@ -1,11 +1,12 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { Link, useLocation } from "react-router-dom";
 
 const BottomBarMobile = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard" },
-    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model" },
+    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard", type: "fa" },
+    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model", type: "custom" },
     // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
   ];
 
@@ -21,7 +22,7 @@ const BottomBarMobile = () => {
             className={`text-center text-decoration-none ${
               location.pathname === item.path ? "text-success" : "text-muted"
             }`}>
-            <i className={`fas ${item.icon} fa-lg`}></i>
+            <i className={`${item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`} fa-lg`}></i>
             <div style={{ fontSize: "12px" }}>{item.name}</div>
           </Link>
         ))}
