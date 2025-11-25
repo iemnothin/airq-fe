@@ -20,6 +20,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css/animate.min.css";
 import "../css/DashboardPage.css";
+import ConfirmModal from "../components/ConfirmModal";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +41,7 @@ const DashboardPage = () => {
   const [alertMsg, setAlertMsg] = useState(null);
   const [restarting, setRestarting] = useState(false);
   const [restartMsg, setRestartMsg] = useState(null);
+  const [confirmRestart, setConfirmRestart] = useState(false);
 
   const [activityLog, setActivityLog] = useState([]);
   const [activityLimit, setActivityLimit] = useState(10);
@@ -138,7 +140,6 @@ const DashboardPage = () => {
   }, [status?.backend]);
 
   const restartBackend = async () => {
-    if (!window.confirm("⚠ Restart backend FastAPI?")) return;
     setRestarting(true);
     try {
       await fetch("https://api-airq.abiila.com/api/v1/status/restart", {
@@ -222,7 +223,7 @@ const DashboardPage = () => {
             )}
             <button
               className="btn btn-danger btn-sm px-3 rounded-4 fw-bold"
-              onClick={restartBackend}
+              onClick={() => setConfirmRestart(true)}
               disabled={restarting}>
               {restarting ? (
                 <Spinner size="sm" />
@@ -667,6 +668,21 @@ const DashboardPage = () => {
           <p className="fw-bold fs-5 mb-0">{techModal.tech}</p>
         </Modal.Body>
       </Modal>
+
+      <ConfirmModal
+        show={confirmRestart}
+        title="⚠ Restart Backend FastAPI"
+        message="Are you sure to restart backend? This will temporarily make the API unavailable."
+        confirmText="Restart"
+        cancelText="Cancel"
+        loading={restarting}
+        confirmBtnClass="btn-danger"
+        onClose={() => setConfirmRestart(false)}
+        onConfirm={() => {
+          setConfirmRestart(false);
+          restartBackend();
+        }}
+      />
     </div>
   );
 };

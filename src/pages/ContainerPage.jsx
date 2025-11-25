@@ -1,17 +1,19 @@
 // src/pages/ContainerPage.jsx
 import Navigation from "../components/Navigation";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 const ContainerPage = () => {
   return (
     <div className="d-flex">
       {/* Top Bar Logo khusus Mobile */}
       <div className="mobile-top-logo-bar d-block d-md-none text-center">
-        <img
-          src={process.env.PUBLIC_URL + "/air-no-outline192.png"}
-          alt="AirQ Logo"
-        />
-        <div className="logo-text">AirQ</div>
+        <Link to="/">
+          <img
+            src={process.env.PUBLIC_URL + "/air-no-outline192.png"}
+            alt="AirQ Logo"
+          />
+          <div className="logo-text">AirQ</div>
+        </Link>
       </div>
 
       {/* Sidebar Navigation */}
