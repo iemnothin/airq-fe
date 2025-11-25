@@ -24,7 +24,7 @@ const SidebarDesktop = () => {
 
       <Link
         to="/"
-        className="h-4 nav-item text-center mb-4 text-success fw-bold text-decoration-none d-flex flex-column align-items-center">
+        className="h-4 nav-item text-center mb-4 fw-bold text-decoration-none d-flex flex-column align-items-center">
         <img
           src={process.env.PUBLIC_URL + "/air-no-outline192.png"}
           alt="logo-AirQ"
