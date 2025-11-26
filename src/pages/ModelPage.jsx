@@ -37,31 +37,39 @@ const ModelPage = ({ setError }) => {
   const [searchDate, setSearchDate] = useState("");
   const [activityLog, setActivityLog] = useState([]);
 
-  const formatDate = (value) => {
+  const formatFullDate = (value) => {
     const date = new Date(value);
 
-    const hours = String(date.getHours()).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-
     const monthNames = [
-      "January",
-      "February",
-      "March",
+      "Januari",
+      "Februari",
+      "Maret",
       "April",
-      "May",
-      "June",
-      "July",
-      "August",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
       "September",
-      "October",
+      "Oktober",
       "November",
-      "December",
+      "Desember",
+    ];
+    const dayNames = [
+      "Minggu",
+      "Senin",
+      "Selasa",
+      "Rabu",
+      "Kamis",
+      "Jumat",
+      "Sabtu",
     ];
 
     const month = monthNames[date.getMonth()];
+    const dayName = dayNames[date.getDay()];
     const year = date.getFullYear();
 
-    return `${hours}, ${day} ${month} ${year}`;
+    return `${dayName}, ${day} ${month} ${year}`;
   };
 
   // Info cards
@@ -598,7 +606,9 @@ const ModelPage = ({ setError }) => {
                                 className={
                                   isOutlier ? "table-danger fw-bold" : ""
                                 }>
-                                {key === "waktu" ? formatDate(val) : val ?? "-"}
+                                {key === "waktu"
+                                  ? formatFullDate(val)
+                                  : val ?? "-"}
                               </td>
                             );
                           })}
