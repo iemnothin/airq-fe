@@ -17,16 +17,16 @@ const SidebarDesktop = () => {
       path: "/model",
       type: "custom",
     },
-    // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
+    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic/:pol", type: "fa" },
   ];
-  if (isForecastPage) {
-    menuItems.push({
-      name: "Ispu",
-      icon: "fa-wind",
-      path: "/forecast/basic/:pol",
-      type: "fa",
-    });
-  }
+  // if (isForecastPage) {
+  //   menuItems.push({
+  //     name: "Ispu",
+  //     icon: "fa-wind",
+  //     path: "/forecast/basic/:pol",
+  //     type: "fa",
+  //   });
+  // }
 
   return (
     <div
