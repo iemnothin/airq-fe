@@ -37,6 +37,33 @@ const ModelPage = ({ setError }) => {
   const [searchDate, setSearchDate] = useState("");
   const [activityLog, setActivityLog] = useState([]);
 
+  const formatDate = (value) => {
+    const date = new Date(value);
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${hours}, ${day} ${month} ${year}`;
+  };
+
   // Info cards
   const [info, setInfo] = useState({
     totalData: 0,
@@ -571,9 +598,7 @@ const ModelPage = ({ setError }) => {
                                 className={
                                   isOutlier ? "table-danger fw-bold" : ""
                                 }>
-                                {key === "waktu"
-                                  ? new Date(val).toISOString().split("T")[0]
-                                  : val ?? "-"}
+                                {key === "waktu" ? formatDate(val) : val ?? "-"}
                               </td>
                             );
                           })}
