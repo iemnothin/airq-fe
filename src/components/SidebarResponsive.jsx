@@ -17,7 +17,7 @@ const SidebarResponsive = ({ show, onClose }) => {
       path: "/model",
       type: "custom",
     },
-    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic/:pol", type: "fa" },
+    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic", type: "fa" },
   ];
 
   // if (isForecastPage) {
