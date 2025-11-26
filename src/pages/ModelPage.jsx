@@ -485,9 +485,10 @@ const ModelPage = ({ setError }) => {
                       onStart={() => setIsProcessing(true)}
                       onDone={async (data) => {
                         setIsProcessing(false);
-                        setBasicProcessed(true);
                         await fetchUploadedData();
-
+                        
+                        setBasicProcessed(true);
+                        
                         if (data?.message) {
                           setToastMessage(data.message);
                           setShowSuccessToast(true);

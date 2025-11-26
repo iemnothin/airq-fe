@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const SidebarResponsive = ({ show, onClose }) => {
   const location = useLocation();
-  const isForecastPage = location.pathname.startsWith("/forecast/basic");
+  const isForecastPage = location.pathname.includes("/forecast/basic");
 
   const menuItems = [
     {
