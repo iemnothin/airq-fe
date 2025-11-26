@@ -24,7 +24,8 @@ const SidebarResponsive = ({ show, onClose }) => {
     menuItems.push({
       name: "Ispu",
       icon: "fa-wind",
-      path: "/forecast/basic",
+      path: "/forecast/basic/:pol",
+      type: "fa",
     });
   }
 
