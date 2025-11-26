@@ -2,12 +2,31 @@ import { Link, useLocation } from "react-router-dom";
 
 const BottomBarMobile = () => {
   const location = useLocation();
+  const isForecastPage = location.pathname.startsWith("/forecast/basic");
 
   const menuItems = [
-    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard", type: "fa" },
-    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model", type: "custom" },
+    {
+      name: "Dashboard",
+      icon: "fa-chart-line",
+      path: "/dashboard",
+      type: "fa",
+    },
+    {
+      name: "Model",
+      icon: "icon-fa-fb-prophet",
+      path: "/model",
+      type: "custom",
+    },
     // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
   ];
+
+  if (isForecastPage) {
+    menuItems.push({
+      name: "Ispu",
+      icon: "fa-wind",
+      path: "/forecast/basic",
+    });
+  }
 
   return (
     <div
@@ -21,7 +40,10 @@ const BottomBarMobile = () => {
             className={`text-center text-decoration-none ${
               location.pathname === item.path ? "text-success" : "text-muted"
             }`}>
-            <i className={`${item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`} fa-lg`}></i>
+            <i
+              className={`${
+                item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`
+              } fa-lg`}></i>
             <div style={{ fontSize: "12px" }}>{item.name}</div>
           </Link>
         ))}

@@ -9,6 +9,7 @@ import ConfirmModal from "../components/ConfirmModal";
 import SuccessToast from "../components/SuccessToast";
 import ErrorToast from "../components/ErrorToast";
 import DragDropUpload from "../components/DragDropUpload";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = "https://api-airq.abiila.com/api/v1";
 
@@ -36,6 +37,8 @@ const ModelPage = ({ setError }) => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [searchDate, setSearchDate] = useState("");
   const [activityLog, setActivityLog] = useState([]);
+  const [basicProcessed, setBasicProcessed] = useState(false);
+  const navigate = useNavigate();
 
   const formatFullDate = (value) => {
     const date = new Date(value);
@@ -467,12 +470,22 @@ const ModelPage = ({ setError }) => {
                       {showSingleUpload ? "Close" : "New Data"}
                     </button>
 
+                    {basicProcessed && (
+                      <button
+                        className="btn btn-info btn-sm d-flex align-items-center gap-2"
+                        onClick={() => navigate("/forecast/basic")}>
+                        <i className="fas fa-chart-line"></i>
+                        View Basic Result
+                      </button>
+                    )}
+
                     <ProcessingPanel
                       API_BASE={API_BASE}
                       setIsProcessing={setIsProcessing}
                       onStart={() => setIsProcessing(true)}
                       onDone={async (data) => {
                         setIsProcessing(false);
+                        setBasicProcessed(true);
                         await fetchUploadedData();
 
                         if (data?.message) {

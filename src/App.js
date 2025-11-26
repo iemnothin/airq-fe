@@ -17,6 +17,7 @@ import ModelPage from "./pages/ModelPage";
 import ContainerPage from "./pages/ContainerPage";
 import { useState } from "react";
 import IspuPage from "./pages/IspuPage";
+import BasicForecastPage from "./pages/BasicForecastPage";
 
 import LoadingScreen from "./components/LoadingScreen";
 import BackendErrPage from "./pages/BackendErrPage";
@@ -67,6 +68,12 @@ function App() {
           {/* Halaman ISPU page */}
           {/* <Route path="/ispu" element={<IspuPage setError={setError} />} /> */}
         </Route>
+
+        <Route path="/forecast/basic" element={<BasicForecastPage />} />
+        <Route
+          path="/forecast/basic/:pol"
+          element={<IspuPage setError={setError} />}
+        />
       </Routes>
     </Router>
   );

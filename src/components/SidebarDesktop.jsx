@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 
 const SidebarDesktop = () => {
   const location = useLocation();
+  const isForecastPage = location.pathname.startsWith("/forecast/basic");
 
   const menuItems = [
     {
@@ -18,6 +19,13 @@ const SidebarDesktop = () => {
     },
     // { name: "ISPU", icon: "fa-wind", path: "/ispu" },
   ];
+  if (isForecastPage) {
+    menuItems.push({
+      name: "Ispu",
+      icon: "fa-wind",
+      path: "/forecast/basic",
+    });
+  }
 
   return (
     <div
