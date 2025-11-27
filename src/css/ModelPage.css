@@ -322,7 +322,7 @@
 /* WRAPPER CHART DI DALAM — hanya kontennya yang bisa melebar */
 .chart-inner {
   width: 100%; /* default tetap selebar device */
-  height: 620px; /* tinggi grafik mobile yang kamu mau */
+  height: 420px; /* tinggi grafik mobile yang kamu mau */
   position: relative;
 }
 
