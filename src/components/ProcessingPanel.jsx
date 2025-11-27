@@ -40,7 +40,6 @@ const ProcessingPanel = ({
       setForecastMessage(data?.message);
       setForecastProgress(100);
 
-      // 🔥 panggil ModelPage seketika
       if (onDone) onDone(data);
     } catch (err) {
       setForecastMessage(err.message || "❌ Forecast failed.");

@@ -152,6 +152,23 @@ const ModelPage = ({ setError }) => {
     getOutliers();
   }, []);
 
+  useEffect(() => {
+    const checkBasicForecast = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/forecast/check-basic`);
+        const data = await res.json();
+
+        if (data.exists === true) {
+          setBasicProcessed(true);
+        }
+      } catch (err) {
+        console.error("Failed checking forecast:", err);
+      }
+    };
+
+    checkBasicForecast();
+  }, []);
+
   const filteredData = uploadedData.filter((row) => {
     if (!searchDate) return true;
     const tanggalRow = new Date(row.waktu).toISOString().split("T")[0];
@@ -500,7 +517,7 @@ const ModelPage = ({ setError }) => {
 
                             // 🟢 setelah toast selesai → munculkan tombol
                             setBasicProcessed(true);
-                          }, 3500);
+                          }, 1000);
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
