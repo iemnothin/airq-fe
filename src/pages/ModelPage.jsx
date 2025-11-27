@@ -143,13 +143,6 @@ const ModelPage = ({ setError }) => {
   };
 
   useEffect(() => {
-    const basic = localStorage.getItem("basicProcessed") === "true";
-    const adv = localStorage.getItem("advancedProcessed") === "true";
-    setBasicProcessed(basic);
-    setAdvancedProcessed(adv);
-  }, []);
-
-  useEffect(() => {
     fetchUploadedData();
   }, [setError]);
 
@@ -162,20 +155,19 @@ const ModelPage = ({ setError }) => {
   }, []);
 
   useEffect(() => {
-    const checkBasicForecast = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/forecast/check-basic`);
-        const data = await res.json();
+    const checkStatus = async () => {
+      const basic = await fetch(`${API_BASE}/forecast/check-basic`).then((r) =>
+        r.json()
+      );
+      const adv = await fetch(`${API_BASE}/forecast/check-advanced`).then((r) =>
+        r.json()
+      );
 
-        if (data.exists === true) {
-          setBasicProcessed(true);
-        }
-      } catch (err) {
-        console.error("Failed checking forecast:", err);
-      }
+      setBasicProcessed(basic.exists);
+      setAdvancedProcessed(adv.exists);
     };
 
-    checkBasicForecast();
+    checkStatus();
   }, []);
 
   const filteredData = uploadedData.filter((row) => {
@@ -511,22 +503,23 @@ const ModelPage = ({ setError }) => {
                       setForecastProgress={setForecastProgress}
                       setForecastMessage={setForecastMessage}
                       setCurrentPollutant={setCurrentPollutant}
-                      onDone={async (data) => {
+                      onDone={async (mode) => {
                         setIsProcessing(false);
                         await fetchUploadedData();
 
-                        if (data?.message) {
-                          setToastMessage(data.message);
+                        if (mode) {
+                          setToastMessage(
+                            mode === "basic"
+                              ? "Basic forecast completed!"
+                              : "Advanced forecast completed!"
+                          );
                           setShowSuccessToast(true);
 
-                          setTimeout(() => {
-                            setShowSuccessToast(false);
+                          setTimeout(() => setShowSuccessToast(false), 1000);
 
-                            setBasicProcessed(true);
-                            setAdvancedProcessed(true);
-                            localStorage.setItem("basicProcessed", "true");
-                            localStorage.setItem("advancedProcessed", "true");
-                          }, 1000);
+                          // tandai yg sudah selesai
+                          if (mode === "basic") setBasicProcessed(true);
+                          if (mode === "advanced") setAdvancedProcessed(true);
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
@@ -589,9 +582,6 @@ const ModelPage = ({ setError }) => {
 
                           setBasicProcessed(false);
                           setAdvancedProcessed(false);
-
-                          localStorage.removeItem("basicProcessed");
-                          localStorage.removeItem("advancedProcessed");
 
                           setShowClearForecastModal(false);
                           setToastMessage(

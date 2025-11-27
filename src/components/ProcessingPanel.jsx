@@ -6,30 +6,8 @@ const ProcessingPanel = ({
   setCurrentPollutant,
   onDone,
 }) => {
-  // const callEndpoint = async (path) => {
-  //   if (setIsProcessing) setIsProcessing(true);
-
-  //   try {
-  //     const res = await fetch(`${API_BASE}${path}`, { method: "POST" });
-  //     const data = await res.json();
-
-  //     setForecastProgress(100);
-  //     if (!res.ok) throw new Error(data?.error || "Server error");
-  //     setForecastMessage(
-  //       data?.message || "✅ Forecast completed successfully."
-  //     );
-  //     if (onDone) onDone(data);
-  //   } catch (err) {
-  //     console.error(err);
-  //     setForecastMessage(err.message || "❌ Forecast failed.");
-
-  //     if (onDone) onDone(null);
-  //   } finally {
-  //     setTimeout(() => setIsProcessing(false), 2000);
-  //   }
-  // };
   const callEndpoint = async (path) => {
-    setIsProcessing(true);
+    if (setIsProcessing) setIsProcessing(true);
 
     try {
       const res = await fetch(`${API_BASE}${path}`, { method: "POST" });
@@ -37,15 +15,24 @@ const ProcessingPanel = ({
 
       if (!res.ok) throw new Error(data?.error || "Server error");
 
-      setForecastMessage(data?.message);
+      setForecastMessage(
+        data?.message || "✅ Forecast completed successfully."
+      );
       setForecastProgress(100);
 
-      if (onDone) onDone(data);
+      setTimeout(() => {
+        setIsProcessing(false);
+
+        if (onDone) onDone("basic");
+      }, 1000);
     } catch (err) {
+      console.error(err);
       setForecastMessage(err.message || "❌ Forecast failed.");
-      if (onDone) onDone(null);
-    } finally {
-      setIsProcessing(false);
+
+      setTimeout(() => {
+        setIsProcessing(false);
+        if (onDone) onDone(null);
+      }, 1000);
     }
   };
 
@@ -55,10 +42,9 @@ const ProcessingPanel = ({
     setForecastProgress(0);
     setCurrentPollutant("");
 
-    const evtSource = new EventSource(
-      `${API_BASE}/model/process-advanced`
-    );
-    window.currentForecastStream = evtSource; // ✅ simpan global supaya bisa di-cancel dari ModelPage.jsx
+    const evtSource = new EventSource(`${API_BASE}/model/process-advanced`);
+
+    window.currentForecastStream = evtSource;
 
     evtSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -66,37 +52,31 @@ const ProcessingPanel = ({
       if (data.status === "start") {
         setForecastMessage(data.message);
         setForecastProgress(0);
-      } else if (data.status === "begin") {
+      } else if (data.status === "processing") {
         setCurrentPollutant(data.pollutant);
-        setForecastMessage(data.message);
-        setForecastProgress(0);
-      } else if (data.status === "progress") {
-        setCurrentPollutant(data.pollutant);
-        setForecastMessage(data.message);
+        setForecastMessage(`Processing ${data.pollutant}`);
         setForecastProgress(data.progress);
       } else if (data.status === "done") {
-        setForecastProgress(100);
-        setForecastMessage(`✅ ${data.pollutant} completed.`);
+        setForecastMessage(`Completed ${data.pollutant}`);
+        setForecastProgress(data.progress);
       } else if (data.status === "complete") {
         setForecastProgress(100);
-        setForecastMessage("✅ All forecasts completed successfully!");
+        setForecastMessage("🎉 All advanced forecasts completed!");
+
+        evtSource.close();
+        window.currentForecastStream = null;
+
         setTimeout(() => {
           setIsProcessing(false);
-          if (onDone) onDone({ message: "Advanced forecast done" });
-        }, 2000);
-        evtSource.close();
-        window.currentForecastStream = null;
-      } else if (data.status === "error") {
-        setForecastMessage(`Error: ${data.message}`);
-        setIsProcessing(false);
-        evtSource.close();
-        window.currentForecastStream = null;
+          if (onDone) onDone("advanced");
+        }, 1000);
       }
     };
 
     evtSource.onerror = () => {
       setForecastMessage("❌ Connection lost or backend stopped.");
       setIsProcessing(false);
+
       evtSource.close();
       window.currentForecastStream = null;
     };
