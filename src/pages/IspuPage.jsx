@@ -41,11 +41,13 @@ const IspuPage = () => {
     checkData();
   }, []);
 
+  // routing
   const handleClick = (key) => {
     if (advMap[key]) navigate(`/forecast/advanced/${key}`);
     else navigate(`/forecast/basic/${key}`);
   };
 
+  // tampilkan pollutant yang punya basic ATAU advanced
   const items = pollutants.filter((p) => basicMap[p.key] || advMap[p.key]);
 
   const nothing = items.length === 0;
@@ -80,12 +82,17 @@ const IspuPage = () => {
                 onClick={() => handleClick(p.key)}>
                 <h4 className="fw-bold mb-2">{p.label}</h4>
 
-                {advMap[p.key] && (
-                  <span className="badge bg-primary">Advanced</span>
-                )}
-                {!advMap[p.key] && basicMap[p.key] && (
-                  <span className="badge bg-success">Basic</span>
-                )}
+                {/* ========================= */}
+                {/*   BADGE — BASIC & ADV    */}
+                {/* ========================= */}
+                <div className="d-flex gap-1 justify-content-center mt-1">
+                  {basicMap[p.key] && (
+                    <span className="badge bg-success">Basic</span>
+                  )}
+                  {advMap[p.key] && (
+                    <span className="badge bg-primary">Advanced</span>
+                  )}
+                </div>
               </div>
             </div>
           ))}
