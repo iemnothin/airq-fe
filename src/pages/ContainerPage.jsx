@@ -1,30 +1,35 @@
 // src/pages/ContainerPage.jsx
+import { Link, Outlet } from "react-router-dom";
 import Navigation from "../components/Navigation";
-import { Outlet, Link } from "react-router-dom";
+
+const MOBILE_LOGO = process.env.PUBLIC_URL + "/air-no-outline192.png";
+
+const MobileTopLogoBar = () => (
+  <div className="mobile-top-logo-bar d-block d-md-none text-center py-2">
+    <Link
+      to="/"
+      className="nav-item fw-bold text-decoration-none d-flex flex-column align-items-center">
+      <img src={MOBILE_LOGO} alt="AirQ Logo" style={{ width: "55px" }} />
+      <div className="logo-text">AirQ</div>
+    </Link>
+  </div>
+);
 
 const ContainerPage = () => {
   return (
     <div className="d-flex">
-      {/* Top Bar Logo khusus Mobile */}
-      <div className="mobile-top-logo-bar d-block d-md-none text-center">
-        <Link to="/" className="h-4 nav-item text-center mb-4 fw-bold text-decoration-none">
-          <img
-            src={process.env.PUBLIC_URL + "/air-no-outline192.png"}
-            alt="AirQ Logo"
-          />
-          <div className="logo-text">AirQ</div>
-        </Link>
-      </div>
+      {/* MOBILE LOGO BAR */}
+      <MobileTopLogoBar />
 
-      {/* Sidebar Navigation */}
+      {/* SIDEBAR */}
       <Navigation className="flex-shrink-0" />
 
-      {/* Page Content */}
-      <div className="flex-grow-1 container-fluid p-0">
+      {/* MAIN PAGE CONTENT */}
+      <main className="flex-grow-1 container-fluid p-0">
         <div className="content-wrapper">
           <Outlet />
         </div>
-      </div>
+      </main>
     </div>
   );
 };
