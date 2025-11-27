@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -24,6 +24,7 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 
 const AdvancedForecastPage = () => {
   const { pol } = useParams();
+  const navigate = useNavigate();
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
@@ -92,6 +93,15 @@ const AdvancedForecastPage = () => {
 
   return (
     <div className="container py-4">
+      {/* BACK BUTTON */}
+      <button
+        className="btn btn-outline-primary mb-3 d-flex align-items-center gap-2"
+        style={{ borderRadius: "10px" }}
+        onClick={() => navigate("/forecast/results")}>
+        <i className="fas fa-arrow-left"></i>
+        Back to Results
+      </button>
+
       <h2 className="fw-bold mb-4 text-center">
         Advanced Forecast Result — {pol.toUpperCase()}
       </h2>
@@ -111,7 +121,7 @@ const AdvancedForecastPage = () => {
         </div>
       )}
 
-      {/* FORECAST TABLE */}
+      {/* TABLE */}
       {!noData && (
         <div className="table-responsive shadow-sm mt-4">
           <table className="table table-bordered table-striped">
