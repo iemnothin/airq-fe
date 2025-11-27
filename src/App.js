@@ -12,12 +12,12 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
-import ForecastPage from "./pages/ForecastPage";
 import ModelPage from "./pages/ModelPage";
 import ContainerPage from "./pages/ContainerPage";
 import { useState } from "react";
 import IspuPage from "./pages/IspuPage";
 import BasicForecastPage from "./pages/BasicForecastPage";
+import AdvancedForecastPage from "./pages/AdvancedForecastPage"; // <--- WAJIB ADA
 
 import LoadingScreen from "./components/LoadingScreen";
 import BackendErrPage from "./pages/BackendErrPage";
@@ -26,13 +26,10 @@ function App() {
   const [loading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Loading global
   if (loading) return <LoadingScreen />;
 
-  // Backend error page
   if (error) {
     const randomChance = Math.random() < 0.05;
-
     return (
       <BackendErrPage
         message={error}
@@ -48,37 +45,36 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Halaman landing page */}
+        {/* Landing */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* Halaman processing page */}
+        {/* Page Container */}
         <Route element={<ContainerPage />}>
-          {/* Halaman Forecast page */}
+          {/* Dashboard */}
           <Route
             path="/dashboard"
             element={<DashboardPage setError={setError} />}
           />
-          {/* Halaman Forecast page */}
-          {/* <Route
-            path="/forecast"
-            element={<ForecastPage setError={setError} />}
-          /> */}
-          {/* Halaman Model page */}
+
+          {/* Model */}
           <Route path="/model" element={<ModelPage setError={setError} />} />
-          {/* Halaman ISPU page */}
-          {/* <Route path="/ispu" element={<IspuPage setError={setError} />} /> */}
+
+          {/* Forecast Result List */}
           <Route
             path="/forecast/results"
             element={<IspuPage setError={setError} />}
           />
+
+          {/* BASIC FORECAST DETAIL */}
           <Route
             path="/forecast/basic/:pol"
             element={<BasicForecastPage setError={setError} />}
           />
 
+          {/* ADVANCED FORECAST DETAIL */}
           <Route
-            path="/forecast/basic/:pol"
-            element={<BasicForecastPage setError={setError} />}
+            path="/forecast/advanced/:pol"
+            element={<AdvancedForecastPage setError={setError} />}
           />
         </Route>
       </Routes>
