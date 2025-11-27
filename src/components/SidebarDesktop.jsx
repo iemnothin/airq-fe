@@ -4,33 +4,22 @@ const SidebarDesktop = () => {
   const location = useLocation();
 
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: "fa-chart-line",
-      path: "/dashboard",
-      type: "fa",
-    },
-    {
-      name: "Model",
-      icon: "icon-fa-fb-prophet",
-      path: "/model",
-      type: "custom",
-    },
-    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic", type: "fa" },
+    { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard" },
+    { name: "Model", icon: "icon-fa-fb-prophet", path: "/model" },
+    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic" },
   ];
+
+  const isActive = (itemPath) => {
+    if (itemPath === "/forecast/basic") {
+      return location.pathname.startsWith("/forecast/basic");
+    }
+    return location.pathname === itemPath;
+  };
 
   return (
     <div
       className="sidebar-desktop d-none d-md-flex flex-column vh-100 p-3 bg-light border-end"
       style={{ width: "220px", position: "fixed" }}>
-      {/* <Link
-        to="/"
-        className="h-4 nav-item text-center mb-4 text-success fw-bold text-decoration-none"
-        element={<LandingPage />}>
-          <img src="%PUBLIC_URL%/air-no-outline192.png" alt="logo-AirQ" />
-        AirQ
-      </Link> */}
-
       <Link
         to="/"
         className="h-4 nav-item text-center mb-4 fw-bold text-decoration-none d-flex flex-column align-items-center">
@@ -48,7 +37,7 @@ const SidebarDesktop = () => {
             <Link
               to={item.path}
               className={`nav-link d-flex align-items-center ${
-                location.pathname === item.path
+                isActive(item.path)
                   ? "active bg-primary text-white"
                   : "text-dark"
               }`}>

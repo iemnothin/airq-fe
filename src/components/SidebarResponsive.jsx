@@ -19,9 +19,16 @@ const SidebarResponsive = ({ show, onClose }) => {
     { name: "ISPU", icon: "fa-wind", path: "/forecast/basic", type: "fa" },
   ];
 
+  // Helper active state
+  const isActive = (itemPath) => {
+    if (itemPath === "/forecast/basic") {
+      return location.pathname.startsWith("/forecast/basic");
+    }
+    return location.pathname === itemPath;
+  };
+
   return (
     <>
-      {/* Background overlay */}
       {show && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 bg-dark"
@@ -29,7 +36,6 @@ const SidebarResponsive = ({ show, onClose }) => {
           onClick={onClose}></div>
       )}
 
-      {/* Sidebar */}
       <div
         className={`position-fixed top-0 h-100 bg-light border-end p-3`}
         style={{
@@ -57,7 +63,7 @@ const SidebarResponsive = ({ show, onClose }) => {
                 to={item.path}
                 onClick={onClose}
                 className={`nav-link d-flex align-items-center ${
-                  location.pathname === item.path
+                  isActive(item.path)
                     ? "active bg-primary text-white"
                     : "text-dark"
                 }`}>
