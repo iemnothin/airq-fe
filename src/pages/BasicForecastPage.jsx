@@ -41,7 +41,7 @@
 // };
 
 // export default BasicForecastPage;
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = "https://api-airq.abiila.com/api/v1";
@@ -71,7 +71,7 @@ const BasicForecastPage = () => {
 
           if (data && data.length > 0) {
             allEmpty = false;
-            break; // minimal 1 ada → jangan tampilkan alert
+            break;
           }
         }
 
@@ -98,21 +98,24 @@ const BasicForecastPage = () => {
         </div>
       )}
 
-      <div className="row g-4">
-        {pollutants.map((p, i) => (
-          <div className="col-12 col-md-4 col-lg-3" key={i}>
-            <div
-              className="card shadow-sm border-0 h-100"
-              style={{ cursor: "pointer" }}
-              onClick={() => navigate(`/forecast/basic/${p.key}`)}>
-              <div className="card-body d-flex flex-column justify-content-center align-items-center py-4">
-                <h3 className="fw-bold mb-2">{p.label}</h3>
-                <span className="text-muted">View forecast →</span>
+      {/* CARDS — hanya tampil jika ada data */}
+      {!noData && (
+        <div className="row g-4">
+          {pollutants.map((p, i) => (
+            <div className="col-12 col-md-4 col-lg-3" key={i}>
+              <div
+                className="card shadow-sm border-0 h-100"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/forecast/basic/${p.key}`)}>
+                <div className="card-body d-flex flex-column justify-content-center align-items-center py-4">
+                  <h3 className="fw-bold mb-2">{p.label}</h3>
+                  <span className="text-muted">View forecast →</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
