@@ -482,36 +482,20 @@ const ModelPage = ({ setError }) => {
                     <ProcessingPanel
                       API_BASE={API_BASE}
                       setIsProcessing={setIsProcessing}
-                      onStart={() => setIsProcessing(true)}
-                      onDone={async (data) => {
-                        setIsProcessing(false);
-                        await fetchUploadedData();
-
-                        setBasicProcessed(true);
-
+                      setForecastProgress={setForecastProgress}
+                      setForecastMessage={setForecastMessage}
+                      setCurrentPollutant={setCurrentPollutant}
+                      onDone={(data) => {
                         if (data?.message) {
-                          // 🔥 Tambahan toast sukses untuk proses basic forecast
-                          setToastMessage(
-                            "Basic forecast processed successfully!"
-                          );
+                          setToastMessage(data.message);
                           setShowSuccessToast(true);
                           setTimeout(() => setShowSuccessToast(false), 3500);
-
-                          // Log activity
-                          sendActivityLog(
-                            "Forecast Process",
-                            data.message,
-                            " oleh user pada "
-                          );
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
                           setTimeout(() => setShowErrorToast(false), 4500);
                         }
                       }}
-                      setForecastProgress={setForecastProgress}
-                      setForecastMessage={setForecastMessage}
-                      setCurrentPollutant={setCurrentPollutant}
                     />
 
                     {/* HANDLE OUTLIER BUTTON */}

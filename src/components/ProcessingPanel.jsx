@@ -4,6 +4,7 @@ const ProcessingPanel = ({
   setForecastProgress,
   setForecastMessage,
   setCurrentPollutant,
+  onDone,
 }) => {
   const callEndpoint = async (path) => {
     if (setIsProcessing) setIsProcessing(true);
@@ -17,9 +18,12 @@ const ProcessingPanel = ({
         data?.message || "✅ Forecast completed successfully."
       );
       setForecastProgress(100);
+      if (onDone) onDone(data);
     } catch (err) {
       console.error(err);
       setForecastMessage(err.message || "❌ Forecast failed.");
+
+      if (onDone) onDone(null);
     } finally {
       setTimeout(() => setIsProcessing(false), 2000);
     }
