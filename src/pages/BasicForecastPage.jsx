@@ -31,15 +31,18 @@ const BasicForecastPage = () => {
   const [noDataMsg, setNoDataMsg] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
+  // PAGINATION DATA
   const rowsPerPage = 10;
+  const [page, setPage] = useState(1);
+
+  const indexOfFirst = (page - 1) * rowsPerPage;
+  const currentRows = forecastData.slice(indexOfFirst, indexOfFirst + rowsPerPage);
+  const totalPages = Math.ceil(forecastData.length / rowsPerPage);
 
   useEffect(() => {
     const fetchForecast = async () => {
       try {
         const res = await fetch(`${API_BASE}/forecast/${pol}`);
-
         if (!res.ok) {
           setNoData(true);
           setNoDataMsg(`⚠ Failed to fetch forecast for ${pol.toUpperCase()}.`);
@@ -58,7 +61,7 @@ const BasicForecastPage = () => {
         }
 
         setForecastData(data);
-      } catch {
+      } catch (err) {
         setNoData(true);
         setNoDataMsg(`⚠ Failed to load forecast for ${pol.toUpperCase()}.`);
       } finally {
@@ -69,38 +72,6 @@ const BasicForecastPage = () => {
     fetchForecast();
   }, [pol]);
 
-  // Pagination Calculations
-  const totalPages = Math.ceil(forecastData.length / rowsPerPage);
-  const indexFirst = (currentPage - 1) * rowsPerPage;
-  const currentRows = forecastData.slice(indexFirst, indexFirst + rowsPerPage);
-
-  const getPageNumbers = () => {
-    if (totalPages <= 5) return [...Array(totalPages).keys()].map((x) => x + 1);
-
-    if (currentPage <= 3) return [1, 2, 3, 4, "...", totalPages];
-
-    if (currentPage >= totalPages - 2)
-      return [
-        1,
-        "...",
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-
-    return [
-      1,
-      "...",
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      "...",
-      totalPages,
-    ];
-  };
-
-  // Chart Data
   const chartData = {
     labels: forecastData.map((d) => d.ds),
     datasets: [
@@ -129,12 +100,13 @@ const BasicForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: "top" } },
+    plugins: {
+      legend: { position: "top" },
+    },
   };
 
   return (
-    <div className="container py-4">
+    <div className="container-fluid py-4" style={{ maxWidth: "1800px" }}>
       {/* BACK BUTTON */}
       <button
         onClick={() => navigate("/forecast/results")}
@@ -146,23 +118,21 @@ const BasicForecastPage = () => {
           borderRadius: "12px",
           background: "rgba(245, 245, 247, 0.6)",
           backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
           border: "1px solid rgba(0,0,0,0.08)",
           color: "#007aff",
           fontWeight: 500,
           cursor: "pointer",
           fontSize: "15px",
-          transition: "all 0.25s ease",
-        }}>
+        }}
+      >
         <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
         Back to Results
       </button>
 
-      <h2 className="fw-bold text-center mt-3 mb-4">
+      <h2 className="fw-bold mb-4 text-center">
         Basic Forecast Result — {pol.toUpperCase()}
       </h2>
 
-      {/* LOADING */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-success"></div>
@@ -170,19 +140,21 @@ const BasicForecastPage = () => {
         </div>
       )}
 
-      {/* NO DATA */}
       {!loading && noData && (
-        <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
+        <div className="alert alert-warning text-center mt-4">
+          {noDataMsg}
+        </div>
       )}
 
-      {/* CONTENT */}
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
-          {/* Chart */}
+
+          {/* LEFT — CHART */}
           <div className="flex-grow-1">
             <div
               className="card p-4 shadow-sm"
-              style={{ height: "70vh", minHeight: "400px" }}>
+              style={{ height: "70vh", minHeight: "450px" }}
+            >
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
                 <Line data={chartData} options={chartOptions} />
@@ -190,13 +162,23 @@ const BasicForecastPage = () => {
             </div>
           </div>
 
-          {/* Table */}
+          {/* RIGHT — TABLE */}
           <div
-            className="shadow-sm border rounded p-3"
-            style={{ width: "100%", maxWidth: "380px" }}>
+            className="card shadow-sm border p-3"
+            style={{
+              maxWidth: "420px",
+              height: "70vh",
+              minHeight: "450px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <h5 className="fw-bold mb-3">Forecast Table</h5>
 
-            <div className="table-responsive" style={{ maxHeight: "300px" }}>
+            <div
+              className="table-responsive"
+              style={{ flexGrow: 1, overflowY: "auto", overflowX: "auto" }}
+            >
               <table className="table table-bordered table-striped">
                 <thead className="table-success">
                   <tr>
@@ -210,7 +192,7 @@ const BasicForecastPage = () => {
                 <tbody>
                   {currentRows.map((row, i) => (
                     <tr key={i}>
-                      <td>{indexFirst + i + 1}</td>
+                      <td>{indexOfFirst + i + 1}</td>
                       <td>{row.ds}</td>
                       <td>{row.yhat}</td>
                       <td>{row.yhat_lower}</td>
@@ -222,48 +204,38 @@ const BasicForecastPage = () => {
             </div>
 
             {/* Pagination */}
-            <ul className="pagination pagination-centered mt-3">
-              <li
-                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage((p) => p - 1)}>
-                  Previous
-                </button>
-              </li>
+            <div className="mt-3 text-center">
+              <ul className="pagination pagination-centered justify-content-center">
+                <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => setPage(page - 1)}>
+                    Previous
+                  </button>
+                </li>
 
-              {getPageNumbers().map((num, idx) =>
-                num === "..." ? (
-                  <li key={idx} className="page-item disabled">
-                    <span className="page-link">…</span>
-                  </li>
-                ) : (
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
                   <li
-                    key={idx}
-                    className={`page-item ${
-                      currentPage === num ? "active" : ""
-                    }`}>
-                    <button
-                      className="page-link"
-                      onClick={() => setCurrentPage(num)}>
+                    key={num}
+                    className={`page-item ${page === num ? "active" : ""}`}
+                  >
+                    <button className="page-link" onClick={() => setPage(num)}>
                       {num}
                     </button>
                   </li>
-                )
-              )}
+                ))}
 
-              <li
-                className={`page-item ${
-                  currentPage === totalPages ? "disabled" : ""
-                }`}>
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage((p) => p + 1)}>
-                  Next
-                </button>
-              </li>
-            </ul>
+                <li
+                  className={`page-item ${
+                    page === totalPages ? "disabled" : ""
+                  }`}
+                >
+                  <button className="page-link" onClick={() => setPage(page + 1)}>
+                    Next
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
+
         </div>
       )}
     </div>
