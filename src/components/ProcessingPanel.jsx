@@ -29,7 +29,7 @@ const ProcessingPanel = ({
   //   }
   // };
   const callEndpoint = async (path) => {
-    if (setIsProcessing) setIsProcessing(true);
+    setIsProcessing(true);
 
     try {
       const res = await fetch(`${API_BASE}${path}`, { method: "POST" });
@@ -37,25 +37,16 @@ const ProcessingPanel = ({
 
       if (!res.ok) throw new Error(data?.error || "Server error");
 
-      setForecastMessage(
-        data?.message || "✅ Forecast completed successfully."
-      );
+      setForecastMessage(data?.message);
       setForecastProgress(100);
 
-      setTimeout(() => {
-        setIsProcessing(false);
-
-        if (onDone) onDone(data);
-      }, 800);
+      // 🔥 panggil ModelPage seketika
+      if (onDone) onDone(data);
     } catch (err) {
-      console.error(err);
       setForecastMessage(err.message || "❌ Forecast failed.");
-
-      setTimeout(() => {
-        setIsProcessing(false);
-
-        if (onDone) onDone(null); 
-      }, 800);
+      if (onDone) onDone(null);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
