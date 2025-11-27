@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -24,6 +24,7 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 
 const BasicForecastPage = () => {
   const { pol } = useParams();
+  const navigate = useNavigate();
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
@@ -103,6 +104,36 @@ const BasicForecastPage = () => {
 
   return (
     <div className="container py-4">
+      <button
+        onClick={() => navigate("/forecast/results")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 16px",
+          borderRadius: "12px",
+          background: "rgba(245, 245, 247, 0.6)", // warna iOS light
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(0,0,0,0.08)",
+          color: "#007aff", // iOS Blue
+          fontWeight: 500,
+          cursor: "pointer",
+          fontSize: "15px",
+          transition: "all 0.25s ease",
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.background = "rgba(245,245,247,0.9)";
+          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.background = "rgba(245, 245, 247, 0.6)";
+          e.currentTarget.style.boxShadow = "none";
+        }}>
+        <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
+        Back to Results
+      </button>
+
       <h2 className="fw-bold mb-4 text-center">
         Basic Forecast Result — {pol.toUpperCase()}
       </h2>

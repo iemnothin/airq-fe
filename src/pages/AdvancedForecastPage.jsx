@@ -95,10 +95,32 @@ const AdvancedForecastPage = () => {
     <div className="container py-4">
       {/* BACK BUTTON */}
       <button
-        className="btn btn-outline-primary mb-3 d-flex align-items-center gap-2"
-        style={{ borderRadius: "10px" }}
-        onClick={() => navigate("/forecast/results")}>
-        <i className="fas fa-arrow-left"></i>
+        onClick={() => navigate("/forecast/results")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "8px 16px",
+          borderRadius: "12px",
+          background: "rgba(245, 245, 247, 0.6)", // warna iOS light
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          border: "1px solid rgba(0,0,0,0.08)",
+          color: "#007aff", // iOS Blue
+          fontWeight: 500,
+          cursor: "pointer",
+          fontSize: "15px",
+          transition: "all 0.25s ease",
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.background = "rgba(245,245,247,0.9)";
+          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.background = "rgba(245, 245, 247, 0.6)";
+          e.currentTarget.style.boxShadow = "none";
+        }}>
+        <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
         Back to Results
       </button>
 
