@@ -145,23 +145,6 @@ const ModelPage = ({ setError }) => {
   }, [setError]);
 
   useEffect(() => {
-    const checkBasicForecast = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/forecast/check-basic`);
-        const data = await res.json();
-
-        if (data?.exists === true) {
-          setBasicProcessed(true);
-        }
-      } catch (err) {
-        console.log("Failed to check forecast status");
-      }
-    };
-
-    checkBasicForecast();
-  }, []);
-
-  useEffect(() => {
     const getOutliers = async () => {
       const data = await fetchOutliers(API_BASE);
       setOutliers(data);
@@ -506,20 +489,25 @@ const ModelPage = ({ setError }) => {
 
                         setBasicProcessed(true);
 
-                        // === Toast untuk Basic Forecast Selesai ===
-                        const msg =
-                          data?.message ||
-                          "Basic forecast processed successfully!"; // fallback
+                        if (data?.message) {
+                          // 🔥 Tambahan toast sukses untuk proses basic forecast
+                          setToastMessage(
+                            "Basic forecast processed successfully!"
+                          );
+                          setShowSuccessToast(true);
+                          setTimeout(() => setShowSuccessToast(false), 3500);
 
-                        setToastMessage(msg);
-                        setShowSuccessToast(true);
-                        setTimeout(() => setShowSuccessToast(false), 3500);
-
-                        // === Log Aktivitas ===
-                        sendActivityLog(
-                          "Basic Forecast Process",
-                          msg + " oleh user pada "
-                        );
+                          // Log activity
+                          sendActivityLog(
+                            "Forecast Process",
+                            data.message,
+                            " oleh user pada "
+                          );
+                        } else {
+                          setErrorMessage("Processing failed");
+                          setShowErrorToast(true);
+                          setTimeout(() => setShowErrorToast(false), 4500);
+                        }
                       }}
                       setForecastProgress={setForecastProgress}
                       setForecastMessage={setForecastMessage}

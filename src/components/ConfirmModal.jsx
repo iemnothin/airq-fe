@@ -6,7 +6,7 @@ const ConfirmModal = ({
   title,
   message,
   confirmText,
-  cancelText = "Batal",
+  cancelText = "Cancel",
   loading,
   onClose,
   onConfirm,
