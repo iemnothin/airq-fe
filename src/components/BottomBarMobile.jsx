@@ -24,7 +24,7 @@ const BottomBarMobile = () => {
         zIndex: 2000,
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "space-around", // ▶ SEBAR RATA BALANCE
         padding: "0 10px",
       }}>
       {menuItems.map((item) => {
@@ -34,11 +34,20 @@ const BottomBarMobile = () => {
           <Link
             key={item.name}
             to={item.path}
-            className="text-decoration-none flex-grow-1 d-flex justify-content-center">
+            className="text-decoration-none d-flex justify-content-center flex-grow-1"
+            style={{ textAlign: "center" }}>
             <div
-              className={`d-flex flex-column align-items-center px-3 py-1 bottom-bubble ${
+              className={`d-flex flex-column align-items-center justify-content-center bottom-bubble ${
                 active ? "active" : ""
-              }`}>
+              }`}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "14px",
+                transition: "0.25s",
+                backgroundColor: active
+                  ? "rgba(59,130,246,0.18)"
+                  : "transparent", // ▶ BUBBLE BIRU
+              }}>
               <i
                 className={`${
                   item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`
@@ -47,14 +56,15 @@ const BottomBarMobile = () => {
                   fontSize: "20px",
                   transition: "0.25s",
                   transform: active ? "translateY(-4px)" : "translateY(0px)",
+                  color: active ? "#3b82f6" : "#6c757d",
                 }}></i>
 
               <span
                 style={{
                   fontSize: "12px",
-                  marginTop: "1px",
-                  transition: "0.2s",
-                  color: active ? "#198754" : "#6c757d",
+                  marginTop: "2px",
+                  transition: "0.25s",
+                  color: active ? "#3b82f6" : "#6c757d",
                 }}>
                 {item.name}
               </span>
