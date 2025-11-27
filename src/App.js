@@ -68,7 +68,7 @@ function App() {
           {/* Halaman ISPU page */}
           {/* <Route path="/ispu" element={<IspuPage setError={setError} />} /> */}
           <Route
-            path="/forecast/basic"
+            path="/forecast/results"
             element={<IspuPage setError={setError} />}
           />
           <Route

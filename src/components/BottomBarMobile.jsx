@@ -6,12 +6,12 @@ const BottomBarMobile = () => {
   const menuItems = [
     { name: "Dashboard", icon: "fa-chart-line", path: "/dashboard" },
     { name: "Model", icon: "icon-fa-fb-prophet", path: "/model" },
-    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic" },
+    { name: "ISPU", icon: "fa-wind", path: "/forecast/results" },
   ];
 
   const isActive = (itemPath) => {
-    if (itemPath === "/forecast/basic") {
-      return location.pathname.startsWith("/forecast/basic");
+    if (itemPath === "/forecast/results") {
+      return location.pathname.startsWith("/forecast/results");
     }
     return location.pathname === itemPath;
   };

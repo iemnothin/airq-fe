@@ -16,13 +16,13 @@ const SidebarResponsive = ({ show, onClose }) => {
       path: "/model",
       type: "custom",
     },
-    { name: "ISPU", icon: "fa-wind", path: "/forecast/basic", type: "fa" },
+    { name: "ISPU", icon: "fa-wind", path: "/forecast/results", type: "fa" },
   ];
 
   // Helper active state
   const isActive = (itemPath) => {
-    if (itemPath === "/forecast/basic") {
-      return location.pathname.startsWith("/forecast/basic");
+    if (itemPath === "/forecast/results") {
+      return location.pathname.startsWith("/forecast/results");
     }
     return location.pathname === itemPath;
   };
