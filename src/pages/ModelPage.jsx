@@ -489,7 +489,10 @@ const ModelPage = ({ setError }) => {
                         if (data?.message) {
                           setToastMessage(data.message);
                           setShowSuccessToast(true);
-                          setTimeout(() => setShowSuccessToast(false), 3500);
+                          setTimeout(() => {
+                            setShowSuccessToast(false);
+                            setBasicProcessed(true);
+                          }, 3500);
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
