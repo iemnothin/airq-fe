@@ -577,6 +577,9 @@ const ModelPage = ({ setError }) => {
                           await fetch(`${API_BASE}/model/clear-forecast`, {
                             method: "DELETE",
                           });
+                          
+                          setBasicProcessed(false);
+
                           setShowClearForecastModal(false);
                           setToastMessage(
                             "Forecast data successfully cleared!"
