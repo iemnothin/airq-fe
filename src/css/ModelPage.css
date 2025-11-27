@@ -299,3 +299,13 @@
 .table-danger:hover {
   background-color: #f5c6cb !important;
 }
+
+.bottom-bubble {
+  border-radius: 14px;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.bottom-bubble.active {
+  background: rgba(25, 135, 84, 0.13); /* soft green bubble */
+  transform: translateY(-4px);
+}
