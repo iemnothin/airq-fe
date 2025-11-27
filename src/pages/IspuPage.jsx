@@ -26,12 +26,10 @@ const IspuPage = () => {
         let advStatus = {};
 
         for (let p of pollutants) {
-          // BASIC CHECK
           const basicRes = await fetch(`${API_BASE}/forecast/${p.key}`);
           const basicData = await basicRes.json();
           basicStatus[p.key] = basicData.length > 0;
 
-          // ADVANCED CHECK
           const advRes = await fetch(`${API_BASE}/forecast/${p.key}/advanced`);
           const advData = await advRes.json();
           advStatus[p.key] = advData.length > 0;
@@ -40,108 +38,64 @@ const IspuPage = () => {
         setBasicMap(basicStatus);
         setAdvMap(advStatus);
       } catch (err) {
-        console.log("Error checking forecast data:", err);
+        console.log("Error:", err);
       }
     };
 
     checkData();
   }, []);
 
-  const handleBasic = (key) => navigate(`/forecast/basic/${key}`);
-  const handleAdvanced = (key) => navigate(`/forecast/advanced/${key}`);
+  const handleClick = (key) => {
+    if (advMap[key]) navigate(`/forecast/advanced/${key}`);
+    else navigate(`/forecast/basic/${key}`);
+  };
 
-  const basicAvailable = Object.values(basicMap).some((v) => v === true);
-  const advancedAvailable = Object.values(advMap).some((v) => v === true);
+  const noBasic = !Object.values(basicMap).some(Boolean);
+  const noAdvanced = !Object.values(advMap).some(Boolean);
+  const nothingAvailable = noBasic && noAdvanced;
 
   return (
     <div className="container py-4">
-      <h2 className="fw-bold mb-4 text-center">View Forecast Result</h2>
-
+      <h2 className="fw-bold mb-3 text-center">Forecast Result</h2>
       <p className="text-center text-muted mb-4">
-        Select forecast type you want to view
+        Choose pollutant to view its forecast
       </p>
 
-      {/* =============================== */}
-      {/* EMPTY ALERTS */}
-      {/* =============================== */}
-      {!basicAvailable && (
+      {nothingAvailable && (
         <div className="alert alert-warning text-center">
-          ⚠ No Basic Forecast Found. Run Basic Forecast First!
+          ⚠ No forecast available. Please process forecast first!
         </div>
       )}
 
-      {!advancedAvailable && (
-        <div className="alert alert-warning text-center">
-          ⚠ No Advanced Forecast Found. Run Advanced Forecast First!
+      {!nothingAvailable && (
+        <div className="row g-3">
+          {pollutants.map((p) => {
+            const hasBasic = basicMap[p.key];
+            const hasAdv = advMap[p.key];
+
+            if (!hasBasic && !hasAdv) return null;
+
+            return (
+              <div className="col-6 col-md-4 col-lg-3" key={p.key}>
+                <div
+                  className="card shadow-sm border-0 text-center py-4"
+                  style={{
+                    cursor: "pointer",
+                    borderRadius: "16px",
+                    transition: "0.2s ease",
+                  }}
+                  onClick={() => handleClick(p.key)}>
+                  <h3 className="fw-bold mb-2">{p.label}</h3>
+
+                  {hasAdv && <span className="badge bg-primary">Advanced</span>}
+                  {!hasAdv && hasBasic && (
+                    <span className="badge bg-success">Basic</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      )}
-
-      {/* =============================== */}
-      {/* BASIC FORECAST SECTION */}
-      {/* =============================== */}
-      {basicAvailable && (
-        <>
-          <h4 className="fw-bold mt-4 mb-3">Basic Forecast</h4>
-          <div className="row g-4">
-            {pollutants.map(
-              (p) =>
-                basicMap[p.key] && (
-                  <div className="col-12 col-md-4 col-lg-3" key={p.key}>
-                    <div
-                      className="card shadow-sm border-0 h-100"
-                      style={{
-                        cursor: "pointer",
-                        borderRadius: "14px",
-                        transition: "0.2s",
-                      }}
-                      onClick={() => handleBasic(p.key)}>
-                      <div className="card-body d-flex flex-column align-items-center justify-content-center py-4">
-                        <h3 className="fw-bold">{p.label}</h3>
-                        <span className="text-muted mb-2">
-                          View basic forecast →
-                        </span>
-                        <span className="badge bg-success">Basic</span>
-                      </div>
-                    </div>
-                  </div>
-                )
-            )}
-          </div>
-        </>
-      )}
-
-      {/* =============================== */}
-      {/* ADVANCED FORECAST SECTION */}
-      {/* =============================== */}
-      {advancedAvailable && (
-        <>
-          <h4 className="fw-bold mt-5 mb-3">Advanced Forecast</h4>
-          <div className="row g-4">
-            {pollutants.map(
-              (p) =>
-                advMap[p.key] && (
-                  <div className="col-12 col-md-4 col-lg-3" key={p.key}>
-                    <div
-                      className="card shadow-sm border-0 h-100"
-                      style={{
-                        cursor: "pointer",
-                        borderRadius: "14px",
-                        transition: "0.2s",
-                      }}
-                      onClick={() => handleAdvanced(p.key)}>
-                      <div className="card-body d-flex flex-column align-items-center justify-content-center py-4">
-                        <h3 className="fw-bold">{p.label}</h3>
-                        <span className="text-muted mb-2">
-                          View advanced forecast →
-                        </span>
-                        <span className="badge bg-primary">Advanced</span>
-                      </div>
-                    </div>
-                  </div>
-                )
-            )}
-          </div>
-        </>
       )}
     </div>
   );
