@@ -38,9 +38,8 @@ const IspuPage = () => {
           // ===================
           // CHECK ADVANCED FORECAST
           // ===================
-          const advRes = await fetch(
-            `${API_BASE}/forecast/${p.key}_with_parameters_data`
-          );
+          const advRes = await fetch(`${API_BASE}/forecast/${p.key}/advanced`);
+
           const advData = await advRes.json();
           if (advData && advData.length > 0) {
             advMissing = false;
