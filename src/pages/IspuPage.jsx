@@ -21,25 +21,21 @@ const IspuPage = () => {
 
   useEffect(() => {
     const checkData = async () => {
-      try {
-        let basicStatus = {};
-        let advStatus = {};
+      let basicStatus = {};
+      let advStatus = {};
 
-        for (let p of pollutants) {
-          const basicRes = await fetch(`${API_BASE}/forecast/${p.key}`);
-          const basicData = await basicRes.json();
-          basicStatus[p.key] = basicData.length > 0;
+      for (let p of pollutants) {
+        const basicRes = await fetch(`${API_BASE}/forecast/${p.key}`);
+        const basicData = await basicRes.json();
+        basicStatus[p.key] = basicData.length > 0;
 
-          const advRes = await fetch(`${API_BASE}/forecast/${p.key}/advanced`);
-          const advData = await advRes.json();
-          advStatus[p.key] = advData.length > 0;
-        }
-
-        setBasicMap(basicStatus);
-        setAdvMap(advStatus);
-      } catch (err) {
-        console.log("Error:", err);
+        const advRes = await fetch(`${API_BASE}/forecast/${p.key}/advanced`);
+        const advData = await advRes.json();
+        advStatus[p.key] = advData.length > 0;
       }
+
+      setBasicMap(basicStatus);
+      setAdvMap(advStatus);
     };
 
     checkData();
@@ -50,51 +46,49 @@ const IspuPage = () => {
     else navigate(`/forecast/basic/${key}`);
   };
 
-  const noBasic = !Object.values(basicMap).some(Boolean);
-  const noAdvanced = !Object.values(advMap).some(Boolean);
-  const nothingAvailable = noBasic && noAdvanced;
+  const items = pollutants.filter((p) => basicMap[p.key] || advMap[p.key]);
+
+  const nothing = items.length === 0;
 
   return (
-    <div className="container py-4">
-      <h2 className="fw-bold mb-3 text-center">Forecast Result</h2>
-      <p className="text-center text-muted mb-4">
-        Choose pollutant to view its forecast
-      </p>
+    <div
+      className="container d-flex flex-column justify-content-center"
+      style={{ minHeight: "100vh" }}>
+      <h3 className="fw-bold text-center mb-3">Forecast Result</h3>
+      <p className="text-center text-muted mb-4">Choose pollutant</p>
 
-      {nothingAvailable && (
+      {nothing && (
         <div className="alert alert-warning text-center">
-          ⚠ No forecast available. Please process forecast first!
+          No forecast found. Please process forecast first.
         </div>
       )}
 
-      {!nothingAvailable && (
-        <div className="row g-3">
-          {pollutants.map((p) => {
-            const hasBasic = basicMap[p.key];
-            const hasAdv = advMap[p.key];
+      {!nothing && (
+        <div className="row g-3 justify-content-center">
+          {items.map((p) => (
+            <div
+              key={p.key}
+              className="col-6 col-md-4"
+              style={{ maxWidth: "150px" }}>
+              <div
+                className="card text-center shadow-sm border-0"
+                style={{
+                  padding: "20px 10px",
+                  borderRadius: "18px",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleClick(p.key)}>
+                <h4 className="fw-bold mb-2">{p.label}</h4>
 
-            if (!hasBasic && !hasAdv) return null;
-
-            return (
-              <div className="col-6 col-md-4 col-lg-3" key={p.key}>
-                <div
-                  className="card shadow-sm border-0 text-center py-4"
-                  style={{
-                    cursor: "pointer",
-                    borderRadius: "16px",
-                    transition: "0.2s ease",
-                  }}
-                  onClick={() => handleClick(p.key)}>
-                  <h3 className="fw-bold mb-2">{p.label}</h3>
-
-                  {hasAdv && <span className="badge bg-primary">Advanced</span>}
-                  {!hasAdv && hasBasic && (
-                    <span className="badge bg-success">Basic</span>
-                  )}
-                </div>
+                {advMap[p.key] && (
+                  <span className="badge bg-primary">Advanced</span>
+                )}
+                {!advMap[p.key] && basicMap[p.key] && (
+                  <span className="badge bg-success">Basic</span>
+                )}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
     </div>
