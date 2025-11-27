@@ -309,3 +309,15 @@
   background: rgba(0, 123, 255, 0.18);
   transform: translateY(-4px);
 }
+
+/* MOBILE CHART FIX */
+.chart-wrapper {
+  height: auto !important;
+  min-height: 350px;
+}
+
+@media (min-width: 992px) {
+  .chart-wrapper {
+    height: 70vh !important;
+  }
+}

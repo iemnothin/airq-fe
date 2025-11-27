@@ -133,12 +133,8 @@ const AdvancedForecastPage = () => {
         <div className="d-flex flex-column flex-lg-row gap-4">
           {/* LEFT — CHART */}
           <div className="flex-grow-1">
-            <div
-              className="card p-4 shadow-sm"
-              style={{
-                height: "70vh",
-                minHeight: "450px",
-              }}>
+            <div className="card p-4 shadow-sm chart-wrapper">
+
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
                 <Line data={chartData} options={chartOptions} />

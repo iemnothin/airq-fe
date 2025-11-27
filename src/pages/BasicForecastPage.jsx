@@ -36,7 +36,10 @@ const BasicForecastPage = () => {
   const [page, setPage] = useState(1);
 
   const indexOfFirst = (page - 1) * rowsPerPage;
-  const currentRows = forecastData.slice(indexOfFirst, indexOfFirst + rowsPerPage);
+  const currentRows = forecastData.slice(
+    indexOfFirst,
+    indexOfFirst + rowsPerPage
+  );
   const totalPages = Math.ceil(forecastData.length / rowsPerPage);
 
   useEffect(() => {
@@ -123,8 +126,7 @@ const BasicForecastPage = () => {
           fontWeight: 500,
           cursor: "pointer",
           fontSize: "15px",
-        }}
-      >
+        }}>
         <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
         Back to Results
       </button>
@@ -141,20 +143,14 @@ const BasicForecastPage = () => {
       )}
 
       {!loading && noData && (
-        <div className="alert alert-warning text-center mt-4">
-          {noDataMsg}
-        </div>
+        <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
       )}
 
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
-
           {/* LEFT — CHART */}
           <div className="flex-grow-1">
-            <div
-              className="card p-4 shadow-sm"
-              style={{ height: "70vh", minHeight: "450px" }}
-            >
+            <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
                 <Line data={chartData} options={chartOptions} />
@@ -171,14 +167,12 @@ const BasicForecastPage = () => {
               minHeight: "450px",
               display: "flex",
               flexDirection: "column",
-            }}
-          >
+            }}>
             <h5 className="fw-bold mb-3">Forecast Table</h5>
 
             <div
               className="table-responsive"
-              style={{ flexGrow: 1, overflowY: "auto", overflowX: "auto" }}
-            >
+              style={{ flexGrow: 1, overflowY: "auto", overflowX: "auto" }}>
               <table className="table table-bordered table-striped">
                 <thead className="table-success">
                   <tr>
@@ -207,35 +201,40 @@ const BasicForecastPage = () => {
             <div className="mt-3 text-center">
               <ul className="pagination pagination-centered justify-content-center">
                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-                  <button className="page-link" onClick={() => setPage(page - 1)}>
+                  <button
+                    className="page-link"
+                    onClick={() => setPage(page - 1)}>
                     Previous
                   </button>
                 </li>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-                  <li
-                    key={num}
-                    className={`page-item ${page === num ? "active" : ""}`}
-                  >
-                    <button className="page-link" onClick={() => setPage(num)}>
-                      {num}
-                    </button>
-                  </li>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (num) => (
+                    <li
+                      key={num}
+                      className={`page-item ${page === num ? "active" : ""}`}>
+                      <button
+                        className="page-link"
+                        onClick={() => setPage(num)}>
+                        {num}
+                      </button>
+                    </li>
+                  )
+                )}
 
                 <li
                   className={`page-item ${
                     page === totalPages ? "disabled" : ""
-                  }`}
-                >
-                  <button className="page-link" onClick={() => setPage(page + 1)}>
+                  }`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setPage(page + 1)}>
                     Next
                   </button>
                 </li>
               </ul>
             </div>
           </div>
-
         </div>
       )}
     </div>
