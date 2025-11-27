@@ -485,12 +485,20 @@ const ModelPage = ({ setError }) => {
                       setForecastProgress={setForecastProgress}
                       setForecastMessage={setForecastMessage}
                       setCurrentPollutant={setCurrentPollutant}
-                      onDone={(data) => {
+                      onDone={async (data) => {
+                        setIsProcessing(false);
+                        await fetchUploadedData();
+
                         if (data?.message) {
+                          // tampilkan toast dulu
                           setToastMessage(data.message);
                           setShowSuccessToast(true);
+
+                          // ⏳ tunggu toast selesai (3.5 detik)
                           setTimeout(() => {
                             setShowSuccessToast(false);
+
+                            // 🟢 setelah toast selesai → munculkan tombol
                             setBasicProcessed(true);
                           }, 3500);
                         } else {
