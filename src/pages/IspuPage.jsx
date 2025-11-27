@@ -1,46 +1,3 @@
-// import React from "react";
-// import { useNavigate } from "react-router-dom";
-
-// const pollutants = [
-//   { key: "pm10", label: "PM10" },
-//   { key: "pm25", label: "PM25" },
-//   { key: "so2", label: "SO\u2082" },
-//   { key: "co", label: "CO" },
-//   { key: "o3", label: "O\u2083" },
-//   { key: "no2", label: "NO\u2082" },
-//   { key: "hc", label: "HC" },
-// ];
-
-// const IspuPage = () => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div className="container py-4">
-//       <h2 className="fw-bold mb-4 text-center">Basic Forecast Result</h2>
-//       <p className="text-center text-muted mb-4">
-//         Select pollutant to view 30-day forecast result
-//       </p>
-
-//       <div className="row g-4">
-//         {pollutants.map((p, i) => (
-//           <div className="col-12 col-md-4 col-lg-3" key={i}>
-//             <div
-//               className="card shadow-sm border-0 h-100"
-//               style={{ cursor: "pointer" }}
-//               onClick={() => navigate(`/forecast/basic/${p.key}`)}>
-//               <div className="card-body d-flex flex-column justify-content-center align-items-center py-4">
-//                 <h3 className="fw-bold mb-2">{p.label}</h3>
-//                 <span className="text-muted">View forecast →</span>
-//               </div>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default BasicForecastPage;
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -49,57 +6,84 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 const pollutants = [
   { key: "pm10", label: "PM10" },
   { key: "pm25", label: "PM25" },
-  { key: "so2", label: "SO\u2082" },
+  { key: "so2", label: "SO₂" },
   { key: "co", label: "CO" },
-  { key: "o3", label: "O\u2083" },
-  { key: "no2", label: "NO\u2082" },
+  { key: "o3", label: "O₃" },
+  { key: "no2", label: "NO₂" },
   { key: "hc", label: "HC" },
 ];
 
 const IspuPage = () => {
   const navigate = useNavigate();
-  const [noData, setNoData] = useState(false);
+
+  const [basicEmpty, setBasicEmpty] = useState(false);
+  const [advEmpty, setAdvEmpty] = useState(false);
 
   useEffect(() => {
-    const checkForecastData = async () => {
+    const checkData = async () => {
       try {
-        let allEmpty = true;
+        let basicMissing = true;
+        let advMissing = true;
 
         for (let p of pollutants) {
-          const res = await fetch(`${API_BASE}/forecast/${p.key}`);
-          const data = await res.json();
+          // ===================
+          // CHECK BASIC FORECAST
+          // ===================
+          const basicRes = await fetch(`${API_BASE}/forecast/${p.key}`);
+          const basicData = await basicRes.json();
+          if (basicData && basicData.length > 0) {
+            basicMissing = false;
+          }
 
-          if (data && data.length > 0) {
-            allEmpty = false;
-            break;
+          // ===================
+          // CHECK ADVANCED FORECAST
+          // ===================
+          const advRes = await fetch(
+            `${API_BASE}/forecast/${p.key}_with_parameters_data`
+          );
+          const advData = await advRes.json();
+          if (advData && advData.length > 0) {
+            advMissing = false;
           }
         }
 
-        setNoData(allEmpty);
+        setBasicEmpty(basicMissing);
+        setAdvEmpty(advMissing);
       } catch (err) {
-        setNoData(true);
+        setBasicEmpty(true);
+        setAdvEmpty(true);
       }
     };
 
-    checkForecastData();
+    checkData();
   }, []);
+
+  const hasAnyData = !basicEmpty || !advEmpty;
 
   return (
     <div className="container py-4">
       <h2 className="fw-bold mb-4 text-center">View Forecast Result</h2>
+
       <p className="text-center text-muted mb-4">
-        Select pollutant to view 30-day forecast result
+        Select pollutant to view forecast results
       </p>
 
-      {/* ALERT */}
-      {noData && (
+      {/* Alert Basic Forecast */}
+      {basicEmpty && (
         <div className="alert alert-warning text-center mb-4" role="alert">
-          ⚠ No data exist. Forecasting first!
+          ⚠ No Basic Forecast Found. Run Basic Forecast First!
         </div>
       )}
 
-      {/* CARDS — hanya tampil jika ada data */}
-      {!noData && (
+      {/* Alert Advanced Forecast */}
+      {advEmpty && (
+        <div className="alert alert-warning text-center mb-4" role="alert">
+          ⚠ No Advanced Forecast Found. Run Advanced Forecast First!
+        </div>
+      )}
+
+      {/* SHOW CARDS ONLY WHEN AT LEAST ONE DATA SOURCE EXISTS */}
+      {hasAnyData && (
         <div className="row g-4">
           {pollutants.map((p, i) => (
             <div className="col-12 col-md-4 col-lg-3" key={i}>
