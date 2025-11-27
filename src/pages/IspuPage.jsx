@@ -18,6 +18,7 @@ const IspuPage = () => {
 
   const [basicMap, setBasicMap] = useState({});
   const [advMap, setAdvMap] = useState({});
+  const [activeTab, setActiveTab] = useState("basic"); // ← NEW TAB CONTROL
 
   useEffect(() => {
     const checkData = async () => {
@@ -36,36 +37,73 @@ const IspuPage = () => {
 
       setBasicMap(basicStatus);
       setAdvMap(advStatus);
+
+      // AUTO SWITCH TAB:
+      if (Object.values(advStatus).some((v) => v)) {
+        setActiveTab("advanced");
+      } else {
+        setActiveTab("basic");
+      }
     };
 
     checkData();
   }, []);
 
-  // routing
-  const handleClick = (key) => {
-    if (advMap[key]) navigate(`/forecast/advanced/${key}`);
-    else navigate(`/forecast/basic/${key}`);
-  };
+  // Routing
+  const handleBasic = (key) => navigate(`/forecast/basic/${key}`);
+  const handleAdvanced = (key) => navigate(`/forecast/advanced/${key}`);
 
-  // tampilkan pollutant yang punya basic ATAU advanced
-  const items = pollutants.filter((p) => basicMap[p.key] || advMap[p.key]);
+  // Cards for selected tab
+  const items =
+    activeTab === "basic"
+      ? pollutants.filter((p) => basicMap[p.key])
+      : pollutants.filter((p) => advMap[p.key]);
 
-  const nothing = items.length === 0;
+  const noData = items.length === 0;
 
   return (
     <div
       className="container d-flex flex-column justify-content-center"
       style={{ minHeight: "100vh" }}>
       <h3 className="fw-bold text-center mb-3">Forecast Result</h3>
-      <p className="text-center text-muted mb-4">Choose pollutant</p>
+      <p className="text-center text-muted">Choose forecast type</p>
 
-      {nothing && (
+      {/* =========================== */}
+      {/*         TAB SWITCHER        */}
+      {/* =========================== */}
+      <div className="d-flex justify-content-center gap-2 mb-4">
+        <button
+          className={`btn ${
+            activeTab === "basic" ? "btn-primary" : "btn-outline-primary"
+          }`}
+          style={{ width: "120px", borderRadius: "20px" }}
+          onClick={() => setActiveTab("basic")}>
+          Basic
+        </button>
+
+        <button
+          className={`btn ${
+            activeTab === "advanced" ? "btn-primary" : "btn-outline-primary"
+          }`}
+          style={{ width: "120px", borderRadius: "20px" }}
+          onClick={() => setActiveTab("advanced")}>
+          Advanced
+        </button>
+      </div>
+
+      {/* =========================== */}
+      {/*         NO DATA ALERT       */}
+      {/* =========================== */}
+      {noData && (
         <div className="alert alert-warning text-center">
-          No forecast found. Please process forecast first.
+          No {activeTab} forecast found.
         </div>
       )}
 
-      {!nothing && (
+      {/* =========================== */}
+      {/*            CARDS            */}
+      {/* =========================== */}
+      {!noData && (
         <div className="row g-3 justify-content-center">
           {items.map((p) => (
             <div
@@ -79,12 +117,14 @@ const IspuPage = () => {
                   borderRadius: "18px",
                   cursor: "pointer",
                 }}
-                onClick={() => handleClick(p.key)}>
+                onClick={() =>
+                  activeTab === "advanced"
+                    ? handleAdvanced(p.key)
+                    : handleBasic(p.key)
+                }>
                 <h4 className="fw-bold mb-2">{p.label}</h4>
 
-                {/* ========================= */}
-                {/*   BADGE — BASIC & ADV    */}
-                {/* ========================= */}
+                {/* BADGE */}
                 <div className="d-flex gap-1 justify-content-center mt-1">
                   {basicMap[p.key] && (
                     <span className="badge bg-success">Basic</span>
