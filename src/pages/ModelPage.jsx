@@ -145,6 +145,23 @@ const ModelPage = ({ setError }) => {
   }, [setError]);
 
   useEffect(() => {
+    const checkBasicForecast = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/forecast/check-basic`);
+        const data = await res.json();
+
+        if (data?.exists === true) {
+          setBasicProcessed(true);
+        }
+      } catch (err) {
+        console.log("Failed to check forecast status");
+      }
+    };
+
+    checkBasicForecast();
+  }, []);
+
+  useEffect(() => {
     const getOutliers = async () => {
       const data = await fetchOutliers(API_BASE);
       setOutliers(data);
@@ -486,9 +503,9 @@ const ModelPage = ({ setError }) => {
                       onDone={async (data) => {
                         setIsProcessing(false);
                         await fetchUploadedData();
-                        
+
                         setBasicProcessed(true);
-                        
+
                         if (data?.message) {
                           setToastMessage(data.message);
                           setShowSuccessToast(true);
