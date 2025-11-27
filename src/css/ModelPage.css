@@ -313,11 +313,12 @@
 /* MOBILE CHART FIX */
 .chart-wrapper {
   height: auto !important;
-  min-height: 350px;
+  min-height: 500px;
 }
 
 @media (min-width: 992px) {
   .chart-wrapper {
-    height: 70vh !important;
+    height: 70vh !important; 
+    min-height: unset;
   }
 }
