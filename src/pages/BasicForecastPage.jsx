@@ -103,12 +103,9 @@ const BasicForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // 🔥 WAJIB SUPAYA TIDAK GEPENG
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
-    },
-    scales: {
-      x: { ticks: { maxRotation: 75, minRotation: 45 } },
     },
   };
 
@@ -157,10 +154,8 @@ const BasicForecastPage = () => {
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
-                <div className="chart-wrapper">
-                  <div className="chart-inner">
-                    <Line data={chartData} options={chartOptions} />
-                  </div>
+                <div className="chart-mobile-container">
+                  <Line data={chartData} options={chartOptions} />
                 </div>
               </div>
             </div>
