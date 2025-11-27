@@ -93,28 +93,9 @@ const AdvancedForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: false, // ⬅️ wajib biar height mengikuti container
     plugins: {
       legend: { position: "top" },
-    },
-    scales: {
-      y: {
-        ticks: {
-          stepSize: 5, // angka lebih rapat
-          font: { size: 11 }, // ukuran kecil biar muat
-          maxTicksLimit: 12, // batasi jumlah biar tidak terlalu penuh
-        },
-        grid: {
-          color: "rgba(0,0,0,0.05)",
-        },
-      },
-      x: {
-        ticks: {
-          maxRotation: 65,
-          minRotation: 65,
-          font: { size: 11 },
-        },
-      },
     },
   };
 
@@ -156,8 +137,10 @@ const AdvancedForecastPage = () => {
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
-                <div className="chart-mobile-container">
-                  <Line data={chartData} options={chartOptions} />
+                <div className="chart-container-mobile">
+                  <div className="chart-inner">
+                    <Line data={chartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
             </div>
