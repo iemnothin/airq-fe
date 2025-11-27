@@ -67,13 +67,12 @@ function App() {
           <Route path="/model" element={<ModelPage setError={setError} />} />
           {/* Halaman ISPU page */}
           {/* <Route path="/ispu" element={<IspuPage setError={setError} />} /> */}
+          <Route path="/forecast/basic" element={<BasicForecastPage />} />
+          <Route
+            path="/forecast/basic/:pol"
+            element={<IspuPage setError={setError} />}
+          />
         </Route>
-
-        <Route path="/forecast/basic" element={<BasicForecastPage />} />
-        <Route
-          path="/forecast/basic/:pol"
-          element={<IspuPage setError={setError} />}
-        />
       </Routes>
     </Router>
   );
