@@ -56,7 +56,7 @@ const ProcessingPanel = ({
     setCurrentPollutant("");
 
     const evtSource = new EventSource(
-      `${API_BASE}/model/process-advanced/stream`
+      `${API_BASE}/model/process-advanced`
     );
     window.currentForecastStream = evtSource; // ✅ simpan global supaya bisa di-cancel dari ModelPage.jsx
 
