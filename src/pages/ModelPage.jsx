@@ -11,13 +11,13 @@ import InitialUpload from "../components/InitialUpload";
 
 import { useNavigate } from "react-router-dom";
 
-import useModelData from "./hooks/useModelData";
+import useModelData from "../hooks/useModelData";
 import useOutlierActions from "./hooks/useOutlierActions";
-import useFileUpload from "./hooks/useFileUpload";
-import useForecastActions from "./hooks/useForecastActions";
-import useToast from "./hooks/useToast";
-import paginate from "./hooks/PaginationHelper";
-import formatFullDate from "./hooks/DateFormatter";
+import useFileUpload from "../hooks/useFileUpload";
+import useForecastActions from "../hooks/useForecastActions";
+import useToast from "../hooks/useToast";
+import paginate from "../hooks/PaginationHelper";
+import formatFullDate from "../hooks/DateFormatter";
 
 const API_BASE = "https://api-airq.abiila.com/api/v1";
 
@@ -50,11 +50,8 @@ const ModelPage = ({ setError }) => {
     handleFileUpload,
   } = useFileUpload(API_BASE, refreshData, setOutliers);
 
-  const {
-    processBasicForecast,
-    basicProcessed,
-    isProcessing,
-  } = useForecastActions(API_BASE, refreshData);
+  const { processBasicForecast, basicProcessed, isProcessing } =
+    useForecastActions(API_BASE, refreshData);
 
   const {
     showSuccessToast,
