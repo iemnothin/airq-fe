@@ -26,6 +26,7 @@ const BasicForecastPage = () => {
   const { pol } = useParams();
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
+  const [noDataMsg, setNoDataMsg] = useState(""); // <--- NEW
 
   useEffect(() => {
     const fetchForecast = async () => {
@@ -35,12 +36,16 @@ const BasicForecastPage = () => {
 
         if (!data || data.length === 0) {
           setNoData(true);
+          setNoDataMsg(
+            `⚠ No forecast data for ${pol.toUpperCase()}. Process forecasting first.`
+          ); // <--- NEW
           return;
         }
 
         setForecastData(data);
       } catch (err) {
         setNoData(true);
+        setNoDataMsg(`⚠ Failed to load forecast for ${pol.toUpperCase()}.`); // optional
       }
     };
 
@@ -79,9 +84,7 @@ const BasicForecastPage = () => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: "top",
-      },
+      legend: { position: "top" },
     },
   };
 
@@ -94,7 +97,7 @@ const BasicForecastPage = () => {
       {/* ALERT */}
       {noData && (
         <div className="alert alert-warning text-center mt-4" role="alert">
-          ⚠ No data exist. Forecasting first!
+          {noDataMsg}
         </div>
       )}
 
