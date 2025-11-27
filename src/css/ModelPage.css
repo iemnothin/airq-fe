@@ -310,26 +310,35 @@
   transform: translateY(-4px);
 }
 
-/* CONTAINER SCROLL HORIZONTAL */
-.chart-scroll {
-  width: 100%;
-  overflow-x: auto;
+/* WRAPPER UTAMA — mengikuti lebar device */
+.chart-container-mobile {
+  width: 100%; /* selalu selebar layar HP */
+  overflow-x: auto; /* aktifkan scroll horizontal */
   overflow-y: hidden;
-  padding-bottom: 10px; /* ruang kecil untuk scroll */
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
-/* LEBAR MINIMUM BIAR BISA DISCROLL */
-.chart-wrapper {
-  min-width: 700px; /* grafik pasti lebih lebar dari layar mobile */
-  min-height: 550px; /* tinggi grafik mobile */
+/* WRAPPER CHART DI DALAM — hanya kontennya yang bisa melebar */
+.chart-inner {
+  width: 100%; /* default tetap selebar device */
+  height: 420px; /* tinggi grafik mobile yang kamu mau */
   position: relative;
+}
+
+/* Jika chart kepanjangan, dia otomatis melebar di dalam scroll area */
+.chart-inner > canvas {
+  min-width: 700px; /* 700 atau bebas sesuai kebutuhan */
 }
 
 /* DESKTOP MODE */
 @media (min-width: 992px) {
-  .chart-wrapper {
-    min-width: 100%; /* tidak butuh scroll di desktop */
-    height: 70vh; /* tetap 70% tinggi halaman */
-    min-height: unset;
+  .chart-container-mobile {
+    overflow-x: hidden;
+  }
+
+  .chart-inner {
+    height: 70vh;
+    min-width: unset;
   }
 }
