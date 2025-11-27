@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 
 const BottomBarMobile = () => {
   const location = useLocation();
-  const isForecastPage = location.pathname.includes("/forecast/basic");
 
   const menuItems = [
     {
@@ -19,15 +18,6 @@ const BottomBarMobile = () => {
     },
     { name: "ISPU", icon: "fa-wind", path: "/forecast/basic", type: "fa" },
   ];
-
-  // if (isForecastPage) {
-  //   menuItems.push({
-  //     name: "Ispu",
-  //     icon: "fa-wind",
-  //     path: "/forecast/basic/:pol",
-  //     type: "fa",
-  //   });
-  // }
 
   return (
     <div
