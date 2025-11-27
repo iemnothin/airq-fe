@@ -310,30 +310,26 @@
   transform: translateY(-4px);
 }
 
-/* WRAPPER UTAMA — mengikuti lebar device */
-.chart-container-mobile {
-  width: 100%; /* selalu selebar layar HP */
-  overflow-x: auto; /* aktifkan scroll horizontal */
-  overflow-y: hidden;
+.chart-wrapper {
+  width: 100%;
+  overflow-x: auto;
   padding-bottom: 10px;
-  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
-/* WRAPPER CHART DI DALAM — hanya kontennya yang bisa melebar */
 .chart-inner {
-  width: 100%; /* default tetap selebar device */
-  height: 420px; /* tinggi grafik mobile yang kamu mau */
+  width: 100%;
+  height: 420px; /* 🔥 tinggi grafik mobile yang kamu mau */
+  min-height: 420px; /* 🔥 pastikan tidak mengecil */
   position: relative;
 }
 
-/* Jika chart kepanjangan, dia otomatis melebar di dalam scroll area */
 .chart-inner > canvas {
-  min-width: 700px; /* 700 atau bebas sesuai kebutuhan */
+  min-width: 650px; /* biar scroll muncul jika label banyak */
 }
 
-/* DESKTOP MODE */
+/* DESKTOP */
 @media (min-width: 992px) {
-  .chart-container-mobile {
+  .chart-wrapper {
     overflow-x: hidden;
   }
 
