@@ -103,6 +103,7 @@ const BasicForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // ⬅️ wajib biar height mengikuti container
     plugins: {
       legend: { position: "top" },
     },
@@ -153,7 +154,9 @@ const BasicForecastPage = () => {
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
-                <Line data={chartData} options={chartOptions} />
+                <div className="chart-wrapper">
+                  <Line data={chartData} options={chartOptions} />
+                </div>
               </div>
             </div>
           </div>

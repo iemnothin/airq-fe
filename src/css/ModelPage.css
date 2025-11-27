@@ -310,15 +310,17 @@
   transform: translateY(-4px);
 }
 
-/* MOBILE CHART FIX */
+/* MOBILE — grafik tinggi */
 .chart-wrapper {
-  height: auto !important;
-  min-height: 500px;
+  width: 100%;
+  min-height: 550px; /* ⬅️ kamu bisa ubah sesuai selera */
+  position: relative;
 }
 
+/* DESKTOP — biar tetap fleks kiri kanan */
 @media (min-width: 992px) {
   .chart-wrapper {
-    height: 70vh !important; 
     min-height: unset;
+    height: 70vh; /* sesuai desain sebelumnya */
   }
 }
