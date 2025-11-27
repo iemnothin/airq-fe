@@ -506,22 +506,20 @@ const ModelPage = ({ setError }) => {
 
                         setBasicProcessed(true);
 
-                        if (data?.message) {
-                          setToastMessage(data.message);
-                          setShowSuccessToast(true);
-                          setTimeout(() => setShowSuccessToast(false), 3500);
+                        // === Toast untuk Basic Forecast Selesai ===
+                        const msg =
+                          data?.message ||
+                          "Basic forecast processed successfully!"; // fallback
 
-                          // Kirim activity log
-                          sendActivityLog(
-                            "Forecast Process",
-                            data.message,
-                            " oleh user pada "
-                          );
-                        } else {
-                          setErrorMessage("Processing failed");
-                          setShowErrorToast(true);
-                          setTimeout(() => setShowErrorToast(false), 4500);
-                        }
+                        setToastMessage(msg);
+                        setShowSuccessToast(true);
+                        setTimeout(() => setShowSuccessToast(false), 3500);
+
+                        // === Log Aktivitas ===
+                        sendActivityLog(
+                          "Basic Forecast Process",
+                          msg + " oleh user pada "
+                        );
                       }}
                       setForecastProgress={setForecastProgress}
                       setForecastMessage={setForecastMessage}
