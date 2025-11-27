@@ -38,6 +38,8 @@ const ModelPage = ({ setError }) => {
   const [searchDate, setSearchDate] = useState("");
   const [activityLog, setActivityLog] = useState([]);
   const [basicProcessed, setBasicProcessed] = useState(false);
+  const [advancedProcessed, setAdvancedProcessed] = useState(false);
+
   const navigate = useNavigate();
 
   const formatFullDate = (value) => {
@@ -139,6 +141,13 @@ const ModelPage = ({ setError }) => {
       setUploadedData([]);
     }
   };
+
+  useEffect(() => {
+    const basic = localStorage.getItem("basicProcessed") === "true";
+    const adv = localStorage.getItem("advancedProcessed") === "true";
+    setBasicProcessed(basic);
+    setAdvancedProcessed(adv);
+  }, []);
 
   useEffect(() => {
     fetchUploadedData();
@@ -487,12 +496,12 @@ const ModelPage = ({ setError }) => {
                       {showSingleUpload ? "Close" : "New Data"}
                     </button>
 
-                    {basicProcessed && (
+                    {(basicProcessed || advancedProcessed) && (
                       <button
                         className="btn btn-info btn-sm d-flex align-items-center gap-2"
                         onClick={() => navigate("/forecast/basic")}>
                         <i className="fas fa-chart-line"></i>
-                        View Basic Result
+                        View Forecast Result
                       </button>
                     )}
 
@@ -507,16 +516,16 @@ const ModelPage = ({ setError }) => {
                         await fetchUploadedData();
 
                         if (data?.message) {
-                          // tampilkan toast dulu
                           setToastMessage(data.message);
                           setShowSuccessToast(true);
 
-                          // ⏳ tunggu toast selesai (3.5 detik)
                           setTimeout(() => {
                             setShowSuccessToast(false);
 
-                            // 🟢 setelah toast selesai → munculkan tombol
                             setBasicProcessed(true);
+                            setAdvancedProcessed(true);
+                            localStorage.setItem("basicProcessed", "true");
+                            localStorage.setItem("advancedProcessed", "true");
                           }, 1000);
                         } else {
                           setErrorMessage("Processing failed");
@@ -579,6 +588,10 @@ const ModelPage = ({ setError }) => {
                           });
 
                           setBasicProcessed(false);
+                          setAdvancedProcessed(false);
+
+                          localStorage.removeItem("basicProcessed");
+                          localStorage.removeItem("advancedProcessed");
 
                           setShowClearForecastModal(false);
                           setToastMessage(

@@ -80,7 +80,10 @@ const ProcessingPanel = ({
       } else if (data.status === "complete") {
         setForecastProgress(100);
         setForecastMessage("✅ All forecasts completed successfully!");
-        setTimeout(() => setIsProcessing(false), 2000);
+        setTimeout(() => {
+          setIsProcessing(false);
+          if (onDone) onDone({ message: "Advanced forecast done" });
+        }, 2000);
         evtSource.close();
         window.currentForecastStream = null;
       } else if (data.status === "error") {
