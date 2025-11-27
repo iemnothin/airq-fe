@@ -11,9 +11,12 @@ const BottomBarMobile = () => {
 
   const isActive = (itemPath) => {
     if (itemPath === "/forecast/results") {
+      return location.pathname.startsWith("/forecast/results");
+    }
+    if (itemPath === "/forecast/basic") {
       return location.pathname.startsWith("/forecast/basic");
     }
-    if (itemPath === "/forecast/results") {
+    if (itemPath === "/forecast/advanced") {
       return location.pathname.startsWith("/forecast/advanced");
     }
     return location.pathname === itemPath;
