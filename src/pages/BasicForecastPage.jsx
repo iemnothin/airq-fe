@@ -32,36 +32,8 @@ const BasicForecastPage = () => {
   const [loading, setLoading] = useState(true);
 
   // Pagination
-  const rowsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-
-  const totalPages = Math.ceil(forecastData.length / rowsPerPage);
-  const indexFirst = (currentPage - 1) * rowsPerPage;
-  const currentRows = forecastData.slice(indexFirst, indexFirst + rowsPerPage);
-
-  // Pagination Display Logic (Same as ModelPage)
-  const getPageNumbers = () => {
-    if (totalPages <= 5) return [...Array(totalPages).keys()].map((x) => x + 1);
-    if (currentPage <= 3) return [1, 2, 3, 4, "...", totalPages];
-    if (currentPage >= totalPages - 2)
-      return [
-        1,
-        "...",
-        totalPages - 3,
-        totalPages - 2,
-        totalPages - 1,
-        totalPages,
-      ];
-    return [
-      1,
-      "...",
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      "...",
-      totalPages,
-    ];
-  };
+  const rowsPerPage = 10;
 
   useEffect(() => {
     const fetchForecast = async () => {
@@ -76,7 +48,6 @@ const BasicForecastPage = () => {
         }
 
         const data = await res.json();
-
         if (!data || data.length === 0) {
           setNoData(true);
           setNoDataMsg(
@@ -87,7 +58,7 @@ const BasicForecastPage = () => {
         }
 
         setForecastData(data);
-      } catch (err) {
+      } catch {
         setNoData(true);
         setNoDataMsg(`⚠ Failed to load forecast for ${pol.toUpperCase()}.`);
       } finally {
@@ -98,9 +69,38 @@ const BasicForecastPage = () => {
     fetchForecast();
   }, [pol]);
 
-  // ==========================
-  // CHART 70%
-  // ==========================
+  // Pagination Calculations
+  const totalPages = Math.ceil(forecastData.length / rowsPerPage);
+  const indexFirst = (currentPage - 1) * rowsPerPage;
+  const currentRows = forecastData.slice(indexFirst, indexFirst + rowsPerPage);
+
+  const getPageNumbers = () => {
+    if (totalPages <= 5) return [...Array(totalPages).keys()].map((x) => x + 1);
+
+    if (currentPage <= 3) return [1, 2, 3, 4, "...", totalPages];
+
+    if (currentPage >= totalPages - 2)
+      return [
+        1,
+        "...",
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+
+    return [
+      1,
+      "...",
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      "...",
+      totalPages,
+    ];
+  };
+
+  // Chart Data
   const chartData = {
     labels: forecastData.map((d) => d.ds),
     datasets: [
@@ -129,14 +129,13 @@ const BasicForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    plugins: {
-      legend: { position: "top" },
-    },
+    maintainAspectRatio: false,
+    plugins: { legend: { position: "top" } },
   };
 
   return (
     <div className="container py-4">
-      {/* Back Button iOS */}
+      {/* BACK BUTTON */}
       <button
         onClick={() => navigate("/forecast/results")}
         style={{
@@ -159,7 +158,7 @@ const BasicForecastPage = () => {
         Back to Results
       </button>
 
-      <h2 className="fw-bold mb-4 text-center">
+      <h2 className="fw-bold text-center mt-3 mb-4">
         Basic Forecast Result — {pol.toUpperCase()}
       </h2>
 
@@ -173,104 +172,98 @@ const BasicForecastPage = () => {
 
       {/* NO DATA */}
       {!loading && noData && (
-        <div className="alert alert-warning text-center mt-4" role="alert">
-          {noDataMsg}
-        </div>
+        <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
       )}
 
-      {/* ===================== */}
-      {/* CHART 70% */}
-      {/* ===================== */}
+      {/* CONTENT */}
       {!loading && !noData && (
-        <div
-          className="card p-4 shadow-sm mb-4"
-          style={{ height: "70vh", minHeight: "400px" }}>
-          <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
-          <div style={{ height: "100%" }}>
-            <Line data={chartData} options={chartOptions} />
+        <div className="d-flex flex-column flex-lg-row gap-4">
+          {/* Chart */}
+          <div className="flex-grow-1">
+            <div
+              className="card p-4 shadow-sm"
+              style={{ height: "70vh", minHeight: "400px" }}>
+              <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
+              <div style={{ height: "100%" }}>
+                <Line data={chartData} options={chartOptions} />
+              </div>
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* ===================== */}
-      {/* TABLE 30% + Pagination */}
-      {/* ===================== */}
+          {/* Table */}
+          <div
+            className="shadow-sm border rounded p-3"
+            style={{ width: "100%", maxWidth: "380px" }}>
+            <h5 className="fw-bold mb-3">Forecast Table</h5>
 
-      {!loading && !noData && (
-        <div
-          className="shadow-sm border rounded p-3"
-          style={{ minHeight: "30vh" }}>
-          <h5 className="fw-bold mb-3">Forecast Table</h5>
-
-          <div className="table-responsive" style={{ maxHeight: "250px" }}>
-            <table className="table table-bordered table-striped">
-              <thead className="table-success">
-                <tr>
-                  <th>No</th>
-                  <th>Date</th>
-                  <th>yhat</th>
-                  <th>yhat_lower</th>
-                  <th>yhat_upper</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRows.map((row, i) => (
-                  <tr key={i}>
-                    <td>{indexFirst + i + 1}</td>
-                    <td>{row.ds}</td>
-                    <td>{row.yhat}</td>
-                    <td>{row.yhat_lower}</td>
-                    <td>{row.yhat_upper}</td>
+            <div className="table-responsive" style={{ maxHeight: "300px" }}>
+              <table className="table table-bordered table-striped">
+                <thead className="table-success">
+                  <tr>
+                    <th>No</th>
+                    <th>Date</th>
+                    <th>yhat</th>
+                    <th>yhat_lower</th>
+                    <th>yhat_upper</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentRows.map((row, i) => (
+                    <tr key={i}>
+                      <td>{indexFirst + i + 1}</td>
+                      <td>{row.ds}</td>
+                      <td>{row.yhat}</td>
+                      <td>{row.yhat_lower}</td>
+                      <td>{row.yhat_upper}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <ul className="pagination pagination-centered mt-3">
+              <li
+                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage((p) => p - 1)}>
+                  Previous
+                </button>
+              </li>
+
+              {getPageNumbers().map((num, idx) =>
+                num === "..." ? (
+                  <li key={idx} className="page-item disabled">
+                    <span className="page-link">…</span>
+                  </li>
+                ) : (
+                  <li
+                    key={idx}
+                    className={`page-item ${
+                      currentPage === num ? "active" : ""
+                    }`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage(num)}>
+                      {num}
+                    </button>
+                  </li>
+                )
+              )}
+
+              <li
+                className={`page-item ${
+                  currentPage === totalPages ? "disabled" : ""
+                }`}>
+                <button
+                  className="page-link"
+                  onClick={() => setCurrentPage((p) => p + 1)}>
+                  Next
+                </button>
+              </li>
+            </ul>
           </div>
-
-          {/* PAGINATION — SAME STYLE AS ModelPage.jsx */}
-          <ul className="pagination mt-3 pagination-centered">
-            {/* PREV */}
-            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage((p) => p - 1)}>
-                Previous
-              </button>
-            </li>
-
-            {/* NUMBERS */}
-            {getPageNumbers().map((num, idx) =>
-              num === "..." ? (
-                <li key={idx} className="page-item disabled">
-                  <span className="page-link">…</span>
-                </li>
-              ) : (
-                <li
-                  key={idx}
-                  className={`page-item ${
-                    currentPage === num ? "active" : ""
-                  }`}>
-                  <button
-                    className="page-link"
-                    onClick={() => setCurrentPage(num)}>
-                    {num}
-                  </button>
-                </li>
-              )
-            )}
-
-            {/* NEXT */}
-            <li
-              className={`page-item ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}>
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage((p) => p + 1)}>
-                Next
-              </button>
-            </li>
-          </ul>
         </div>
       )}
     </div>
