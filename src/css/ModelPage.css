@@ -310,17 +310,26 @@
   transform: translateY(-4px);
 }
 
-/* MOBILE — grafik tinggi */
-.chart-wrapper {
+/* CONTAINER SCROLL HORIZONTAL */
+.chart-scroll {
   width: 100%;
-  min-height: 550px; /* ⬅️ kamu bisa ubah sesuai selera */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px; /* ruang kecil untuk scroll */
+}
+
+/* LEBAR MINIMUM BIAR BISA DISCROLL */
+.chart-wrapper {
+  min-width: 700px; /* grafik pasti lebih lebar dari layar mobile */
+  min-height: 550px; /* tinggi grafik mobile */
   position: relative;
 }
 
-/* DESKTOP — biar tetap fleks kiri kanan */
+/* DESKTOP MODE */
 @media (min-width: 992px) {
   .chart-wrapper {
+    min-width: 100%; /* tidak butuh scroll di desktop */
+    height: 70vh; /* tetap 70% tinggi halaman */
     min-height: unset;
-    height: 70vh; /* sesuai desain sebelumnya */
   }
 }

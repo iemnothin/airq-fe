@@ -154,8 +154,10 @@ const BasicForecastPage = () => {
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
               <div style={{ height: "100%" }}>
-                <div className="chart-wrapper">
-                  <Line data={chartData} options={chartOptions} />
+                <div className="chart-scroll">
+                  <div className="chart-wrapper">
+                    <Line data={chartData} options={chartOptions} />
+                  </div>
                 </div>
               </div>
             </div>
