@@ -18,60 +18,71 @@ const BottomBarMobile = () => {
 
   return (
     <div
-      className="d-md-none fixed-bottom border-top bg-white shadow-sm"
+      className="d-md-none fixed-bottom"
       style={{
-        height: "65px",
-        zIndex: 2000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-around", // ▶ SEBAR RATA BALANCE
-        padding: "0 10px",
+        zIndex: 3000,
+        padding: "0 18px 18px 18px",
       }}>
-      {menuItems.map((item) => {
-        const active = isActive(item.path);
+      {/* Floating Glass Container */}
+      <div
+        style={{
+          background: "rgba(255, 255, 255, 0.6)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderRadius: "22px",
+          height: "68px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          boxShadow: "0 6px 25px rgba(0,0,0,0.12)",
+          border: "1px solid rgba(255,255,255,0.4)",
+        }}>
+        {menuItems.map((item) => {
+          const active = isActive(item.path);
 
-        return (
-          <Link
-            key={item.name}
-            to={item.path}
-            className="text-decoration-none d-flex justify-content-center flex-grow-1"
-            style={{ textAlign: "center" }}>
-            <div
-              className={`d-flex flex-column align-items-center justify-content-center bottom-bubble ${
-                active ? "active" : ""
-              }`}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "14px",
-                transition: "0.25s",
-                backgroundColor: active
-                  ? "rgba(59,130,246,0.18)"
-                  : "transparent", // ▶ BUBBLE BIRU
-              }}>
-              <i
-                className={`${
-                  item.icon.startsWith("icon-") ? item.icon : `fas ${item.icon}`
-                }`}
+          return (
+            <Link
+              key={item.name}
+              to={item.path}
+              className="text-decoration-none"
+              style={{ width: "33%", textAlign: "center" }}>
+              <div
+                className="d-flex flex-column align-items-center justify-content-center"
                 style={{
-                  fontSize: "20px",
+                  padding: "6px 10px",
                   transition: "0.25s",
-                  transform: active ? "translateY(-4px)" : "translateY(0px)",
-                  color: active ? "#3b82f6" : "#6c757d",
-                }}></i>
-
-              <span
-                style={{
-                  fontSize: "12px",
-                  marginTop: "2px",
-                  transition: "0.25s",
-                  color: active ? "#3b82f6" : "#6c757d",
+                  borderRadius: "14px",
+                  background: active ? "rgba(59,130,246,0.25)" : "transparent",
+                  boxShadow: active ? "0 0 12px rgba(59,130,246,0.5)" : "none",
                 }}>
-                {item.name}
-              </span>
-            </div>
-          </Link>
-        );
-      })}
+                <i
+                  className={`${
+                    item.icon.startsWith("icon-")
+                      ? item.icon
+                      : `fas ${item.icon}`
+                  }`}
+                  style={{
+                    fontSize: "22px",
+                    transition: "0.3s",
+                    transform: active ? "translateY(-5px)" : "translateY(0)",
+                    color: active ? "#2563eb" : "#6b7280",
+                  }}></i>
+
+                <span
+                  style={{
+                    fontSize: "12px",
+                    marginTop: "3px",
+                    fontWeight: active ? "600" : "500",
+                    color: active ? "#2563eb" : "#6b7280",
+                    transition: "0.25s",
+                  }}>
+                  {item.name}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 };
