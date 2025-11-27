@@ -10,15 +10,15 @@ const BottomBarMobile = () => {
   ];
 
   const isActive = (itemPath) => {
+    // === ALL ISPU ROUTES ===
     if (itemPath === "/forecast/results") {
-      return location.pathname.startsWith("/forecast/results");
+      return (
+        location.pathname.startsWith("/forecast/results") ||
+        location.pathname.startsWith("/forecast/basic") ||
+        location.pathname.startsWith("/forecast/advanced")
+      );
     }
-    if (itemPath === "/forecast/basic") {
-      return location.pathname.startsWith("/forecast/basic");
-    }
-    if (itemPath === "/forecast/advanced") {
-      return location.pathname.startsWith("/forecast/advanced");
-    }
+
     return location.pathname === itemPath;
   };
 
@@ -29,7 +29,7 @@ const BottomBarMobile = () => {
         zIndex: 3000,
         padding: "0 18px 18px 18px",
       }}>
-      {/* Floating Glass Container */}
+      {/* Floating Container */}
       <div
         style={{
           background: "rgba(255, 255, 255, 0.6)",
