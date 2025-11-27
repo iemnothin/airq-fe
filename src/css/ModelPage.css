@@ -306,6 +306,6 @@
 }
 
 .bottom-bubble.active {
-  background: rgba(25, 135, 84, 0.13); /* soft green bubble */
+  background: rgba(0, 123, 255, 0.18);
   transform: translateY(-4px);
 }
