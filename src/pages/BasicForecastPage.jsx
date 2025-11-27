@@ -25,17 +25,49 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 const BasicForecastPage = () => {
   const { pol } = useParams();
   const navigate = useNavigate();
+
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Pagination
+  const rowsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.ceil(forecastData.length / rowsPerPage);
+  const indexFirst = (currentPage - 1) * rowsPerPage;
+  const currentRows = forecastData.slice(indexFirst, indexFirst + rowsPerPage);
+
+  // Pagination Display Logic (Same as ModelPage)
+  const getPageNumbers = () => {
+    if (totalPages <= 5) return [...Array(totalPages).keys()].map((x) => x + 1);
+    if (currentPage <= 3) return [1, 2, 3, 4, "...", totalPages];
+    if (currentPage >= totalPages - 2)
+      return [
+        1,
+        "...",
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    return [
+      1,
+      "...",
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      "...",
+      totalPages,
+    ];
+  };
 
   useEffect(() => {
     const fetchForecast = async () => {
       try {
         const res = await fetch(`${API_BASE}/forecast/${pol}`);
 
-        // Handle response error
         if (!res.ok) {
           setNoData(true);
           setNoDataMsg(`⚠ Failed to fetch forecast for ${pol.toUpperCase()}.`);
@@ -67,7 +99,7 @@ const BasicForecastPage = () => {
   }, [pol]);
 
   // ==========================
-  // CHART
+  // CHART 70%
   // ==========================
   const chartData = {
     labels: forecastData.map((d) => d.ds),
@@ -104,6 +136,7 @@ const BasicForecastPage = () => {
 
   return (
     <div className="container py-4">
+      {/* Back Button iOS */}
       <button
         onClick={() => navigate("/forecast/results")}
         style={{
@@ -112,23 +145,15 @@ const BasicForecastPage = () => {
           gap: "8px",
           padding: "8px 16px",
           borderRadius: "12px",
-          background: "rgba(245, 245, 247, 0.6)", // warna iOS light
+          background: "rgba(245, 245, 247, 0.6)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           border: "1px solid rgba(0,0,0,0.08)",
-          color: "#007aff", // iOS Blue
+          color: "#007aff",
           fontWeight: 500,
           cursor: "pointer",
           fontSize: "15px",
           transition: "all 0.25s ease",
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background = "rgba(245,245,247,0.9)";
-          e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.08)";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background = "rgba(245, 245, 247, 0.6)";
-          e.currentTarget.style.boxShadow = "none";
         }}>
         <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
         Back to Results
@@ -153,39 +178,99 @@ const BasicForecastPage = () => {
         </div>
       )}
 
-      {/* GRAPH */}
+      {/* ===================== */}
+      {/* CHART 70% */}
+      {/* ===================== */}
       {!loading && !noData && (
-        <div className="card p-4 shadow-sm mb-4">
+        <div
+          className="card p-4 shadow-sm mb-4"
+          style={{ height: "70vh", minHeight: "400px" }}>
           <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
-          <Line data={chartData} options={chartOptions} />
+          <div style={{ height: "100%" }}>
+            <Line data={chartData} options={chartOptions} />
+          </div>
         </div>
       )}
 
-      {/* TABLE */}
+      {/* ===================== */}
+      {/* TABLE 30% + Pagination */}
+      {/* ===================== */}
+
       {!loading && !noData && (
-        <div className="table-responsive shadow-sm mt-4">
-          <table className="table table-bordered table-striped">
-            <thead className="table-success">
-              <tr>
-                <th>No</th>
-                <th>Date</th>
-                <th>yhat</th>
-                <th>yhat_lower</th>
-                <th>yhat_upper</th>
-              </tr>
-            </thead>
-            <tbody>
-              {forecastData.map((row, i) => (
-                <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{row.ds}</td>
-                  <td>{row.yhat}</td>
-                  <td>{row.yhat_lower}</td>
-                  <td>{row.yhat_upper}</td>
+        <div
+          className="shadow-sm border rounded p-3"
+          style={{ minHeight: "30vh" }}>
+          <h5 className="fw-bold mb-3">Forecast Table</h5>
+
+          <div className="table-responsive" style={{ maxHeight: "250px" }}>
+            <table className="table table-bordered table-striped">
+              <thead className="table-success">
+                <tr>
+                  <th>No</th>
+                  <th>Date</th>
+                  <th>yhat</th>
+                  <th>yhat_lower</th>
+                  <th>yhat_upper</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentRows.map((row, i) => (
+                  <tr key={i}>
+                    <td>{indexFirst + i + 1}</td>
+                    <td>{row.ds}</td>
+                    <td>{row.yhat}</td>
+                    <td>{row.yhat_lower}</td>
+                    <td>{row.yhat_upper}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* PAGINATION — SAME STYLE AS ModelPage.jsx */}
+          <ul className="pagination mt-3 pagination-centered">
+            {/* PREV */}
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage((p) => p - 1)}>
+                Previous
+              </button>
+            </li>
+
+            {/* NUMBERS */}
+            {getPageNumbers().map((num, idx) =>
+              num === "..." ? (
+                <li key={idx} className="page-item disabled">
+                  <span className="page-link">…</span>
+                </li>
+              ) : (
+                <li
+                  key={idx}
+                  className={`page-item ${
+                    currentPage === num ? "active" : ""
+                  }`}>
+                  <button
+                    className="page-link"
+                    onClick={() => setCurrentPage(num)}>
+                    {num}
+                  </button>
+                </li>
+              )
+            )}
+
+            {/* NEXT */}
+            <li
+              className={`page-item ${
+                currentPage === totalPages ? "disabled" : ""
+              }`}>
+              <button
+                className="page-link"
+                onClick={() => setCurrentPage((p) => p + 1)}>
+                Next
+              </button>
+            </li>
+          </ul>
         </div>
       )}
     </div>
