@@ -9,9 +9,12 @@ const BottomBarMobile = () => {
     { name: "ISPU", icon: "fa-wind", path: "/forecast/results" },
   ];
 
-  const isActive = (itemPath) => {
-    // === ALL ISPU ROUTES ===
-    if (itemPath === "/forecast/results") {
+  const isActive = (item) => {
+    // === ISPU MENU IS ACTIVE WHEN ===
+    // /forecast/results
+    // /forecast/basic/:pol
+    // /forecast/advanced/:pol
+    if (item.name === "ISPU") {
       return (
         location.pathname.startsWith("/forecast/results") ||
         location.pathname.startsWith("/forecast/basic") ||
@@ -19,7 +22,8 @@ const BottomBarMobile = () => {
       );
     }
 
-    return location.pathname === itemPath;
+    // Default for other menus
+    return location.pathname === item.path;
   };
 
   return (
@@ -29,7 +33,6 @@ const BottomBarMobile = () => {
         zIndex: 3000,
         padding: "0 18px 18px 18px",
       }}>
-      {/* Floating Container */}
       <div
         style={{
           background: "rgba(255, 255, 255, 0.6)",
@@ -44,7 +47,7 @@ const BottomBarMobile = () => {
           border: "1px solid rgba(255,255,255,0.4)",
         }}>
         {menuItems.map((item) => {
-          const active = isActive(item.path);
+          const active = isActive(item);
 
           return (
             <Link
