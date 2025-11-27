@@ -6,6 +6,28 @@ const ProcessingPanel = ({
   setCurrentPollutant,
   onDone,
 }) => {
+  // const callEndpoint = async (path) => {
+  //   if (setIsProcessing) setIsProcessing(true);
+
+  //   try {
+  //     const res = await fetch(`${API_BASE}${path}`, { method: "POST" });
+  //     const data = await res.json();
+
+  //     setForecastProgress(100);
+  //     if (!res.ok) throw new Error(data?.error || "Server error");
+  //     setForecastMessage(
+  //       data?.message || "✅ Forecast completed successfully."
+  //     );
+  //     if (onDone) onDone(data);
+  //   } catch (err) {
+  //     console.error(err);
+  //     setForecastMessage(err.message || "❌ Forecast failed.");
+
+  //     if (onDone) onDone(null);
+  //   } finally {
+  //     setTimeout(() => setIsProcessing(false), 2000);
+  //   }
+  // };
   const callEndpoint = async (path) => {
     if (setIsProcessing) setIsProcessing(true);
 
@@ -14,18 +36,26 @@ const ProcessingPanel = ({
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.error || "Server error");
+
       setForecastMessage(
         data?.message || "✅ Forecast completed successfully."
       );
       setForecastProgress(100);
-      if (onDone) onDone(data);
+
+      setTimeout(() => {
+        setIsProcessing(false);
+
+        if (onDone) onDone(data);
+      }, 800);
     } catch (err) {
       console.error(err);
       setForecastMessage(err.message || "❌ Forecast failed.");
 
-      if (onDone) onDone(null);
-    } finally {
-      setTimeout(() => setIsProcessing(false), 2000);
+      setTimeout(() => {
+        setIsProcessing(false);
+
+        if (onDone) onDone(null); 
+      }, 800);
     }
   };
 
