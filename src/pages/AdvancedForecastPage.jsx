@@ -22,43 +22,32 @@ ChartJS.register(
 
 const API_BASE = "https://api-airq.abiila.com/api/v1";
 
-const BasicForecastPage = () => {
+const AdvancedForecastPage = () => {
   const { pol } = useParams();
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchForecast = async () => {
       try {
-        const res = await fetch(`${API_BASE}/forecast/${pol}`);
-
-        // Handle response error
-        if (!res.ok) {
-          setNoData(true);
-          setNoDataMsg(`⚠ Failed to fetch forecast for ${pol.toUpperCase()}.`);
-          setLoading(false);
-          return;
-        }
-
+        const res = await fetch(`${API_BASE}/forecast/${pol}/advanced`);
         const data = await res.json();
 
         if (!data || data.length === 0) {
           setNoData(true);
           setNoDataMsg(
-            `⚠ No forecast data found for ${pol.toUpperCase()}. Please run Basic Forecast first.`
+            `⚠ No advanced forecast data for ${pol.toUpperCase()}. Please run advanced forecast first.`
           );
-          setLoading(false);
           return;
         }
 
         setForecastData(data);
       } catch (err) {
         setNoData(true);
-        setNoDataMsg(`⚠ Failed to load forecast for ${pol.toUpperCase()}.`);
-      } finally {
-        setLoading(false);
+        setNoDataMsg(
+          `⚠ Failed to load advanced forecast for ${pol.toUpperCase()}.`
+        );
       }
     };
 
@@ -66,26 +55,26 @@ const BasicForecastPage = () => {
   }, [pol]);
 
   // ==========================
-  // CHART
+  // CHART CONFIG
   // ==========================
   const chartData = {
     labels: forecastData.map((d) => d.ds),
     datasets: [
       {
-        label: "yhat",
+        label: "Forecast (yhat)",
         data: forecastData.map((d) => d.yhat),
         borderWidth: 2,
         tension: 0.3,
       },
       {
-        label: "yhat_lower",
+        label: "Lower Bound",
         data: forecastData.map((d) => d.yhat_lower),
         borderWidth: 1,
         borderDash: [5, 5],
         tension: 0.3,
       },
       {
-        label: "yhat_upper",
+        label: "Upper Bound",
         data: forecastData.map((d) => d.yhat_upper),
         borderWidth: 1,
         borderDash: [5, 5],
@@ -104,34 +93,26 @@ const BasicForecastPage = () => {
   return (
     <div className="container py-4">
       <h2 className="fw-bold mb-4 text-center">
-        Basic Forecast Result — {pol.toUpperCase()}
+        Advanced Forecast Result — {pol.toUpperCase()}
       </h2>
 
-      {/* LOADING */}
-      {loading && (
-        <div className="text-center my-5">
-          <div className="spinner-border text-success"></div>
-          <p className="mt-2">Loading forecast...</p>
-        </div>
-      )}
-
-      {/* NO DATA */}
-      {!loading && noData && (
+      {/* ALERT */}
+      {noData && (
         <div className="alert alert-warning text-center mt-4" role="alert">
           {noDataMsg}
         </div>
       )}
 
-      {/* GRAPH */}
-      {!loading && !noData && (
+      {/* CHART */}
+      {!noData && (
         <div className="card p-4 shadow-sm mb-4">
           <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
           <Line data={chartData} options={chartOptions} />
         </div>
       )}
 
-      {/* TABLE */}
-      {!loading && !noData && (
+      {/* FORECAST TABLE */}
+      {!noData && (
         <div className="table-responsive shadow-sm mt-4">
           <table className="table table-bordered table-striped">
             <thead className="table-success">
@@ -141,6 +122,10 @@ const BasicForecastPage = () => {
                 <th>yhat</th>
                 <th>yhat_lower</th>
                 <th>yhat_upper</th>
+                <th>Changepoint Prior</th>
+                <th>Seasonality Prior</th>
+                <th>Holiday Prior</th>
+                <th>MAPE</th>
               </tr>
             </thead>
             <tbody>
@@ -151,6 +136,10 @@ const BasicForecastPage = () => {
                   <td>{row.yhat}</td>
                   <td>{row.yhat_lower}</td>
                   <td>{row.yhat_upper}</td>
+                  <td>{row.changepoint_prior_scale}</td>
+                  <td>{row.seasonality_prior_scale}</td>
+                  <td>{row.holidays_prior_scale}</td>
+                  <td>{row.model_mape?.toFixed(4)}</td>
                 </tr>
               ))}
             </tbody>
@@ -161,4 +150,4 @@ const BasicForecastPage = () => {
   );
 };
 
-export default BasicForecastPage;
+export default AdvancedForecastPage;

@@ -75,6 +75,11 @@ function App() {
             path="/forecast/basic/:pol"
             element={<BasicForecastPage setError={setError} />}
           />
+
+          <Route
+            path="/forecast/basic/:pol"
+            element={<BasicForecastPage setError={setError} />}
+          />
         </Route>
       </Routes>
     </Router>
