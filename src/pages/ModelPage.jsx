@@ -442,7 +442,7 @@ const ModelPage = ({ setError }) => {
 
               <div className="d-flex flex-column justify-content-center align-items-center mb-3">
                 <h5 className="text-center fs-4 fw-bold">
-                  Data Kualitas Udara Kota Bogor
+                  Air Quality Data of Bogor City
                 </h5>
                 <small className="text-muted">
                   Showing {filteredData.length} of {uploadedData.length} records
@@ -577,7 +577,7 @@ const ModelPage = ({ setError }) => {
                           await fetch(`${API_BASE}/model/clear-forecast`, {
                             method: "DELETE",
                           });
-                          
+
                           setBasicProcessed(false);
 
                           setShowClearForecastModal(false);
