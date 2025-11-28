@@ -31,7 +31,7 @@ const BasicForecastPage = () => {
   const [noDataMsg, setNoDataMsg] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // PAGINATION DATA
+  // PAGINATION
   const rowsPerPage = 10;
   const [page, setPage] = useState(1);
 
@@ -64,7 +64,7 @@ const BasicForecastPage = () => {
         }
 
         setForecastData(data);
-      } catch (err) {
+      } catch {
         setNoData(true);
         setNoDataMsg(`⚠ Failed to load forecast for ${pol.toUpperCase()}.`);
       } finally {
@@ -103,7 +103,7 @@ const BasicForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // 🔥 WAJIB SUPAYA TIDAK GEPENG
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
     },
@@ -139,6 +139,7 @@ const BasicForecastPage = () => {
         Basic Forecast Result — {pol.toUpperCase()}
       </h2>
 
+      {/* LOADING */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-success"></div>
@@ -146,21 +147,32 @@ const BasicForecastPage = () => {
         </div>
       )}
 
+      {/* NO DATA */}
       {!loading && noData && (
         <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
       )}
 
+      {/* MAIN CONTENT */}
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
           {/* LEFT — CHART */}
           <div className="flex-grow-1">
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
-              <div style={{ height: "100%" }}>
-                <div className="chart-container-mobile">
-                  <div className="chart-inner">
-                    <Line data={chartData} options={chartOptions} />
-                  </div>
+
+              <div
+                style={{
+                  width: "100%",
+                  overflowX: "auto",
+                  paddingBottom: "10px",
+                }}>
+                <div
+                  style={{
+                    width: "100%",
+                    minWidth: "650px",
+                    height: "420px",
+                  }}>
+                  <Line data={chartData} options={chartOptions} />
                 </div>
               </div>
             </div>
@@ -180,7 +192,7 @@ const BasicForecastPage = () => {
 
             <div
               className="table-responsive"
-              style={{ flexGrow: 1, overflowY: "auto", overflowX: "auto" }}>
+              style={{ flexGrow: 1, overflowY: "auto" }}>
               <table className="table table-bordered table-striped">
                 <thead className="table-success">
                   <tr>
@@ -191,6 +203,7 @@ const BasicForecastPage = () => {
                     <th>yhat_upper</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {currentRows.map((row, i) => (
                     <tr key={i}>
@@ -207,7 +220,7 @@ const BasicForecastPage = () => {
 
             {/* Pagination */}
             <div className="mt-3 text-center">
-              <ul className="pagination pagination-centered justify-content-center">
+              <ul className="pagination justify-content-center">
                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
                   <button
                     className="page-link"

@@ -25,10 +25,12 @@ const API_BASE = "https://api-airq.abiila.com/api/v1";
 const AdvancedForecastPage = () => {
   const { pol } = useParams();
   const navigate = useNavigate();
+
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
 
+  // PAGINATION
   const rowsPerPage = 10;
   const [page, setPage] = useState(1);
 
@@ -54,7 +56,7 @@ const AdvancedForecastPage = () => {
         }
 
         setForecastData(data);
-      } catch (err) {
+      } catch {
         setNoData(true);
         setNoDataMsg(
           `⚠ Failed to load advanced forecast for ${pol.toUpperCase()}.`
@@ -65,6 +67,9 @@ const AdvancedForecastPage = () => {
     fetchForecast();
   }, [pol]);
 
+  // ======================
+  // CHART CONFIG
+  // ======================
   const chartData = {
     labels: forecastData.map((d) => d.ds),
     datasets: [
@@ -93,15 +98,18 @@ const AdvancedForecastPage = () => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // ⬅️ wajib biar height mengikuti container
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: "top" },
+    },
+    scales: {
+      x: { ticks: { maxRotation: 75, minRotation: 45 } },
     },
   };
 
   return (
     <div className="container-fluid py-4" style={{ maxWidth: "1800px" }}>
-      {/* Back Button */}
+      {/* BACK BUTTON */}
       <button
         onClick={() => navigate("/forecast/results")}
         style={{
@@ -126,27 +134,39 @@ const AdvancedForecastPage = () => {
         Advanced Forecast Result — {pol.toUpperCase()}
       </h2>
 
+      {/* NO DATA */}
       {noData && (
         <div className="alert alert-warning text-center">{noDataMsg}</div>
       )}
 
+      {/* CONTENT */}
       {!noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
-          {/* LEFT — CHART */}
+          {/* =================== LEFT — CHART =================== */}
           <div className="flex-grow-1">
             <div className="card p-4 shadow-sm chart-wrapper">
               <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
-              <div style={{ height: "100%" }}>
-                <div className="chart-container-mobile">
-                  <div className="chart-inner">
-                    <Line data={chartData} options={chartOptions} />
-                  </div>
+
+              {/* Scroll if needed */}
+              <div
+                style={{
+                  width: "100%",
+                  overflowX: "auto",
+                  paddingBottom: "10px",
+                }}>
+                <div
+                  style={{
+                    width: "100%",
+                    minWidth: "650px",
+                    height: "420px",
+                  }}>
+                  <Line data={chartData} options={chartOptions} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT — TABLE */}
+          {/* =================== RIGHT — TABLE =================== */}
           <div
             className="card shadow-sm border p-3"
             style={{
@@ -198,9 +218,9 @@ const AdvancedForecastPage = () => {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/* PAGINATION */}
             <div className="mt-3 text-center">
-              <ul className="pagination pagination-centered justify-content-center">
+              <ul className="pagination justify-content-center">
                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
                   <button
                     className="page-link"
