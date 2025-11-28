@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const pollutants = [
   { key: "pm10", label: "PM10" },
@@ -54,14 +55,9 @@ const IspuPage = () => {
   const noData = items.length === 0;
 
   return (
-    <div
-      className="container d-flex flex-column justify-content-start"
-      style={{
-        minHeight: "100vh",
-        marginTop: "80px", // ➜ AGAR MEPET HEADER MODE MOBILE
-      }}>
-      <h3 className="fw-bold text-center mb-2">Forecast Result</h3>
-      <p className="text-center text-muted mb-3">Choose forecast type</p>
+    <div className="container-fluid ispu-page-root animate__animated animate__fadeIn">
+      <h3 className="fw-bold mt-3 mb-2">Forecast Result</h3>
+      <p className="text-muted mb-3">Choose forecast type</p>
 
       {/* ============================== */}
       {/*         TAB SWITCHER           */}
@@ -71,7 +67,15 @@ const IspuPage = () => {
           className={`btn ${
             activeTab === "basic" ? "btn-primary" : "btn-outline-primary"
           }`}
-          style={{ width: "120px", borderRadius: "20px" }}
+          style={{
+            width: "100px",
+            height: "30px",
+            borderRadius: "20px",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           onClick={() => setActiveTab("basic")}>
           Basic
         </button>
@@ -80,7 +84,15 @@ const IspuPage = () => {
           className={`btn ${
             activeTab === "advanced" ? "btn-primary" : "btn-outline-primary"
           }`}
-          style={{ width: "120px", borderRadius: "20px" }}
+          style={{
+            width: "100px",
+            height: "30px",
+            borderRadius: "20px",
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
           onClick={() => setActiveTab("advanced")}>
           Advanced
         </button>

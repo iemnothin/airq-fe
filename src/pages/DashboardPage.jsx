@@ -70,6 +70,7 @@ const DashboardPage = () => {
     const start = performance.now();
     try {
       const res = await fetch("https://api-airq.abiila.com/api/v1/status");
+      // const res = await fetch("http://127.0.0.1:8000/api/v1/status");
       const data = await res.json();
       const end = performance.now();
       setStatus(data);
@@ -98,6 +99,7 @@ const DashboardPage = () => {
       const res = await fetch(
         "https://api-airq.abiila.com/api/v1/status/history"
       );
+      // const res = await fetch("http://127.0.0.1:8000/api/v1/status/history");
       const data = await res.json();
       const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
@@ -111,6 +113,7 @@ const DashboardPage = () => {
       const res = await fetch(
         "https://api-airq.abiila.com/api/v1/activity-log"
       );
+      // const res = await fetch("http://127.0.0.1:8000/api/v1/activity-log");
       const data = await res.json();
       const logs = Array.isArray(data.log) ? data.log : [];
       const sorted = [...logs].sort(
@@ -146,6 +149,10 @@ const DashboardPage = () => {
         method: "POST",
         headers: { admin_key: "AirQ-Admin-2025" },
       });
+      // await fetch("http://127.0.0.1:8000/api/v1/status/restart", {
+      //   method: "POST",
+      //   headers: { admin_key: "AirQ-Admin-2025" },
+      // });
       setRestartMsg({ type: "success", text: "Backend berhasil direstart!" });
       setTimeout(fetchStatus, 5000);
     } catch {
@@ -210,9 +217,10 @@ const DashboardPage = () => {
 
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
           <div className="mb-3">
-            <h4 className="fw-bold text-success mb-1">Dashboard Sistem AirQ</h4>
+            <h4 className="fw-bold text-dark mb-1">AirQ System Monitoring</h4>
             <small className="text-muted">
-              Status sistem, resource log, dan aktivitas model (Realtime).
+              Realtime monitoring of system status, resource logs, and model
+              activities.
             </small>
           </div>
           <div className="d-flex align-items-center gap-2">
@@ -398,7 +406,7 @@ const DashboardPage = () => {
               </Card>
             </Col>
 
-            <Col lg={3}>
+            {/* <Col lg={3}>
               <Card className="shadow-sm border-0 rounded-4 h-100">
                 <Card.Body className="d-flex flex-column">
                   <h6 className="fw-bold text-primary mb-2">Activity Log</h6>
@@ -448,6 +456,73 @@ const DashboardPage = () => {
                         {item.detail && (
                           <small className="text-muted">{item.detail}</small>
                         )}
+                        <small className="text-muted">
+                          {toWIB(item.timestamp)}
+                        </small>
+                      </div>
+                    ))}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col> */}
+            <Col lg={3}>
+              <Card className="shadow-sm border-0 rounded-4 h-100">
+                <Card.Body className="d-flex flex-column">
+                  <h6 className="fw-bold text-primary mb-2">Activity Log</h6>
+
+                  <div className="d-flex flex-wrap gap-1 mb-2">
+                    {[
+                      "all",
+                      "upload",
+                      "delete",
+                      "forecast",
+                      "outlier",
+                      "other",
+                    ].map((f) => (
+                      <Button
+                        key={f}
+                        size="sm"
+                        variant={
+                          activityFilter === f ? "primary" : "outline-secondary"
+                        }
+                        className="rounded-5 py-0"
+                        onClick={() => {
+                          setActivityFilter(f);
+                          setActivityLimit(10);
+                        }}>
+                        {f}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "calc(100vh - 350px)",
+                    }}>
+                    {slicedActivityLog.length === 0 && (
+                      <div className="alert alert-warning text-center py-2">
+                        No activity data exist.
+                      </div>
+                    )}
+
+                    {slicedActivityLog.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={
+                          "activity-log-item p-2 rounded-3 mb-2 " +
+                          (highlightActivityId === item.id
+                            ? "activity-new"
+                            : "")
+                        }>
+                        <div className={`event ${getEventType(item.event)}`}>
+                          {item.event}
+                        </div>
+
+                        {item.detail && (
+                          <small className="text-muted">{item.detail}</small>
+                        )}
+
                         <small className="text-muted">
                           {toWIB(item.timestamp)}
                         </small>
@@ -519,7 +594,7 @@ const DashboardPage = () => {
           {/* Bottom nav */}
           <div className="d-flex justify-content-around border-bottom pt-2 mb-3">
             {[
-              { key: "status", label: "Status Sistem" },
+              { key: "status", label: "System Status" },
               { key: "resource", label: "Resource Log" },
               { key: "activity", label: "Activity Log" },
             ].map((tab) => (
@@ -632,6 +707,12 @@ const DashboardPage = () => {
 
           {mobileTab === "activity" && (
             <div style={{ maxHeight: "30vh", overflowY: "auto" }}>
+              {slicedActivityLog.length === 0 && (
+                <div className="alert alert-warning text-center py-2">
+                  No activity data exist.
+                </div>
+              )}
+
               {slicedActivityLog.map((item, idx) => (
                 <div
                   key={idx}
@@ -642,9 +723,11 @@ const DashboardPage = () => {
                   <div className={`event ${getEventType(item.event)}`}>
                     {item.event}
                   </div>
+
                   {item.detail && (
                     <small className="text-muted">{item.detail}</small>
                   )}
+
                   <small className="text-muted">{toWIB(item.timestamp)}</small>
                 </div>
               ))}

@@ -39,7 +39,8 @@ const MainDataTable = ({
         {showSingleUpload && (
           <div className="mb-4">
             <DragDropUpload
-              apiBase="https://api-airq.abiila.com/api/v1"
+              // apiBase="https://api-airq.abiila.com/api/v1"
+              apiBase="http://127.0.0.1:8000/api/v1"
               onStart={() => {}}
               onProgress={() => {}}
               onDone={handleFileUpload}
@@ -103,7 +104,8 @@ const MainDataTable = ({
           )}
 
           <ProcessingPanel
-            API_BASE="https://api-airq.abiila.com/api/v1"
+            // API_BASE="https://api-airq.abiila.com/api/v1"
+            API_BASE="http://127.0.0.1:8000/api/v1"
             onStart={() => {}}
             onDone={processBasicForecast}
           />

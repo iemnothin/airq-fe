@@ -17,7 +17,8 @@ const LandingPage = () => {
             className="d-flex flex-column align-items-center justify-content-center col-image">
             <div className="hero-image-wrapper animate__animated hero-rise">
               <img
-                src="https://airq.abiila.com/air-no-outline192.png"
+                // src="https://airq.abiila.com/air-no-outline192.png"
+                src="http://localhost:3000/air-no-outline192.png"
                 alt="Air Quality Illustration"
                 className="img-fluid hero-float"
                 style={{

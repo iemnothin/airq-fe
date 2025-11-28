@@ -11,7 +11,8 @@ import ErrorToast from "../components/ErrorToast";
 import DragDropUpload from "../components/DragDropUpload";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const ModelPage = ({ setError }) => {
   const [isClearingForecast, setIsClearingForecast] = useState(false);
@@ -39,6 +40,10 @@ const ModelPage = ({ setError }) => {
   const [activityLog, setActivityLog] = useState([]);
   const [basicProcessed, setBasicProcessed] = useState(false);
   const [advancedProcessed, setAdvancedProcessed] = useState(false);
+  const [advProgress, setAdvProgress] = useState({
+    pollutant: "",
+    percent: 0,
+  });
 
   const navigate = useNavigate();
 
@@ -280,12 +285,41 @@ const ModelPage = ({ setError }) => {
     } catch {}
   };
 
+  useEffect(() => {
+    if (!isProcessing) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/forecast/progress`);
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        setAdvProgress({
+          pollutant: data.current,
+          percent: data.percentage,
+        });
+      } catch (err) {
+        console.warn("Failed to fetch progress");
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [isProcessing]);
+
   return (
-    <>
+    <div className="container-fluid model-page-root animate__animated animate__fadeIn">
       {/* TOAST */}
       <SuccessToast show={showSuccessToast} text={toastMessage} />
       <ErrorToast show={showErrorToast} text={errorMessage} />
 
+      <div className="mt-3 mb-3">
+        <h4 className="fw-bold text-dark mb-1">Modelling</h4>
+        <small className="text-muted">
+          Please upload the dataset and execute the forecasting process using
+          the Facebook Prophet model.
+        </small>
+      </div>
       {/* LOADING OVERLAY */}
       {(isProcessing || isUploadingFile) && (
         <div
@@ -331,7 +365,7 @@ const ModelPage = ({ setError }) => {
         />
 
         {/* ================= INFO CARDS ================= */}
-        {uploadedData.length > 0 && (
+        {/* {uploadedData.length > 0 && (
           <div className="row mb-4">
             <div className="col-12 col-md-4 mb-3">
               <div className="card bg-primary h-100">
@@ -391,6 +425,154 @@ const ModelPage = ({ setError }) => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )} */}
+        {uploadedData.length > 0 && (
+          <div className="row mb-4 d-none d-md-flex">
+            <div className="col-12 col-md-4 mb-3">
+              <div className="card bg-primary h-100">
+                <div className="card-body d-flex align-items-center gap-3">
+                  <i className="fas fa-database fs-2"></i>
+                  <div>
+                    <h5 className="card-title fw-bold">Total Data</h5>
+                    <p className="card-text fs-5">{info.totalData}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12 col-md-4 mb-3">
+              <div
+                className={`card h-100 text-white ${
+                  info.outlierCount === 0 ? "bg-success" : "bg-danger"
+                }`}
+                style={{ cursor: "pointer" }}
+                onClick={handleOutlierClick}>
+                <div className="card-body d-flex align-items-center gap-3">
+                  <i
+                    className={`fas ${
+                      info.outlierCount === 0
+                        ? "fa-check-circle"
+                        : "fa-exclamation-triangle"
+                    } fs-2`}></i>
+                  <div>
+                    <h5 className="card-title fw-bold">Outlier</h5>
+                    <p className="card-text fs-5">
+                      {info.outlierCount === 0
+                        ? "Clear"
+                        : `${info.outlierCount} data`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12 col-md-4 mb-3">
+              <div
+                className={`card h-100 text-white ${
+                  info.nanCount === 0 ? "bg-success" : "bg-warning"
+                }`}>
+                <div className="card-body d-flex align-items-center gap-3">
+                  <i
+                    className={`fas ${
+                      info.nanCount === 0
+                        ? "fa-check-circle"
+                        : "fa-exclamation-triangle"
+                    } fs-2`}></i>
+                  <div>
+                    <h5 className="card-title fw-bold">NaN / Null</h5>
+                    <p className="card-text fs-5">
+                      {info.nanCount === 0 ? "Clear" : `${info.nanCount} data`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {uploadedData.length > 0 && (
+          <div className="mb-3">
+            {/* WRAPPER MOBILE SCROLLABLE */}
+            <div
+              className="d-flex d-md-none gap-2 pb-2"
+              style={{
+                overflowX: "auto",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}>
+              {/* hide scrollbar */}
+              <style>
+                {`
+          div::-webkit-scrollbar { display: none; }
+        `}
+              </style>
+
+              {/* CARD LIST */}
+              {[
+                {
+                  title: "Total Data",
+                  value: info.totalData,
+                  icon: "fa-database",
+                  bg: "bg-primary",
+                  clickable: false,
+                },
+                {
+                  title: "Outlier",
+                  value:
+                    info.outlierCount === 0
+                      ? "Clear"
+                      : `${info.outlierCount} data`,
+                  icon:
+                    info.outlierCount === 0
+                      ? "fa-check-circle"
+                      : "fa-exclamation-triangle",
+                  bg: info.outlierCount === 0 ? "bg-success" : "bg-danger",
+                  clickable: true,
+                  onClick: handleOutlierClick,
+                },
+                {
+                  title: "NaN / Null",
+                  value:
+                    info.nanCount === 0 ? "Clear" : `${info.nanCount} data`,
+                  icon:
+                    info.nanCount === 0
+                      ? "fa-check-circle"
+                      : "fa-exclamation-triangle",
+                  bg: info.nanCount === 0 ? "bg-success" : "bg-warning",
+                  clickable: false,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`card text-white rounded-4 shadow-sm flex-shrink-0 ${item.bg}`}
+                  onClick={item.onClick}
+                  style={{
+                    width: "150px",
+                    minHeight: "85px",
+                    cursor: item.clickable ? "pointer" : "default",
+                  }}>
+                  <div className="card-body d-flex align-items-center gap-2 p-2">
+                    <i className={`fas ${item.icon} fs-1`}></i>
+                    <div>
+                      <div className="fw-bold" style={{ fontSize: "1.15rem" }}>
+                        {item.title}
+                      </div>
+                      <div className="fw-semibold" style={{ fontSize: "1rem" }}>
+                        {item.value}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* DESKTOP GRID */}
+            <div className="row d-none d-md-flex g-2">
+              <div className="col-md-4">{/* Total Data */}</div>
+              <div className="col-md-4">{/* Outlier */}</div>
+              <div className="col-md-4">{/* NAN */}</div>
             </div>
           </div>
         )}
@@ -503,23 +685,55 @@ const ModelPage = ({ setError }) => {
                       setForecastProgress={setForecastProgress}
                       setForecastMessage={setForecastMessage}
                       setCurrentPollutant={setCurrentPollutant}
+                      // onDone={async (mode) => {
+                      //   setIsProcessing(false);
+                      //   await fetchUploadedData();
+
+                      //   if (mode) {
+                      //     setToastMessage(
+                      //       mode === "basic"
+                      //         ? "Basic forecast completed!"
+                      //         : "Advanced forecast completed!"
+                      //     );
+                      //     setShowSuccessToast(true);
+
+                      //     setTimeout(() => setShowSuccessToast(false), 1000);
+
+                      //     if (mode === "basic") setBasicProcessed(true);
+                      //     if (mode === "advanced") setAdvancedProcessed(true);
+                      //   } else {
+                      //     setErrorMessage("Processing failed");
+                      //     setShowErrorToast(true);
+                      //     setTimeout(() => setShowErrorToast(false), 4500);
+                      //   }
+                      // }}
                       onDone={async (mode) => {
                         setIsProcessing(false);
                         await fetchUploadedData();
 
                         if (mode) {
+                          const isBasic = mode === "basic";
+
+                          // Toast
                           setToastMessage(
-                            mode === "basic"
+                            isBasic
                               ? "Basic forecast completed!"
                               : "Advanced forecast completed!"
                           );
                           setShowSuccessToast(true);
-
                           setTimeout(() => setShowSuccessToast(false), 1000);
 
-                          // tandai yg sudah selesai
-                          if (mode === "basic") setBasicProcessed(true);
-                          if (mode === "advanced") setAdvancedProcessed(true);
+                          // Tandai proses selesai
+                          if (isBasic) setBasicProcessed(true);
+                          else setAdvancedProcessed(true);
+
+                          // ⬅️🔥 Kirim Activity Log
+                          await sendActivityLog(
+                            isBasic ? "Basic Forecast" : "Advanced Forecast",
+                            `${
+                              isBasic ? "Basic" : "Advanced"
+                            } forecast processed by user at `
+                          );
                         } else {
                           setErrorMessage("Processing failed");
                           setShowErrorToast(true);
@@ -751,7 +965,7 @@ const ModelPage = ({ setError }) => {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
