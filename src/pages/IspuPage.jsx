@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// const API_BASE = "https://api-airq.abiila.com/api/v1";
-const API_BASE = "http://127.0.0.1:8000/api/v1";
+const API_BASE = "https://api-airq.abiila.com/api/v1";
+// const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const pollutants = [
   { key: "pm10", label: "PM10" },
