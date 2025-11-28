@@ -89,7 +89,7 @@ const ProcessingPanel = ({
         onClick={() => callEndpoint("/model/process-basic")}
         title="Train model basic">
         <i className="fas fa-magic" />
-        Process Basic
+        Train Basic
       </button>
 
       <button
@@ -97,7 +97,7 @@ const ProcessingPanel = ({
         onClick={handleAdvancedForecast}
         title="Train model with holiday, seasonality and tuning">
         <i className="fas fa-cogs" />
-        Process With Parameters
+        Train Advanced
       </button>
     </div>
   );
