@@ -673,7 +673,7 @@ const ModelPage = ({ setError }) => {
                     {(basicProcessed || advancedProcessed) && (
                       <button
                         className="btn btn-info btn-sm d-flex align-items-center gap-2"
-                        onClick={() => navigate("/forecast/basic")}>
+                        onClick={() => navigate("/forecast/results")}>
                         <i className="fas fa-chart-line"></i>
                         View Forecast Result
                       </button>
