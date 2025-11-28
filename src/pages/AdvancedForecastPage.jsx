@@ -30,6 +30,7 @@ const AdvancedForecastPage = () => {
   const [forecastData, setForecastData] = useState([]);
   const [noData, setNoData] = useState(false);
   const [noDataMsg, setNoDataMsg] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // PAGINATION
   const rowsPerPage = 10;
@@ -53,6 +54,7 @@ const AdvancedForecastPage = () => {
           setNoDataMsg(
             `⚠ No advanced forecast data for ${pol.toUpperCase()}. Please run advanced forecast first.`
           );
+          setLoading(false);
           return;
         }
 
@@ -62,6 +64,8 @@ const AdvancedForecastPage = () => {
         setNoDataMsg(
           `⚠ Failed to load advanced forecast for ${pol.toUpperCase()}.`
         );
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -108,47 +112,89 @@ const AdvancedForecastPage = () => {
     },
   };
 
+  const [mobileTab, setMobileTab] = useState("chart");
+
   return (
     <div className="container-fluid py-4" style={{ maxWidth: "1800px" }}>
-      {/* BACK BUTTON */}
-      <button
-        onClick={() => navigate("/forecast/results")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "8px 16px",
-          borderRadius: "12px",
-          background: "rgba(245, 245, 247, 0.6)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(0,0,0,0.08)",
-          color: "#007aff",
-          fontWeight: 500,
-          cursor: "pointer",
-          fontSize: "15px",
-        }}>
-        <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
-        Back to Results
-      </button>
-
-      <h2 className="fw-bold mb-4 text-center">
-        Advanced Forecast Result — {pol.toUpperCase()}
-      </h2>
+      <div className="d-flex flex-row justify-content-between">
+        {/* BACK BUTTON */}
+        <button
+          className="mb-4"
+          onClick={() => navigate("/forecast/results")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            padding: "0px",
+            borderRadius: "15px",
+            background: "rgba(245, 245, 247, 0)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(0, 122, 255, 0)",
+            color: "#007aff",
+            fontWeight: 500,
+            cursor: "pointer",
+            fontSize: "15px",
+          }}>
+          <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
+          Back
+        </button>
+        <div className="text-center">
+          <small className="fw-bold text-center">
+            Advanced Training Result
+          </small>
+          <p className="fw-bold mb-4">{pol.toUpperCase()} Polutant</p>
+        </div>
+      </div>
 
       {/* NO DATA */}
       {noData && (
         <div className="alert alert-warning text-center">{noDataMsg}</div>
       )}
 
-      {/* CONTENT */}
-      {!noData && (
-        <div className="d-flex flex-column flex-lg-row gap-4">
-          {/* =================== LEFT — CHART =================== */}
-          <div className="flex-grow-1">
-            <div className="card p-4 shadow-sm chart-wrapper">
-              <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
+      {/* MOBILE TAB SWITCHER */}
+      <div className="d-lg-none mb-3">
+        <div className="d-flex justify-content-center gap-2">
+          <button
+            className={`btn ${
+              mobileTab === "chart" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            style={{
+              width: "110px",
+              height: "34px",
+              borderRadius: "20px",
+              fontSize: "15px",
+            }}
+            onClick={() => setMobileTab("chart")}>
+            Chart
+          </button>
 
-              {/* Scroll if needed */}
+          <button
+            className={`btn ${
+              mobileTab === "table" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            style={{
+              width: "110px",
+              height: "34px",
+              borderRadius: "20px",
+              fontSize: "15px",
+            }}
+            onClick={() => setMobileTab("table")}>
+            Table
+          </button>
+        </div>
+      </div>
+
+      {/* MAIN CONTENT */}
+      {!loading && !noData && (
+        <div className="d-flex flex-column flex-lg-row gap-4">
+          {/* ============== MOBILE: CHART ONLY IF TAB ============= */}
+          <div
+            className={`d-lg-block ${
+              mobileTab === "chart" ? "d-block" : "d-none"
+            } flex-grow-1`}>
+            <div className="card p-4 shadow-sm chart-wrapper">
+              <h5 className="fw-bold mb-3 text-center">Chart</h5>
+
               <div
                 style={{
                   width: "100%",
@@ -167,9 +213,11 @@ const AdvancedForecastPage = () => {
             </div>
           </div>
 
-          {/* =================== RIGHT — TABLE =================== */}
+          {/* ============== MOBILE: TABLE ONLY IF TAB ============= */}
           <div
-            className="card shadow-sm border p-3"
+            className={`d-lg-block ${
+              mobileTab === "table" ? "d-block" : "d-none"
+            } card shadow-sm border p-3`}
             style={{
               maxWidth: "420px",
               height: "70vh",
@@ -177,15 +225,11 @@ const AdvancedForecastPage = () => {
               display: "flex",
               flexDirection: "column",
             }}>
-            <h5 className="fw-bold mb-3">Forecast Table</h5>
+            <h5 className="fw-bold mb-3">Table</h5>
 
             <div
               className="table-responsive"
-              style={{
-                flexGrow: 1,
-                overflowY: "auto",
-                overflowX: "auto",
-              }}>
+              style={{ flexGrow: 1, overflowY: "auto" }}>
               <table className="table table-bordered table-striped">
                 <thead className="table-success">
                   <tr>
@@ -194,10 +238,6 @@ const AdvancedForecastPage = () => {
                     <th>yhat</th>
                     <th>yhat_lower</th>
                     <th>yhat_upper</th>
-                    <th>Changepoint Prior</th>
-                    <th>Seasonality Prior</th>
-                    <th>Holiday Prior</th>
-                    <th>MAPE</th>
                   </tr>
                 </thead>
 
@@ -209,17 +249,13 @@ const AdvancedForecastPage = () => {
                       <td>{row.yhat}</td>
                       <td>{row.yhat_lower}</td>
                       <td>{row.yhat_upper}</td>
-                      <td>{row.changepoint_prior_scale}</td>
-                      <td>{row.seasonality_prior_scale}</td>
-                      <td>{row.holidays_prior_scale}</td>
-                      <td>{row.model_mape?.toFixed(4)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* PAGINATION */}
+            {/* Pagination */}
             <div className="mt-3 text-center">
               <ul className="pagination justify-content-center">
                 <li className={`page-item ${page === 1 ? "disabled" : ""}`}>

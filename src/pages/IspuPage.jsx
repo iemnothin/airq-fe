@@ -56,7 +56,7 @@ const IspuPage = () => {
 
   return (
     <div className="container-fluid ispu-page-root animate__animated animate__fadeIn">
-      <h3 className="fw-bold mt-3 mb-2">Forecast Result</h3>
+      <h3 className="fw-bold mt-3 mb-2">Train Result</h3>
       <p className="text-muted mb-3">Choose forecast type</p>
 
       {/* ============================== */}

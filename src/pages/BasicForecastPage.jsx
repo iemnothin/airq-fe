@@ -113,32 +113,38 @@ const BasicForecastPage = () => {
     },
   };
 
-  return (
-    <div className="container-fluid py-4" style={{ maxWidth: "1800px" }}>
-      {/* BACK BUTTON */}
-      <button
-        onClick={() => navigate("/forecast/results")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "8px 16px",
-          borderRadius: "12px",
-          background: "rgba(245, 245, 247, 0.6)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(0,0,0,0.08)",
-          color: "#007aff",
-          fontWeight: 500,
-          cursor: "pointer",
-          fontSize: "15px",
-        }}>
-        <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
-        Back to Results
-      </button>
+  const [mobileTab, setMobileTab] = useState("chart");
 
-      <h2 className="fw-bold mb-4 text-center">
-        Basic Forecast Result — {pol.toUpperCase()}
-      </h2>
+  return (
+    <div className="container-fluid py-2" style={{ maxWidth: "1800px" }}>
+      <div className="d-flex flex-row justify-content-between">
+        {/* BACK BUTTON */}
+        <button
+          className="mb-4"
+          onClick={() => navigate("/forecast/results")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            padding: "0px",
+            borderRadius: "15px",
+            background: "rgba(245, 245, 247, 0)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(0, 122, 255, 0)",
+            color: "#007aff",
+            fontWeight: 500,
+            cursor: "pointer",
+            fontSize: "15px",
+          }}>
+          <i className="fas fa-chevron-left" style={{ fontSize: "14px" }}></i>
+          Back
+        </button>
+
+        <div className="text-center">
+          <small className="fw-bold text-center">Basic Training Result</small>
+          <h4 className="fw-bold mb-4">{pol.toUpperCase()} Polutant</h4>
+        </div>
+      </div>
 
       {/* LOADING */}
       {loading && (
@@ -153,13 +159,49 @@ const BasicForecastPage = () => {
         <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
       )}
 
+      {/* MOBILE TAB SWITCHER */}
+      <div className="d-lg-none mb-3">
+        <div className="d-flex justify-content-center gap-2">
+          <button
+            className={`btn ${
+              mobileTab === "chart" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            style={{
+              width: "110px",
+              height: "34px",
+              borderRadius: "20px",
+              fontSize: "15px",
+            }}
+            onClick={() => setMobileTab("chart")}>
+            Chart
+          </button>
+
+          <button
+            className={`btn ${
+              mobileTab === "table" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            style={{
+              width: "110px",
+              height: "34px",
+              borderRadius: "20px",
+              fontSize: "15px",
+            }}
+            onClick={() => setMobileTab("table")}>
+            Table
+          </button>
+        </div>
+      </div>
+
       {/* MAIN CONTENT */}
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
-          {/* LEFT — CHART */}
-          <div className="flex-grow-1">
+          {/* ============== MOBILE: CHART ONLY IF TAB ============= */}
+          <div
+            className={`d-lg-block ${
+              mobileTab === "chart" ? "d-block" : "d-none"
+            } flex-grow-1`}>
             <div className="card p-4 shadow-sm chart-wrapper">
-              <h5 className="fw-bold mb-3 text-center">Forecast Chart</h5>
+              <h5 className="fw-bold mb-3 text-center">Chart</h5>
 
               <div
                 style={{
@@ -179,9 +221,11 @@ const BasicForecastPage = () => {
             </div>
           </div>
 
-          {/* RIGHT — TABLE */}
+          {/* ============== MOBILE: TABLE ONLY IF TAB ============= */}
           <div
-            className="card shadow-sm border p-3"
+            className={`d-lg-block ${
+              mobileTab === "table" ? "d-block" : "d-none"
+            } card shadow-sm border p-3`}
             style={{
               maxWidth: "420px",
               height: "70vh",
@@ -189,7 +233,7 @@ const BasicForecastPage = () => {
               display: "flex",
               flexDirection: "column",
             }}>
-            <h5 className="fw-bold mb-3">Forecast Table</h5>
+            <h5 className="fw-bold mb-3">Table</h5>
 
             <div
               className="table-responsive"
