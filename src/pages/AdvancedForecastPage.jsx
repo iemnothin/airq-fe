@@ -142,7 +142,7 @@ const AdvancedForecastPage = () => {
           <small className="fw-bold text-center">
             Advanced Training Result
           </small>
-          <p className="fw-bold mb-4">{pol.toUpperCase()} Polutant</p>
+          <h4 className="fw-bold mb-4">{pol.toUpperCase()} Polutant</h4>
         </div>
       </div>
 
