@@ -47,6 +47,8 @@ const ProcessingPanel = ({
     setForecastProgress(0);
     setCurrentPollutant("");
 
+    let eventCount = 0;
+    let maxEvents = 3000;
     const evtSource = new EventSource(`${API_BASE}/model/process-advanced`);
     window.currentForecastStream = evtSource;
 
@@ -54,31 +56,41 @@ const ProcessingPanel = ({
       const data = JSON.parse(event.data);
 
       if (data.status === "start") {
-        setForecastMessage(data.message);
         setForecastProgress(0);
+        setForecastMessage(data.message);
+        return;
       }
 
       if (data.status === "processing") {
         setCurrentPollutant(data.pollutant);
-        setForecastMessage(`Processing ${data.pollutant}...`);
-        setForecastProgress(data.progress);
+        setForecastMessage(`Processing ${data.pollutant}`);
+
+        eventCount++;
+
+        const percent = Math.min(100, (eventCount / maxEvents) * 100);
+        setForecastProgress(percent);
+
+        return;
       }
 
       if (data.status === "done") {
         setForecastMessage(`Completed ${data.pollutant}`);
-        setForecastProgress(data.progress);
+        return;
       }
 
       if (data.status === "complete") {
-        setForecastMessage("All advanced forecasts completed!");
         setForecastProgress(100);
+        setForecastMessage("🎉 All advanced forecasts completed!");
+
         evtSource.close();
         window.currentForecastStream = null;
 
         setTimeout(() => {
           setIsProcessing(false);
           if (onDone) onDone("advanced");
-        }, 800);
+        }, 700);
+
+        return;
       }
     };
 
