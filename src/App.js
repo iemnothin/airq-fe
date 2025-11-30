@@ -17,7 +17,7 @@ import ContainerPage from "./pages/ContainerPage";
 import { useState } from "react";
 import IspuPage from "./pages/IspuPage";
 import BasicForecastPage from "./pages/BasicForecastPage";
-import AdvancedForecastPage from "./pages/AdvancedForecastPage"; // <--- WAJIB ADA
+import AdvancedForecastPage from "./pages/AdvancedForecastPage";
 
 import LoadingScreen from "./components/LoadingScreen";
 import BackendErrPage from "./pages/BackendErrPage";

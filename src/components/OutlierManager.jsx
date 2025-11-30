@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import OutlierModal from "./OutlierModal";
 import { fetchOutliers, handleOutliers } from "../helpers/OutlierHelper";
 

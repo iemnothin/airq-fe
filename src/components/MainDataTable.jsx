@@ -1,6 +1,5 @@
 import DragDropUpload from "./DragDropUpload";
 import ProcessingPanel from "./ProcessingPanel";
-import ConfirmModal from "./ConfirmModal";
 
 const MainDataTable = ({
   uploadedData,

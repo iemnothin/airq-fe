@@ -1,5 +1,3 @@
-import React from "react";
-
 const ChartCircle = ({ value }) => {
   const radius = 18;
   const stroke = 4;

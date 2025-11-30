@@ -69,8 +69,8 @@ const DashboardPage = () => {
   const fetchStatus = async () => {
     const start = performance.now();
     try {
-      const res = await fetch("https://api-airq.abiila.com/api/v1/status");
-      // const res = await fetch("http://127.0.0.1:8000/api/v1/status");
+      // const res = await fetch("https://api-airq.abiila.com/api/v1/status");
+      const res = await fetch("http://127.0.0.1:8000/api/v1/status");
       const data = await res.json();
       const end = performance.now();
       setStatus(data);
@@ -96,10 +96,10 @@ const DashboardPage = () => {
 
   const fetchTimeline = async () => {
     try {
-      const res = await fetch(
-        "https://api-airq.abiila.com/api/v1/status/history"
-      );
-      // const res = await fetch("http://127.0.0.1:8000/api/v1/status/history");
+      // const res = await fetch(
+      //   "https://api-airq.abiila.com/api/v1/status/history"
+      // );
+      const res = await fetch("http://127.0.0.1:8000/api/v1/status/history");
       const data = await res.json();
       const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
@@ -110,10 +110,10 @@ const DashboardPage = () => {
 
   const fetchActivityLog = async () => {
     try {
-      const res = await fetch(
-        "https://api-airq.abiila.com/api/v1/activity-log"
-      );
-      // const res = await fetch("http://127.0.0.1:8000/api/v1/activity-log");
+      // const res = await fetch(
+      //   "https://api-airq.abiila.com/api/v1/activity-log"
+      // );
+      const res = await fetch("http://127.0.0.1:8000/api/v1/activity-log");
       const data = await res.json();
       const logs = Array.isArray(data.log) ? data.log : [];
       const sorted = [...logs].sort(

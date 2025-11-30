@@ -279,31 +279,8 @@ const ModelPage = ({ setError }) => {
     } catch {}
   };
 
-  useEffect(() => {
-    if (!isProcessing) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`${API_BASE}/forecast/progress`);
-        if (!res.ok) return;
-
-        const data = await res.json();
-
-        setAdvProgress({
-          pollutant: data.current,
-          percent: data.percentage,
-        });
-      } catch (err) {
-        console.warn("Failed to fetch progress");
-      }
-    }, 800);
-
-    return () => clearInterval(interval);
-  }, [isProcessing]);
-
   return (
     <div className="container-fluid model-page-root animate__animated animate__fadeIn">
-      
       <SuccessToast show={showSuccessToast} text={toastMessage} />
       <ErrorToast show={showErrorToast} text={errorMessage} />
 
@@ -314,7 +291,7 @@ const ModelPage = ({ setError }) => {
           the Facebook Prophet model.
         </small>
       </div>
-      
+
       {(isProcessing || isUploadingFile) && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
@@ -487,7 +464,6 @@ const ModelPage = ({ setError }) => {
 
         {uploadedData.length > 0 && (
           <div className="mb-3">
-            
             <div
               className="d-flex d-md-none gap-2 pb-2"
               style={{
@@ -495,7 +471,6 @@ const ModelPage = ({ setError }) => {
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
               }}>
-              
               <style>
                 {`
                   div::-webkit-scrollbar { display: none; }

@@ -18,7 +18,6 @@ const BottomBarMobile = () => {
       );
     }
 
-    // Default for other menus
     return location.pathname === item.path;
   };
 
