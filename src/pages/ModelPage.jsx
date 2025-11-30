@@ -763,7 +763,7 @@ const ModelPage = ({ setError }) => {
                     <ConfirmModal
                       show={showDeleteModal}
                       onClose={() => setShowDeleteModal(false)}
-                      title="Confirm Delete All Data"
+                      title="Confirm"
                       message="Are you sure you want to delete all data?"
                       confirmText="Yes, I'm sure"
                       loading={isDeletingAll}
@@ -773,7 +773,7 @@ const ModelPage = ({ setError }) => {
                     <ConfirmModal
                       show={showClearForecastModal}
                       onClose={() => setShowClearForecastModal(false)}
-                      title="Confirm Clear Forecast"
+                      title="Confirm"
                       message="Are you sure you want to clear forecast data?"
                       confirmText="Yes, delete it"
                       loading={isClearingForecast}
