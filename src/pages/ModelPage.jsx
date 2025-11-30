@@ -11,8 +11,8 @@ import ErrorToast from "../components/ErrorToast";
 import DragDropUpload from "../components/DragDropUpload";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
-// const API_BASE = "http://127.0.0.1:8000/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const ModelPage = ({ setError }) => {
   const [isClearingForecast, setIsClearingForecast] = useState(false);
@@ -82,14 +82,12 @@ const ModelPage = ({ setError }) => {
     return `${dayName}, ${day} ${month} ${year}`;
   };
 
-  // Info cards
   const [info, setInfo] = useState({
     totalData: 0,
     outlierClear: true,
     nanClear: true,
   });
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
@@ -106,7 +104,6 @@ const ModelPage = ({ setError }) => {
     suhu: "Suhu",
   };
 
-  // Fungsi untuk kirim log aktivitas ke backend
   const sendActivityLog = async (event, detail = "") => {
     try {
       await fetch(`${API_BASE}/activity-log/add`, {
@@ -119,7 +116,6 @@ const ModelPage = ({ setError }) => {
     }
   };
 
-  // FETCH DATA & INFO
   const fetchUploadedData = async () => {
     try {
       const resData = await fetch(`${API_BASE}/data`);
@@ -208,7 +204,6 @@ const ModelPage = ({ setError }) => {
     ];
   };
 
-  // HANDLE OUTLIER
   const handleOutlierClick = async () => {
     try {
       const data = await fetchOutliers(API_BASE);
@@ -219,7 +214,6 @@ const ModelPage = ({ setError }) => {
     }
   };
 
-  // DELETE ALL DATA
   const handleDeleteAll = async () => {
     setIsDeletingAll(true);
     try {
@@ -309,7 +303,7 @@ const ModelPage = ({ setError }) => {
 
   return (
     <div className="container-fluid model-page-root animate__animated animate__fadeIn">
-      {/* TOAST */}
+      
       <SuccessToast show={showSuccessToast} text={toastMessage} />
       <ErrorToast show={showErrorToast} text={errorMessage} />
 
@@ -320,7 +314,7 @@ const ModelPage = ({ setError }) => {
           the Facebook Prophet model.
         </small>
       </div>
-      {/* LOADING OVERLAY */}
+      
       {(isProcessing || isUploadingFile) && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
@@ -364,7 +358,6 @@ const ModelPage = ({ setError }) => {
           onClose={() => setShowNoFileModal(false)}
         />
 
-        {/* ================= INFO CARDS ================= */}
         {/* {uploadedData.length > 0 && (
           <div className="row mb-4">
             <div className="col-12 col-md-4 mb-3">
@@ -494,7 +487,7 @@ const ModelPage = ({ setError }) => {
 
         {uploadedData.length > 0 && (
           <div className="mb-3">
-            {/* WRAPPER MOBILE SCROLLABLE */}
+            
             <div
               className="d-flex d-md-none gap-2 pb-2"
               style={{
@@ -502,14 +495,13 @@ const ModelPage = ({ setError }) => {
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
               }}>
-              {/* hide scrollbar */}
+              
               <style>
                 {`
-          div::-webkit-scrollbar { display: none; }
-        `}
+                  div::-webkit-scrollbar { display: none; }
+                `}
               </style>
 
-              {/* CARD LIST */}
               {[
                 {
                   title: "Total Data",
@@ -568,7 +560,6 @@ const ModelPage = ({ setError }) => {
               ))}
             </div>
 
-            {/* DESKTOP GRID */}
             <div className="row d-none d-md-flex g-2">
               <div className="col-md-4">{/* Total Data */}</div>
               <div className="col-md-4">{/* Outlier */}</div>
@@ -577,11 +568,9 @@ const ModelPage = ({ setError }) => {
           </div>
         )}
 
-        {/* ================= UPLOAD & TABLE ================= */}
         {uploadedData.length > 0 ? (
           <div className="bg-white p-4 rounded shadow-sm">
             <div className="table-side">
-              {/* Single Upload Section */}
               <div
                 className="overflow-hidden"
                 style={{
@@ -632,7 +621,6 @@ const ModelPage = ({ setError }) => {
                 </small>
               </div>
 
-              {/* Search & Action Toolbar */}
               <div className="action-toolbar bg-white rounded p-2 mb-3 shadow-sm flex-wrap">
                 <div className="search-toolbar d-flex flex-wrap align-items-center gap-2 mb-2 mb-md-0">
                   <label className="fw-bold text-secondary mb-0">
@@ -714,7 +702,6 @@ const ModelPage = ({ setError }) => {
                         if (mode) {
                           const isBasic = mode === "basic";
 
-                          // Toast
                           setToastMessage(
                             isBasic
                               ? "Basic forecast completed!"
@@ -723,11 +710,9 @@ const ModelPage = ({ setError }) => {
                           setShowSuccessToast(true);
                           setTimeout(() => setShowSuccessToast(false), 1000);
 
-                          // Tandai proses selesai
                           if (isBasic) setBasicProcessed(true);
                           else setAdvancedProcessed(true);
 
-                          // ⬅️🔥 Kirim Activity Log
                           await sendActivityLog(
                             isBasic ? "Basic Forecast" : "Advanced Forecast",
                             `${
@@ -742,7 +727,6 @@ const ModelPage = ({ setError }) => {
                       }}
                     />
 
-                    {/* HANDLE OUTLIER BUTTON */}
                     <button
                       className="btn btn-warning btn-sm d-flex align-items-center gap-2"
                       disabled={info.outlierCount === 0 || isHandlingOutlier}
@@ -751,7 +735,6 @@ const ModelPage = ({ setError }) => {
                       {isHandlingOutlier ? "Processing..." : "Handle Outlier"}
                     </button>
 
-                    {/* Clear Forecast */}
                     <button
                       className="btn btn-danger btn-sm d-flex align-items-center gap-2"
                       onClick={() => setShowClearForecastModal(true)}
@@ -760,7 +743,6 @@ const ModelPage = ({ setError }) => {
                       {isClearingForecast ? "Clearing..." : "Clear Forecast"}
                     </button>
 
-                    {/* Delete All Data */}
                     <button
                       className="btn btn-danger btn-sm d-flex align-items-center gap-2"
                       onClick={() => setShowDeleteModal(true)}
@@ -769,7 +751,6 @@ const ModelPage = ({ setError }) => {
                       {isDeletingAll ? "Deleting..." : "Delete All"}
                     </button>
 
-                    {/* Confirm Modals */}
                     <ConfirmModal
                       show={showDeleteModal}
                       onClose={() => setShowDeleteModal(false)}
@@ -822,7 +803,6 @@ const ModelPage = ({ setError }) => {
                 )}
               </div>
 
-              {/* TABLE */}
               <div
                 className="table-responsive shadow-sm rounded-3 border mt-3"
                 style={{ maxHeight: "500px" }}>
@@ -867,7 +847,6 @@ const ModelPage = ({ setError }) => {
                 </table>
               </div>
 
-              {/* Pagination + Rows control */}
               <div className="table-footer-controls">
                 <div className="rows-select-wrapper">
                   <select

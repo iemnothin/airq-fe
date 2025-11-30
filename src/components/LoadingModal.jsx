@@ -1,5 +1,3 @@
-// src/components/LoadingModal.jsx
-import React from "react";
 import "../css/ProcessingModal.css"; 
 
 const LoadingModal = ({ show, text = "Processing..." }) => {

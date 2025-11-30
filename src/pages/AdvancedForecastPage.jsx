@@ -20,8 +20,8 @@ ChartJS.register(
   Legend
 );
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
-// const API_BASE = "http://127.0.0.1:8000/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const AdvancedForecastPage = () => {
   const { pol } = useParams();
@@ -72,9 +72,6 @@ const AdvancedForecastPage = () => {
     fetchForecast();
   }, [pol]);
 
-  // ======================
-  // CHART CONFIG
-  // ======================
   const chartData = {
     labels: forecastData.map((d) => d.ds),
     datasets: [
@@ -146,12 +143,10 @@ const AdvancedForecastPage = () => {
         </div>
       </div>
 
-      {/* NO DATA */}
       {noData && (
         <div className="alert alert-warning text-center">{noDataMsg}</div>
       )}
 
-      {/* MOBILE TAB SWITCHER */}
       <div className="d-lg-none mb-3">
         <div className="d-flex justify-content-center gap-2">
           <button
@@ -184,7 +179,6 @@ const AdvancedForecastPage = () => {
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
           {/* ============== MOBILE: CHART ONLY IF TAB ============= */}

@@ -1,4 +1,3 @@
-// src/hooks/useForecastActions.js
 import { useState } from "react";
 
 const useForecastActions = (API_BASE, refreshData) => {

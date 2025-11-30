@@ -1,5 +1,3 @@
-// src/components/ForecastResultModal.jsx
-import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const ForecastResultModal = ({ show, onClose, result }) => {

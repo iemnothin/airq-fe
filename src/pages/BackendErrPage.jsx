@@ -44,7 +44,6 @@ const BackendErrPage = ({ message, onRetry }) => {
     else setEasterEvent("normal");
   }, []);
 
-  // ✅ Jika belum pilih dunia → tampilkan UI pilihan
   if (!selectedWorld) {
     return (
       <div className="isekai-select-wrapper">
@@ -69,7 +68,6 @@ const BackendErrPage = ({ message, onRetry }) => {
     );
   }
 
-  // ✅ WORLD SELECTED → tampilkan halaman isekai error tema sesuai dunia
   const world = worlds[selectedWorld];
 
   return (

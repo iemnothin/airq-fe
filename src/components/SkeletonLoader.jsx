@@ -1,8 +1,5 @@
-import React from "react";
 import "../css/SkeletonLoader.css";
-/* ======================================================
-   ✅ 1. PREMIUM Skeleton untuk TODAY CARD
-   ====================================================== */
+
 export const SkeletonLoader = () => {
   return (
     <div className="col-12 col-sm-6 mb-3 fade-in">
@@ -37,9 +34,6 @@ export const SkeletonLoader = () => {
   );
 };
 
-/* ======================================================
-   ✅ 2. PREMIUM Skeleton untuk DAILY FORECAST HORIZONTAL
-   ====================================================== */
 export const SkeletonLoaderForecast = ({ count = 7 }) => {
   return (
     <div className="d-flex overflow-auto py-2 fade-in">
@@ -76,9 +70,6 @@ export const SkeletonLoaderForecast = ({ count = 7 }) => {
   );
 };
 
-/* ======================================================
-   ✅ 3. PREMIUM Skeleton untuk MAIN POLLUTANT CARD
-   ====================================================== */
 export const SkeletonMainPollutant = () => {
   return (
     <div className="mb-3 fade-in">

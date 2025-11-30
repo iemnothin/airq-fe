@@ -1,6 +1,3 @@
-// src/pages/ErrorPage.jsx
-import React from "react";
-
 export default function ErrorPage({ code = 500, message = "Internal Server Error" }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center">

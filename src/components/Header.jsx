@@ -1,4 +1,3 @@
-import React from "react";
 import { SkeletonMainPollutant } from "./SkeletonLoader";
 
 const Header = ({
@@ -13,10 +12,8 @@ const Header = ({
   return (
     <header className="row d-flex justify-content-center justify-content-md-between align-items-start my-4 text-center">
       <div className="col-md-6 text-md-start">
-        {/* Title Page */}
         <h3 className="mb-2">Kualitas Udara di Kota Bogor</h3>
 
-        {/* Description Page */}
         <p className="text-muted" style={{ fontSize: "12px" }}>
           Indeks kualitas udara di Kota Bogor
           <span className="text-muted mx-1">•</span>
@@ -27,7 +24,6 @@ const Header = ({
           })}
         </p>
 
-        {/* Prediction Button (Desktop) */}
         <button
           onClick={() => setShowModal(true)}
           className="btn btn-sm my-2 d-md-block d-none"
@@ -57,7 +53,6 @@ const Header = ({
               .map(({ pollutant, timestamp, prediction }) => {
                 const color = getColorByISPU(prediction);
                 const level = getLevelByISPU(prediction);
-                // Polutan Utama
                 return (
                   <div key={pollutant} className="mb-3">
                     <div
@@ -120,7 +115,6 @@ const Header = ({
         </div>
       </div>
 
-      {/* Prediction Button (Mobile) */}
       <div className="col-md-6 d-flex justify-content-center">
         <button
           onClick={() => setShowModal(true)}
@@ -134,7 +128,6 @@ const Header = ({
   );
 };
 
-// Helper function for polutan description
 function getPollutantDescription(pollutant) {
   switch (pollutant) {
     case "CO":

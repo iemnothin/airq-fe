@@ -1,4 +1,3 @@
-// src/hooks/useFileUpload.js
 import { useState } from "react";
 
 const useFileUpload = (API_BASE, refreshData, setOutliers) => {

@@ -8,10 +8,8 @@ const LandingPage = () => {
 
   return (
     <div className="min-vh-100 d-flex flex-column justify-content-center align-items-center text-center text-dark">
-      {/* ================= HERO SECTION ================= */}
       <Container className="animate__animated animate__fadeInUp mb-5">
         <Row className="align-items-center g-5 hero-row">
-          {/* Hero Image */}
           <Col
             md={6}
             className="d-flex flex-column align-items-center justify-content-center col-image">
@@ -32,7 +30,6 @@ const LandingPage = () => {
             <h1 className="text-primary fw-bold mt-3">AirQ</h1>
           </Col>
 
-          {/* Hero Text */}
           <Col md={6} className="text-md-start text-center col-text">
             <h1 className="fw-bold text-success display-5 mb-3 lh-sm">
               Selamat Datang di <span className="text-dark">AirQ</span>
@@ -56,7 +53,6 @@ const LandingPage = () => {
         </Row>
       </Container>
 
-      {/* ================= UCAPAN TERIMA KASIH ================= */}
       <Container
         className="mt-4 bg-white d-none d-md-block rounded-md-4 shadow-sm p-4 p-sm-5 animate__animated animate__fadeInUp"
         style={{ maxWidth: "900px" }}>
@@ -99,7 +95,6 @@ const LandingPage = () => {
         </ol>
       </Container>
 
-      {/* ================= FOOTER ================= */}
       <footer className="mt-5 text-muted small text-center">
         <p className="mb-0">© {new Date().getFullYear()} AirQ | abiila</p>
       </footer>

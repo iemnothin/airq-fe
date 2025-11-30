@@ -19,7 +19,6 @@ const SidebarResponsive = ({ show, onClose }) => {
     { name: "ISPU", icon: "fa-wind", path: "/forecast/results", type: "fa" },
   ];
 
-  // Helper active state
   const isActive = (itemPath) => {
     if (itemPath === "/forecast/results") {
       return location.pathname.startsWith("/forecast/results");

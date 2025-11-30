@@ -10,10 +10,6 @@ const BottomBarMobile = () => {
   ];
 
   const isActive = (item) => {
-    // === ISPU MENU IS ACTIVE WHEN ===
-    // /forecast/results
-    // /forecast/basic/:pol
-    // /forecast/advanced/:pol
     if (item.name === "ISPU") {
       return (
         location.pathname.startsWith("/forecast/results") ||

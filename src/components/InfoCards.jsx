@@ -1,5 +1,3 @@
-import React from "react";
-
 const InfoCards = ({ info, onOutlierClick }) => {
   return (
     <div className="row mb-4">
@@ -16,7 +14,6 @@ const InfoCards = ({ info, onOutlierClick }) => {
         </div>
       </div>
 
-      {/* Outlier */}
       <div className="col-12 col-md-4 mb-3">
         <div
           className={`card h-100 text-white ${
@@ -43,7 +40,6 @@ const InfoCards = ({ info, onOutlierClick }) => {
         </div>
       </div>
 
-      {/* NaN */}
       <div className="col-12 col-md-4 mb-3">
         <div
           className={`card h-100 text-white ${

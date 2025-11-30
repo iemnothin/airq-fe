@@ -1,4 +1,3 @@
-// src/helpers/OutlierHelper.jsx
 export const fetchOutliers = async (API_BASE) => {
   try {
     const res = await fetch(`${API_BASE}/data/outliers`);

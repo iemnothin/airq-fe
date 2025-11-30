@@ -1,4 +1,3 @@
-import React from "react";
 import DragDropUpload from "./DragDropUpload";
 
 const InitialUpload = ({ handleFileUpload, pushSuccess, pushError }) => {

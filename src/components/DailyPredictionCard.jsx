@@ -1,4 +1,3 @@
-import React from "react";
 import { SkeletonLoaderForecast } from "./SkeletonLoader";
 
 // const SkeletonLoader = () => {

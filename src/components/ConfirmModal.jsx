@@ -1,6 +1,3 @@
-// src/components/ConfirmModal.jsx
-import React from "react";
-
 const ConfirmModal = ({
   show,
   title,
@@ -24,7 +21,6 @@ const ConfirmModal = ({
         className="modal-dialog modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
-          {/* HEADER */}
           <div className="modal-header bg-danger">
             <h4 className="modal-title w-100 text-center text-dark">
               {title}
@@ -36,12 +32,10 @@ const ConfirmModal = ({
             />
           </div>
 
-          {/* BODY */}
           <div className="modal-body text-center">
             <h5 className="text-dark">{message}</h5>
           </div>
 
-          {/* FOOTER */}
           <div className="modal-footer d-flex justify-content-center gap-3">
             <button className="btn btn-secondary" onClick={onClose}>
               {cancelText}

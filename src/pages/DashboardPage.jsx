@@ -49,7 +49,7 @@ const DashboardPage = () => {
   const [highlightActivityId, setHighlightActivityId] = useState(null);
 
   const [showLimit, setShowLimit] = useState(10);
-  const [mobileTab, setMobileTab] = useState("status"); // NEW TAB
+  const [mobileTab, setMobileTab] = useState("status"); 
 
   const [techModal, setTechModal] = useState({
     show: false,
@@ -145,14 +145,14 @@ const DashboardPage = () => {
   const restartBackend = async () => {
     setRestarting(true);
     try {
-      await fetch("https://api-airq.abiila.com/api/v1/status/restart", {
-        method: "POST",
-        headers: { admin_key: "AirQ-Admin-2025" },
-      });
-      // await fetch("http://127.0.0.1:8000/api/v1/status/restart", {
+      // await fetch("https://api-airq.abiila.com/api/v1/status/restart", {
       //   method: "POST",
       //   headers: { admin_key: "AirQ-Admin-2025" },
       // });
+      await fetch("http://127.0.0.1:8000/api/v1/status/restart", {
+        method: "POST",
+        headers: { admin_key: "AirQ-Admin-2025" },
+      });
       setRestartMsg({ type: "success", text: "Backend berhasil direstart!" });
       setTimeout(fetchStatus, 5000);
     } catch {
@@ -243,7 +243,6 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* ===== DESKTOP LAYOUT ===== */}
         <div className="d-none d-lg-block">
           <Row className="g-3 mb-3">
             {[
@@ -535,9 +534,7 @@ const DashboardPage = () => {
           </Row>
         </div>
 
-        {/* ===== MOBILE UI (Shopee style tabs) ===== */}
         <div className="d-lg-none">
-          {/* Grafik Versi Mobile */}
           <div className="d-md-none mt-3 mb-3">
             <Card className="shadow-sm border-0 rounded-4">
               <Card.Body className="p-3">
@@ -591,7 +588,6 @@ const DashboardPage = () => {
             </Card>
           </div>
 
-          {/* Bottom nav */}
           <div className="d-flex justify-content-around border-bottom pt-2 mb-3">
             {[
               { key: "status", label: "System Status" },
@@ -612,7 +608,6 @@ const DashboardPage = () => {
             ))}
           </div>
 
-          {/* Tab Content */}
           {mobileTab === "status" && (
             <Row className="g-2">
               {[

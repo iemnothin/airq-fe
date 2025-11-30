@@ -25,14 +25,12 @@ const ForecastPage = ({ setError }) => {
   const [loading, setLoading] = useState(false);
   const [selectedPollutant, setSelectedPollutant] = useState(null);
 
-  // ✅ Deteksi error dari hooks (awal fetch)
   useEffect(() => {
     if (aqError || forecastError || mapeError) {
       setError("⚠️ Backend tidak dapat dijangkau. Pastikan server berjalan.");
     }
   }, [aqError, forecastError, mapeError, setError]);
 
-  // ✅ Function prediksi
   const getPrediction = async () => {
     if (!selectedDate) return alert("Pilih tanggal terlebih dahulu.");
 
@@ -60,7 +58,6 @@ const ForecastPage = ({ setError }) => {
     } catch (err) {
       console.error("PREDICT ERROR:", err);
 
-      // ✅ Jika backend mati
       if (err.code === "ERR_NETWORK") {
         setError("⚠️ Backend offline. Mohon jalankan server FastAPI.");
       }

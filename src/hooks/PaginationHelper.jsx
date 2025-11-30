@@ -1,4 +1,3 @@
-// src/hooks/PaginationHelper.jsx
 import { useState } from "react";
 
 const usePagination = (data = []) => {

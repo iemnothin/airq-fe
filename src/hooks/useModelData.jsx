@@ -1,4 +1,3 @@
-// src/hooks/useModelData.js
 import { useEffect, useState } from "react";
 
 const useModelData = (API_BASE) => {
@@ -12,7 +11,6 @@ const useModelData = (API_BASE) => {
   });
   const [searchDate, setSearchDate] = useState("");
 
-  // Fetch data & info
   const refreshData = async () => {
     try {
       const resData = await fetch(`${API_BASE}/data`);
@@ -27,12 +25,10 @@ const useModelData = (API_BASE) => {
     }
   };
 
-  // First load
   useEffect(() => {
     refreshData();
   }, []);
 
-  // Filter data by date
   const filteredData = uploadedData.filter((row) => {
     if (!searchDate) return true;
     return row.waktu.split("T")[0] === searchDate;

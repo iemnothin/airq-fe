@@ -1,4 +1,3 @@
-// src/hooks/useOutlierActions.js
 import { useState } from "react";
 import { fetchOutliers } from "../../helpers/OutlierHelper";
 
@@ -7,7 +6,6 @@ const useOutlierActions = (API_BASE, refreshData, setError) => {
   const [showOutlierModal, setShowOutlierModal] = useState(false);
   const [isHandlingOutlier, setIsHandlingOutlier] = useState(false);
 
-  // open modal
   const openOutlierModal = async () => {
     try {
       const data = await fetchOutliers(API_BASE);
@@ -18,7 +16,6 @@ const useOutlierActions = (API_BASE, refreshData, setError) => {
     }
   };
 
-  // Handle outlier process
   const handleOutlierProcessing = async (pushSuccess, pushError) => {
     setIsHandlingOutlier(true);
     try {

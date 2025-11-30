@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
-// const API_BASE = "http://127.0.0.1:8000/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const pollutants = [
   { key: "pm10", label: "PM10" },
@@ -19,7 +19,7 @@ const IspuPage = () => {
 
   const [basicMap, setBasicMap] = useState({});
   const [advMap, setAdvMap] = useState({});
-  const [activeTab, setActiveTab] = useState("basic"); // DEFAULT BASIC
+  const [activeTab, setActiveTab] = useState("basic");
 
   useEffect(() => {
     const checkData = async () => {
@@ -46,7 +46,6 @@ const IspuPage = () => {
   const handleBasic = (key) => navigate(`/forecast/basic/${key}`);
   const handleAdvanced = (key) => navigate(`/forecast/advanced/${key}`);
 
-  // ITEMS BY TAB
   const items =
     activeTab === "basic"
       ? pollutants.filter((p) => basicMap[p.key])
@@ -59,9 +58,6 @@ const IspuPage = () => {
       <h3 className="fw-bold mt-3 mb-2">Train Result</h3>
       <p className="text-muted mb-3">Choose forecast type</p>
 
-      {/* ============================== */}
-      {/*         TAB SWITCHER           */}
-      {/* ============================== */}
       <div className="d-flex justify-content-center gap-2 mb-4">
         <button
           className={`btn ${
@@ -98,18 +94,12 @@ const IspuPage = () => {
         </button>
       </div>
 
-      {/* ============================== */}
-      {/*            NO DATA             */}
-      {/* ============================== */}
       {noData && (
         <div className="alert alert-warning text-center">
           No {activeTab} forecast found.
         </div>
       )}
 
-      {/* ============================== */}
-      {/*            CARDS               */}
-      {/* ============================== */}
       {!noData && (
         <div className="row g-3 justify-content-center">
           {items.map((p) => (
@@ -132,7 +122,6 @@ const IspuPage = () => {
                 }>
                 <h4 className="fw-bold mb-2">{p.label}</h4>
 
-                {/* BADGE SESUAI TAB */}
                 {activeTab === "basic" && (
                   <span className="badge bg-success">Basic</span>
                 )}

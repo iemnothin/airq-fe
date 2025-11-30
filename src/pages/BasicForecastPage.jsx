@@ -20,8 +20,8 @@ ChartJS.register(
   Legend
 );
 
-const API_BASE = "https://api-airq.abiila.com/api/v1";
-// const API_BASE = "http://127.0.0.1:8000/api/v1";
+// const API_BASE = "https://api-airq.abiila.com/api/v1";
+const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const BasicForecastPage = () => {
   const { pol } = useParams();
@@ -32,7 +32,6 @@ const BasicForecastPage = () => {
   const [noDataMsg, setNoDataMsg] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // PAGINATION
   const rowsPerPage = 10;
   const [page, setPage] = useState(1);
 
@@ -118,7 +117,6 @@ const BasicForecastPage = () => {
   return (
     <div className="container-fluid py-2" style={{ maxWidth: "1800px" }}>
       <div className="d-flex flex-row justify-content-between">
-        {/* BACK BUTTON */}
         <button
           className="mb-4"
           onClick={() => navigate("/forecast/results")}
@@ -146,7 +144,6 @@ const BasicForecastPage = () => {
         </div>
       </div>
 
-      {/* LOADING */}
       {loading && (
         <div className="text-center my-5">
           <div className="spinner-border text-success"></div>
@@ -154,12 +151,10 @@ const BasicForecastPage = () => {
         </div>
       )}
 
-      {/* NO DATA */}
       {!loading && noData && (
         <div className="alert alert-warning text-center mt-4">{noDataMsg}</div>
       )}
 
-      {/* MOBILE TAB SWITCHER */}
       <div className="d-lg-none mb-3">
         <div className="d-flex justify-content-center gap-2">
           <button
@@ -192,7 +187,6 @@ const BasicForecastPage = () => {
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
       {!loading && !noData && (
         <div className="d-flex flex-column flex-lg-row gap-4">
           {/* ============== MOBILE: CHART ONLY IF TAB ============= */}

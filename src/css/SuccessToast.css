@@ -14,7 +14,6 @@
   z-index: 2000;
 }
 
-/* Check circle */
 .success-check svg {
   width: 32px;
   height: 32px;
@@ -24,14 +23,12 @@
   stroke-linejoin: round;
 }
 
-/* Draw animation */
 .success-checkmark {
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
   animation: drawCheck 0.6s ease forwards;
 }
 
-/* Text */
 .success-text {
   font-size: 18px;
 }

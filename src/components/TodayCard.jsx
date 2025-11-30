@@ -1,4 +1,3 @@
-import React from "react";
 import { SkeletonLoader } from "./SkeletonLoader";
 
 const TodayCard = ({
@@ -13,14 +12,12 @@ const TodayCard = ({
   return (
     <section className="my-2 col-md-6 col-lg-6">
       <div className="row">
-        {/* Card 1 */}
+        
         <div className="card p-0">
-          {/* Card Title 1 */}
           <h6 className="card-title text-start mt-3 mb-0 mx-3">
             Polutan Udara Hari Ini
           </h6>
 
-          {/* Card Content 1 */}
           <div className="card-body mt-0">
             <div className="row">
               {Object.keys(currentAirQuality).length === 0 ? (
@@ -158,9 +155,7 @@ const TodayCard = ({
             </div>
           </div>
         </div>
-        {/* End of Card 1 */}
-
-        {/* Modal Card 1 */}
+        
         {showModal && selectedPollutant && (
           <div
             className="modal fade show"
@@ -424,7 +419,6 @@ const TodayCard = ({
             </div>
           </div>
         )}
-        {/* End of Modal Card 1 */}
       </div>
     </section>
   );

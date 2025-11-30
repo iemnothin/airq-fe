@@ -1,4 +1,3 @@
-// src/components/SuccessToast.jsx
 import "../css/SuccessToast.css";
 
 const SuccessToast = ({ show, text }) => {

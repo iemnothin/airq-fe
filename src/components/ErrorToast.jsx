@@ -1,4 +1,3 @@
-// src/components/ErrorToast.jsx
 import "../css/ErrorToast.css";
 
 const ErrorToast = ({ show, text }) => {

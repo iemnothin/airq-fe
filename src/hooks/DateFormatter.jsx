@@ -1,4 +1,3 @@
-// src/hooks/DateFormatter.js
 const formatFullDate = (value) => {
   const date = new Date(value);
 

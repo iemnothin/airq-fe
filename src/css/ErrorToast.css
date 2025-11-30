@@ -21,7 +21,6 @@
   font-weight: 600;
 }
 
-/* Slide dari kanan */
 @keyframes slideLeft {
   from {
     opacity: 0;
@@ -33,7 +32,6 @@
   }
 }
 
-/* Animasi shake */
 @keyframes shake {
   0% {
     transform: translateX(0);

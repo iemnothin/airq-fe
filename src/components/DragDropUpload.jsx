@@ -1,17 +1,6 @@
 import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 
-/**
- * DragDropUpload
- *
- * Props:
- * - apiBase (string) : base API URL, e.g. "http://localhost:8000/api/v1"
- * - onStart()        : optional callback saat upload mulai
- * - onProgress(pct)  : optional callback progress (0-100)
- * - onDone(response) : optional callback ketika upload sukses (response JSON)
- * - onError(err)     : optional callback ketika error
- * - accept (string)  : file accept string, default ".csv"
- */
 const DragDropUpload = ({
   apiBase,
   onStart = () => {},
@@ -50,7 +39,6 @@ const DragDropUpload = ({
     xhr.onload = async () => {
       try {
         if (xhr.status !== 200) {
-          // try parse json message
           let msg = "Upload failed";
           try {
             const j = JSON.parse(xhr.responseText);
@@ -67,7 +55,7 @@ const DragDropUpload = ({
         }
         onProgress(100);
         setFilename(null);
-        setTimeout(() => onProgress(0), 500); // reset progress in parent maybe
+        setTimeout(() => onProgress(0), 500); 
         onDone(parsed);
       } catch (err) {
         onError(err);

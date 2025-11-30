@@ -1,4 +1,3 @@
-// src/components/OutlierManager.jsx
 import React, { useEffect, useState } from "react";
 import OutlierModal from "./OutlierModal";
 import { fetchOutliers, handleOutliers } from "../helpers/OutlierHelper";
@@ -21,8 +20,8 @@ const OutlierManager = ({ API_BASE }) => {
     setLoading(true);
     const res = await handleOutliers(API_BASE);
 
-    console.log(res.message); // optional: show toast
-    await loadOutliers(); // refresh outlier list
+    console.log(res.message); 
+    await loadOutliers(); 
     setShowModal(false);
     setLoading(false);
   };
@@ -33,7 +32,6 @@ const OutlierManager = ({ API_BASE }) => {
 
   return (
     <div>
-      {/* Tombol di atas tabel */}
       {outliers.length > 0 && (
         <button
           className="btn btn-warning mb-3"
@@ -45,13 +43,12 @@ const OutlierManager = ({ API_BASE }) => {
         </button>
       )}
 
-      {/* Modal Outlier */}
       <OutlierModal
         show={showModal}
         onClose={() => setShowModal(false)}
         outliers={outliers}
         onHandle={handleOutlierProcess}
-        loading={loading} // tambahkan ini
+        loading={loading} 
       />
     </div>
   );

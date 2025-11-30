@@ -45,33 +45,26 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing */}
         <Route path="/" element={<LandingPage />} />
 
-        {/* Page Container */}
         <Route element={<ContainerPage />}>
-          {/* Dashboard */}
           <Route
             path="/dashboard"
             element={<DashboardPage setError={setError} />}
           />
 
-          {/* Model */}
           <Route path="/model" element={<ModelPage setError={setError} />} />
 
-          {/* Forecast Result List */}
           <Route
             path="/forecast/results"
             element={<IspuPage setError={setError} />}
           />
 
-          {/* BASIC FORECAST DETAIL */}
           <Route
             path="/forecast/basic/:pol"
             element={<BasicForecastPage setError={setError} />}
           />
 
-          {/* ADVANCED FORECAST DETAIL */}
           <Route
             path="/forecast/advanced/:pol"
             element={<AdvancedForecastPage setError={setError} />}

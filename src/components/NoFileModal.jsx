@@ -1,5 +1,4 @@
-// src/components/NoFileModal.jsx
-import "../css/NoFileModal.css"; // Tambahkan CSS animasi
+import "../css/NoFileModal.css"; 
 
 const NoFileModal = ({ show, onClose }) => {
   if (!show) return null;

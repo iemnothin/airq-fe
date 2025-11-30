@@ -1,23 +1,19 @@
-/* BackendErrPage.css — REVISED robust version */
-
-/* Ensure html / body allow 100% height (helps full-screen backgrounds) */
 html,
 body,
 #root {
   height: 100%;
 }
 
-/* ROOT WRAPPER — full viewport, fixed so it overlays everything */
 .isekai-wrapper {
   position: fixed !important;
-  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  inset: 0; 
   width: 100vw;
   height: 100vh;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* very high so it sits above app UI */
+  z-index: 9999; 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: radial-gradient(
@@ -27,13 +23,12 @@ body,
   );
 }
 
-/* Portal background (big blurred gradient) */
 .isekai-portal {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 160vmax; /* huge so it always covers */
+  width: 160vmax; 
   height: 160vmax;
   border-radius: 50%;
   pointer-events: none;
@@ -50,7 +45,6 @@ body,
   animation: portalRotate 18s linear infinite;
 }
 
-/* Portal rotate */
 @keyframes portalRotate {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
@@ -60,7 +54,6 @@ body,
   }
 }
 
-/* Core card — semi-opaque, centered, high z-index */
 .isekai-card {
   z-index: 99999;
   min-width: 320px;
@@ -84,7 +77,6 @@ body,
   gap: 10px;
 }
 
-/* Title and icon */
 .isekai-icon {
   font-size: 46px !important;
   line-height: 1;
@@ -99,23 +91,17 @@ body,
   color: #fff;
   letter-spacing: -0.5px;
 }
-
-/* Chibi backend small block */
 .chibi-backend {
   font-size: 1.05rem;
   color: #f2f2ff;
   opacity: 0.95;
 }
-
-/* Message text */
 .isekai-message {
   color: #eef2ff;
   opacity: 0.95;
   font-size: 0.98rem;
   margin: 6px 0 0 0;
 }
-
-/* Retry button — strong contrast */
 .retry-btn {
   margin-top: 10px;
   width: 100%;
@@ -134,8 +120,6 @@ body,
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(255, 75, 75, 0.22);
 }
-
-/* Truck-kun and slime must be above portal but below card? ensure visibility */
 .truckkun,
 .slime,
 .ultra-rare-hero,
@@ -144,8 +128,6 @@ body,
   z-index: 9990;
   pointer-events: none;
 }
-
-/* Truck animation improved (start off-screen left) */
 .truckkun {
   left: -25%;
   bottom: 14vh;
@@ -158,8 +140,6 @@ body,
     transform: translateX(220vw);
   }
 }
-
-/* Slime jiggle */
 .slime {
   right: 8%;
   bottom: 18vh;
@@ -178,8 +158,6 @@ body,
     transform: translateY(0) scale(1);
   }
 }
-
-/* Ultra rare flash */
 .ultra-rare-hero {
   top: 12%;
   left: 50%;
@@ -196,8 +174,6 @@ body,
     opacity: 1;
   }
 }
-
-/* Falling sword — ensure front of card */
 .falling-sword {
   right: 45%;
   top: -80px;
@@ -215,8 +191,6 @@ body,
     opacity: 1;
   }
 }
-
-/* RPG box */
 .rpg-box {
   width: 100%;
   max-width: 420px;
@@ -243,7 +217,6 @@ body,
   background: linear-gradient(90deg, #ff5d6c, #ff3d6b);
 }
 
-/* Small helper */
 .animate_card {
   animation: cardPop 0.6s cubic-bezier(0.16, 0.9, 0.34, 0.99);
 }
@@ -257,8 +230,6 @@ body,
     opacity: 1;
   }
 }
-
-/* WORLD THEMES (stronger backgrounds) */
 .world-fantasy {
   background: linear-gradient(135deg, #022b1a, #074f3a) !important;
 }
@@ -272,7 +243,6 @@ body,
   background: linear-gradient(135deg, #0b1a2a, #111827) !important;
 }
 
-/* Selection screen style guard (if used) */
 .world-grid {
   display: grid;
   gap: 16px;
@@ -298,12 +268,11 @@ body,
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
-/* Responsive tweaks */
 @media (max-width: 640px) {
   .isekai-select-wrapper {
-    overflow-y: auto; /* ✅ aktifkan scroll vertikal */
-    padding-bottom: 80px; /* ✅ beri ruang biar tidak nabrak bawah */
-    -webkit-overflow-scrolling: touch; /* ✅ smooth scroll di iOS */
+    overflow-y: auto; 
+    padding-bottom: 80px; 
+    -webkit-overflow-scrolling: touch; 
   }
   .isekai-card {
     padding: 18px;
@@ -329,24 +298,21 @@ body,
     right: 40%;
   }
   .world-grid {
-    max-height: 75vh; /* ✅ grid tidak melebihi layar */
-    overflow-y: auto; /* ✅ gridnya sendiri bisa scroll */
-    padding-right: 4px; /* ✅ menghindari layout shift */
+    max-height: 75vh; 
+    overflow-y: auto; 
+    padding-right: 4px; 
   }
 }
 
-/* Safety: ensure high specificity for critical visual elements if bootstrap overrides them */
 .isekai-wrapper .isekai-card {
   background-clip: padding-box;
 }
 
-/* World choose icons */
 .world-icon {
   font-size: 42px;
   margin-bottom: 8px;
 }
 
-/* World names */
 .world-name {
   font-size: 1.4rem;
   font-weight: 700;
@@ -354,14 +320,12 @@ body,
   color: #fff;
 }
 
-/* World descriptions */
 .world-desc {
   font-size: 0.9rem;
   opacity: 0.85;
   color: #e7e7e7;
 }
 
-/* Ultra rare silhouette */
 .hero-silhouette {
   width: 80px;
   height: 120px;
@@ -377,7 +341,6 @@ body,
   text-shadow: 0 0 12px #ff7bff;
 }
 
-/* Float animation for icon */
 .floaty {
   animation: floaty 2.2s ease-in-out infinite;
 }
@@ -394,10 +357,9 @@ body,
   }
 }
 
-/* FULLSCREEN MODE for world selection */
 .isekai-select-wrapper {
   position: fixed;
-  inset: 0; /* top:0; bottom:0; left:0; right:0 */
+  inset: 0; 
   width: 100vw;
   height: 100vh;
   background: linear-gradient(135deg, #0b0b19, #111122);
@@ -406,11 +368,10 @@ body,
   justify-content: center;
   align-items: center;
   padding: 28px;
-  z-index: 99999; /* sama tinggi dengan isekai-wrapper */
+  z-index: 99999; 
   color: #fff;
 }
 
-/* OPTIONAL: Add a nice portal glow background */
 .isekai-select-wrapper::before {
   content: "";
   position: absolute;

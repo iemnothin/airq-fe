@@ -1,4 +1,3 @@
-import React from "react";
 import DragDropUpload from "./DragDropUpload";
 import ProcessingPanel from "./ProcessingPanel";
 import ConfirmModal from "./ConfirmModal";
@@ -29,7 +28,6 @@ const MainDataTable = ({
 }) => {
   return (
     <div className="bg-white p-4 rounded shadow-sm">
-      {/* Upload section */}
       <div
         className="overflow-hidden"
         style={{
@@ -50,7 +48,6 @@ const MainDataTable = ({
         )}
       </div>
 
-      {/* Table header */}
       <div className="text-center mb-3">
         <h5 className="fw-bold fs-4">Data Kualitas Udara Kota Bogor</h5>
         <small className="text-muted">
@@ -58,9 +55,7 @@ const MainDataTable = ({
         </small>
       </div>
 
-      {/* Toolbar */}
       <div className="action-toolbar bg-white rounded p-2 mb-3 shadow-sm flex-wrap">
-        {/* Search date */}
         <div className="search-toolbar d-flex gap-2">
           <label className="fw-bold text-secondary">Search by Date:</label>
           <input
@@ -83,7 +78,6 @@ const MainDataTable = ({
           )}
         </div>
 
-        {/* Right buttons */}
         <div className="d-flex flex-wrap justify-content-end gap-2">
           <button
             className="btn btn-sm btn-outline-primary"
@@ -118,7 +112,6 @@ const MainDataTable = ({
         </div>
       </div>
 
-      {/* TABLE */}
       <div className="table-responsive shadow-sm rounded-3 border mt-3">
         <table className="table table-bordered table-striped">
           <thead className="table-success">
@@ -150,7 +143,6 @@ const MainDataTable = ({
         </table>
       </div>
 
-      {/* PAGINATION */}
       <div className="table-footer-controls">
         <select
           className="form-select rows-select"
