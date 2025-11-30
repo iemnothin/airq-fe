@@ -303,9 +303,43 @@ const ModelPage = ({ setError }) => {
           <div
             className="spinner-border text-light"
             style={{ width: "4rem", height: "4rem" }}></div>
+
           <p className="mt-3 text-white fs-5 fw-semibold">
             {isProcessing ? "Processing model..." : "Uploading file..."}
           </p>
+
+          {isProcessing && (
+            <div className="text-center mt-3" style={{ width: "260px" }}>
+              <p
+                className="text-white fw-bold mb-2"
+                style={{ fontSize: "1rem" }}>
+                {currentPollutant
+                  ? `Now Processing ${currentPollutant}`
+                  : "Preparing..."}
+              </p>
+
+              <div className="progress">
+                <div
+                  className="progress-bar bg-loader-primary"
+                  role="progressbar"
+                  style={{
+                    width: `${forecastProgress}%`,
+                    transition: "width 0.3s ease",
+                  }}
+                  aria-valuenow={forecastProgress}
+                  aria-valuemin="0"
+                  aria-valuemax="100">
+                  {forecastProgress}%
+                </div>
+              </div>
+
+              {/* <p
+                className="text-white mt-2 mb-0"
+                style={{ fontSize: "0.9rem" }}>
+                {forecastMessage}
+              </p> */}
+            </div>
+          )}
 
           {isUploadingFile && uploadProgress > 0 && (
             <div className="progress mt-2" style={{ width: "200px" }}>

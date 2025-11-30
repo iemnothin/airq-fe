@@ -7,43 +7,47 @@ const ProcessingPanel = ({
   onDone,
 }) => {
   const callEndpoint = async (path) => {
-    if (setIsProcessing) setIsProcessing(true);
+    setIsProcessing(true);
+    setForecastProgress(0);
+    setForecastMessage("Starting basic forecast...");
+    setCurrentPollutant("");
 
     try {
       const res = await fetch(`${API_BASE}${path}`, { method: "POST" });
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.detail || "Server error");
 
-      if (!res.ok) throw new Error(data?.error || "Server error");
+      let pct = 0;
+      const timer = setInterval(() => {
+        pct += 10;
+        if (pct > 100) pct = 100;
+        setForecastProgress(pct);
 
-      setForecastMessage(
-        data?.message || "✅ Forecast completed successfully."
-      );
-      setForecastProgress(100);
-
-      setTimeout(() => {
-        setIsProcessing(false);
-
-        if (onDone) onDone("basic");
-      }, 1000);
+        if (pct === 100) {
+          clearInterval(timer);
+          setForecastMessage(data?.message || "Basic forecast completed!");
+          setTimeout(() => {
+            setIsProcessing(false);
+            if (onDone) onDone("basic");
+          }, 800);
+        }
+      }, 150);
     } catch (err) {
-      console.error(err);
-      setForecastMessage(err.message || "❌ Forecast failed.");
-
+      setForecastMessage(err.message || "Basic forecast failed");
       setTimeout(() => {
         setIsProcessing(false);
         if (onDone) onDone(null);
-      }, 1000);
+      }, 800);
     }
   };
 
   const handleAdvancedForecast = () => {
-    if (setIsProcessing) setIsProcessing(true);
-    setForecastMessage("🔄 Starting advanced forecast...");
+    setIsProcessing(true);
+    setForecastMessage("Starting advanced forecast...");
     setForecastProgress(0);
     setCurrentPollutant("");
 
     const evtSource = new EventSource(`${API_BASE}/model/process-advanced`);
-
     window.currentForecastStream = evtSource;
 
     evtSource.onmessage = (event) => {
@@ -52,32 +56,36 @@ const ProcessingPanel = ({
       if (data.status === "start") {
         setForecastMessage(data.message);
         setForecastProgress(0);
-      } else if (data.status === "processing") {
+      }
+
+      if (data.status === "processing") {
         setCurrentPollutant(data.pollutant);
-        setForecastMessage(`Processing ${data.pollutant}`);
+        setForecastMessage(`Processing ${data.pollutant}...`);
         setForecastProgress(data.progress);
-      } else if (data.status === "done") {
+      }
+
+      if (data.status === "done") {
         setForecastMessage(`Completed ${data.pollutant}`);
         setForecastProgress(data.progress);
-      } else if (data.status === "complete") {
-        setForecastProgress(100);
-        setForecastMessage("🎉 All advanced forecasts completed!");
+      }
 
+      if (data.status === "complete") {
+        setForecastMessage("All advanced forecasts completed!");
+        setForecastProgress(100);
         evtSource.close();
         window.currentForecastStream = null;
 
         setTimeout(() => {
           setIsProcessing(false);
           if (onDone) onDone("advanced");
-        }, 1000);
+        }, 800);
       }
     };
 
     evtSource.onerror = () => {
-      setForecastMessage("❌ Connection lost or backend stopped.");
-      setIsProcessing(false);
-
+      setForecastMessage("Connection lost or backend stopped.");
       evtSource.close();
+      setIsProcessing(false);
       window.currentForecastStream = null;
     };
   };
@@ -86,16 +94,14 @@ const ProcessingPanel = ({
     <div className="d-flex align-items-center gap-2">
       <button
         className="btn btn-sketch-primary btn-sm d-flex align-items-center gap-2"
-        onClick={() => callEndpoint("/model/process-basic")}
-        title="Train model basic">
+        onClick={() => callEndpoint("/model/process-basic")}>
         <i className="fas fa-magic" />
         Train Basic
       </button>
 
       <button
         className="btn btn-sketch-secondary btn-sm d-flex align-items-center gap-2"
-        onClick={handleAdvancedForecast}
-        title="Train model with holiday, seasonality and tuning">
+        onClick={handleAdvancedForecast}>
         <i className="fas fa-cogs" />
         Train Advanced
       </button>

@@ -34,3 +34,8 @@
   background-color: #cff4fc !important;
   color: #055160 !important;
 }
+
+.bg-loader-primary {
+  background-color: #084298 !important;
+  color: #cce5ff !important;
+}
