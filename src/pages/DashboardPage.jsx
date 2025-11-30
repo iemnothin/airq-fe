@@ -49,7 +49,7 @@ const DashboardPage = () => {
   const [highlightActivityId, setHighlightActivityId] = useState(null);
 
   const [showLimit, setShowLimit] = useState(10);
-  const [mobileTab, setMobileTab] = useState("status"); 
+  const [mobileTab, setMobileTab] = useState("status");
 
   const [techModal, setTechModal] = useState({
     show: false,
@@ -96,10 +96,10 @@ const DashboardPage = () => {
 
   const fetchTimeline = async () => {
     try {
-      // const res = await fetch(
-      //   "https://api-airq.abiila.com/api/v1/status/history"
-      // );
-      const res = await fetch("http://127.0.0.1:8000/api/v1/status/history");
+      const res = await fetch(
+        "https://api-airq.abiila.com/api/v1/status/history"
+      );
+      // const res = await fetch("http://127.0.0.1:8000/api/v1/status/history");
       const data = await res.json();
       const sorted = [...(data.history || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
@@ -110,10 +110,10 @@ const DashboardPage = () => {
 
   const fetchActivityLog = async () => {
     try {
-      // const res = await fetch(
-      //   "https://api-airq.abiila.com/api/v1/activity-log"
-      // );
-      const res = await fetch("http://127.0.0.1:8000/api/v1/activity-log");
+      const res = await fetch(
+        "https://api-airq.abiila.com/api/v1/activity-log"
+      );
+      // const res = await fetch("http://127.0.0.1:8000/api/v1/activity-log");
       const data = await res.json();
       const logs = Array.isArray(data.log) ? data.log : [];
       const sorted = [...logs].sort(
@@ -145,14 +145,14 @@ const DashboardPage = () => {
   const restartBackend = async () => {
     setRestarting(true);
     try {
-      // await fetch("https://api-airq.abiila.com/api/v1/status/restart", {
-      //   method: "POST",
-      //   headers: { admin_key: "AirQ-Admin-2025" },
-      // });
-      await fetch("http://127.0.0.1:8000/api/v1/status/restart", {
+      await fetch("https://api-airq.abiila.com/api/v1/status/restart", {
         method: "POST",
         headers: { admin_key: "AirQ-Admin-2025" },
       });
+      // await fetch("http://127.0.0.1:8000/api/v1/status/restart", {
+      //   method: "POST",
+      //   headers: { admin_key: "AirQ-Admin-2025" },
+      // });
       setRestartMsg({ type: "success", text: "Backend berhasil direstart!" });
       setTimeout(fetchStatus, 5000);
     } catch {

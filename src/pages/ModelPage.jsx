@@ -11,8 +11,8 @@ import ErrorToast from "../components/ErrorToast";
 import DragDropUpload from "../components/DragDropUpload";
 import { useNavigate } from "react-router-dom";
 
-// const API_BASE = "https://api-airq.abiila.com/api/v1";
-const API_BASE = "http://127.0.0.1:8000/api/v1";
+const API_BASE = "https://api-airq.abiila.com/api/v1";
+// const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const ModelPage = ({ setError }) => {
   const [isClearingForecast, setIsClearingForecast] = useState(false);

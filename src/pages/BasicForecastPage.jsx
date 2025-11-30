@@ -20,8 +20,8 @@ ChartJS.register(
   Legend
 );
 
-// const API_BASE = "https://api-airq.abiila.com/api/v1";
-const API_BASE = "http://127.0.0.1:8000/api/v1";
+const API_BASE = "https://api-airq.abiila.com/api/v1";
+// const API_BASE = "http://127.0.0.1:8000/api/v1";
 
 const BasicForecastPage = () => {
   const { pol } = useParams();
