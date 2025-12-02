@@ -21,13 +21,11 @@ const ConfirmModal = ({
         className="modal-dialog modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
-          <div className="modal-header bg-danger">
-            <h4 className="modal-title w-100 text-center text-dark">
-              {title}
-            </h4>
+          <div className="modal-header bg-danger position-relative">
+            <h4 className="modal-title text-dark">{title}</h4>
             <button
               type="button"
-              className="btn-close position-absolute end-0 me-3"
+              className="btn-close text-end m-0"
               onClick={onClose}
             />
           </div>
